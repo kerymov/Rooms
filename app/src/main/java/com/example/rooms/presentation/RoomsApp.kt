@@ -1,59 +1,105 @@
 package com.example.rooms.presentation
 
+import com.example.rooms.presentation.viewModels.RoomViewModel
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.rooms.data.models.Room
-import com.example.rooms.data.models.UserLoginData
-import com.example.rooms.data.network.RetrofitInstance
 import com.example.rooms.presentation.navigation.Screen
+import com.example.rooms.presentation.screens.RoomScreen
 import com.example.rooms.presentation.screens.RoomsScreen
 import com.example.rooms.presentation.screens.SignInScreen
 import com.example.rooms.presentation.screens.SignUpScreen
-import com.example.rooms.presentation.theme.ChangeSystemBarsColors
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import com.example.rooms.presentation.viewModels.AccountViewModel
+import com.example.rooms.presentation.viewModels.RoomsViewModel
 
 @Composable
 fun RoomsApp(
-    navController: NavHostController = rememberNavController()
+    accountViewModel: AccountViewModel = viewModel(),
+    roomsViewModel: RoomsViewModel = viewModel(),
+    navController: NavHostController = rememberNavController(),
 ) {
+    val roomsUiState by roomsViewModel.uiState.collectAsState()
     NavHost(
         navController = navController,
-        startDestination = Screen.SIGN_IN.name,
+        startDestination = Screen.ROOMS.name,
         modifier = Modifier.fillMaxSize()
     ) {
         composable(route = Screen.SIGN_IN.name) {
             SignInScreen(
                 onSignInClick = { login, password ->
-                    CoroutineScope(Dispatchers.Default).launch {
-                        val a = RetrofitInstance.accountApi.signIn(UserLoginData(login, password))
-                    }
+                    var result = false
+
+                    accountViewModel.login(
+                        login = login,
+                        password = password,
+                        onSuccess = {
+                            navController.navigate(Screen.ROOMS.name)
+                            result = true
+                        },
+                        onFailure = {
+                            result = false
+                        }
+                    )
+
+                    return@SignInScreen result
+                },
+                onSignUpClick = {
+                    navController.navigate(Screen.SIGN_UP.name)
                 }
             )
         }
         composable(route = Screen.SIGN_UP.name) {
-            SignUpScreen()
+            SignUpScreen(
+                onSignUpClick = { login, password -> true },
+                onSignInClick = {
+                    navController.navigate(Screen.SIGN_IN.name)
+                }
+            )
         }
         composable(route = Screen.ROOMS.name) {
-
+            RoomsScreen(
+                roomsViewModel = roomsViewModel,
+                onRoomCardClick = { room ->
+                    navController.navigate(Screen.ROOM.name + "/${room.id}")
+                },
+                onCreateRoomClick = {}
+            )
         }
         composable(
             route = Screen.ROOM.name + "/{roomId}",
-            arguments = listOf(navArgument("roomId") { type = NavType.LongType })
+            arguments = listOf(navArgument("roomId") { type = NavType.StringType })
         ) { backStackEntry ->
+            val roomId = backStackEntry.arguments?.getString("roomId")
+            roomId?.let {
+                roomsViewModel.getRoomById(it)
+            } ?: return@composable
 
+            val room = roomsUiState.currentRoom ?: return@composable
+            val roomViewModel = viewModel<RoomViewModel>(
+                factory = object : ViewModelProvider.Factory {
+                    @Suppress("UNCHECKED_CAST")
+                    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                        return RoomViewModel(room) as T
+                    }
+                }
+            )
+            RoomScreen(
+                roomViewModel = roomViewModel,
+                onNavigationButtonClick = { navController.popBackStack() },
+                onActionButtonClick = { navController.navigate(Screen.RESULTS.name) }
+            )
         }
         composable(route = Screen.RESULTS.name) {
 
@@ -64,5 +110,5 @@ fun RoomsApp(
 @Preview
 @Composable
 private fun RoomsAppPreview() {
-    RoomsApp()
+//    RoomsApp(listOf())
 }

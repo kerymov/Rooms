@@ -1,39 +1,45 @@
 package com.example.rooms.presentation.viewModels
 
+import android.util.Log
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.rooms.data.remote.RetrofitInstance
+import com.example.rooms.data.remote.rooms.models.Room
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+
+data class RoomsUiState(
+    val rooms: List<Room> = listOf(),
+    val currentRoom: Room? = null
+)
 
 class RoomsViewModel : ViewModel() {
 
-//    var rooms: List<Room> = listOf()
-//
-//    private val _uiState = MutableStateFlow(RoomsUiState(rooms))
-//    val uiState: StateFlow<RoomsUiState> = _uiState.asStateFlow()
-//
-//    fun addRoom(room: Room) {
-//        _uiState.update { currentState ->
-//            currentState.copy(
-//                rooms = currentState.rooms + room
-//            )
-//        }
-//    }
+    private val _uiState = MutableStateFlow(RoomsUiState())
+    val uiState: StateFlow<RoomsUiState> = _uiState.asStateFlow()
 
-//    fun getRooms() {
-//        viewModelScope.launch {
-//            withContext(Dispatchers.IO) {
-//                rooms = RetrofitInstance.roomsApi.getRooms()
-//                val response = try {
-//                    RetrofitInstance.roomsApi.getRooms()
-//                } catch (e: Exception) {
-//                    Log.e("tag", e.message ?: "")
-//                    null
-//                }
-//
-//                if (response?.isSuccessful == true && response.body() != null) {
-//                    rooms = response.body()!!.rooms
-//                }
-//            }
-//        }
-//    }
+    init {
+        getRooms()
+    }
 
-//    fun getRoomById(id: Long) = _uiState.value.rooms[0]
+    private fun getRooms() {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val response = RetrofitInstance.roomsApi.getRooms()
+                val rooms = response.body() ?: listOf()
+                _uiState.value = _uiState.value.copy(rooms = rooms)
+            } catch (e: Exception) {
+                Log.e("TAG", "Exception during request -> ${e.localizedMessage}")
+            }
+        }
+    }
+
+    fun getRoomById(id: String) {
+        val room = _uiState.value.rooms.find { it.id == id }
+        _uiState.value = _uiState.value.copy(currentRoom = room)
+    }
 }

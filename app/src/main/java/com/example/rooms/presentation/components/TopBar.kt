@@ -38,7 +38,7 @@ fun TopBar(
     horizontalArrangement = Arrangement.SpaceBetween,
     modifier = modifier
         .fillMaxWidth()
-        .height(48.dp)
+        .height(56.dp)
         .padding(horizontal = 20.dp)
 ) {
     Box(

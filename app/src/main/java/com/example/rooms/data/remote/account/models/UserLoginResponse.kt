@@ -1,4 +1,4 @@
-package com.example.rooms.data.models
+package com.example.rooms.data.remote.account.models
 
 data class UserLoginResponse(
     val errorMessage: String?,

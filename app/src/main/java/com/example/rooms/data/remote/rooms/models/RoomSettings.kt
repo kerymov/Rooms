@@ -1,4 +1,4 @@
-package com.example.rooms.data.models
+package com.example.rooms.data.remote.rooms.models
 
 data class RoomSettings(
     val puzzle: Int,

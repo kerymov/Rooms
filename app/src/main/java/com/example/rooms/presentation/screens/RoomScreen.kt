@@ -2,6 +2,7 @@
 
 package com.example.rooms.presentation.screens
 
+import com.example.rooms.presentation.viewModels.RoomViewModel
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
@@ -33,6 +34,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.contentColorFor
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -46,14 +48,13 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.rooms.R
-import com.example.rooms.data.models.Room
 import com.example.rooms.presentation.components.ClickableTimer
 import com.example.rooms.presentation.components.ManualTypingTimer
 import com.example.rooms.presentation.components.TopBar
 import com.example.rooms.presentation.features.Timer
 import com.example.rooms.presentation.features.TimerState
-import com.example.rooms.presentation.theme.HideSystemBars
 import com.example.rooms.presentation.uiModels.Event
 
 private enum class Page {
@@ -69,58 +70,61 @@ private enum class TimerMode(val label: String) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RoomScreen(
-    room: Room,
+    modifier: Modifier = Modifier,
+    roomViewModel: RoomViewModel = viewModel(),
     onNavigationButtonClick: () -> Unit,
     onActionButtonClick: () -> Unit,
-    modifier: Modifier = Modifier
-) = Scaffold(
-    topBar = {
-        TopBar(
-            title = room.name,
-            navigationIcon = R.drawable.exit_to_app,
-            actionIcon = R.drawable.groups,
-            onNavigationButtonClick = onNavigationButtonClick,
-            onActionButtonClick = onActionButtonClick
-        )
-    },
-    containerColor = MaterialTheme.colorScheme.background,
-    contentColor = contentColorFor(MaterialTheme.colorScheme.background),
-    modifier = modifier.fillMaxSize()
 ) {
-    var timerMode by rememberSaveable { mutableStateOf(TimerMode.TIMER) }
-    var isSheetOpen by rememberSaveable { mutableStateOf(false) }
-    val sheetState = rememberModalBottomSheetState()
+    val roomsUiState by roomViewModel.uiState.collectAsState()
 
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(it)
+    val event = Event.entries.find { it.id == roomsUiState.room?.puzzle }
+    Scaffold(
+        topBar = {
+            TopBar(
+                title = "${roomsUiState.room?.roomName} - ${event?.shortName}",
+                navigationIcon = R.drawable.exit_to_app,
+                actionIcon = R.drawable.groups,
+                onNavigationButtonClick = onNavigationButtonClick,
+                onActionButtonClick = onActionButtonClick
+            )
+        },
+        containerColor = MaterialTheme.colorScheme.background,
+        contentColor = contentColorFor(MaterialTheme.colorScheme.background),
+        modifier = modifier.fillMaxSize()
     ) {
-        val scramble = "D2 R' D2 R2 F2 D2 B2 F L2 U2 F2 U2 B' L' D U' B' U' F2 R' D D2 R' D2" +
-                " R2 F2 D2 B2 F L2 U2 F2 U2 B' L' D U' B' U' F2 R' D D2 R' D2 R2 F2 D2 B2 F " +
-                "L2 U2 F2 U2 B' L' D U' B' U' F2 R' D D2 R' D2 R2 F2 D2 B2 F L2 U2 F2 U2 B' " +
-                "L' D U' B' U' F2"
-        val scrambleImage = R.drawable.cube_image
-        ScrambleZone(scramble, scrambleImage)
-        TimerZone(
-            timerMode = timerMode,
-            isSelectModeMenuShown = isSheetOpen,
-            onChangeTimerModeClick = { isSheetOpen = !isSheetOpen },
-            modifier = Modifier.fillMaxSize()
-        )
-    }
+        var timerMode by rememberSaveable { mutableStateOf(TimerMode.TIMER) }
+        var isSheetOpen by rememberSaveable { mutableStateOf(false) }
+        val sheetState = rememberModalBottomSheetState()
 
-    if (isSheetOpen) {
-        TimerModeModalBottomSheet(
-            sheetState = sheetState,
-            onDismissRequest = { isSheetOpen = false },
-            onItemSelect = {
-                mode ->  timerMode = mode
-                isSheetOpen = false
-            },
-            modifier = Modifier.fillMaxWidth()
-        )
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(it)
+        ) {
+            val scramble = roomsUiState.scramble?.scramble ?: ""
+            val scrambleImage = R.drawable.cube_image
+            ScrambleZone(scramble, scrambleImage)
+            TimerZone(
+                timerMode = timerMode,
+                isSelectModeMenuShown = isSheetOpen,
+                onChangeTimerModeClick = { isSheetOpen = !isSheetOpen },
+                onSendResultClick = { roomViewModel.getScramble() },
+                modifier = Modifier.fillMaxSize()
+            )
+        }
+
+        if (isSheetOpen) {
+            TimerModeModalBottomSheet(
+                sheetState = sheetState,
+                onDismissRequest = { isSheetOpen = false },
+                onItemSelect = { mode ->
+                    timerMode = mode
+                    isSheetOpen = false
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
     }
 }
 
@@ -200,6 +204,7 @@ private fun TimerZone(
     timerMode: TimerMode,
     isSelectModeMenuShown: Boolean,
     onChangeTimerModeClick: () -> Unit,
+    onSendResultClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var isTimerEnabled by rememberSaveable { mutableStateOf(true) }
@@ -257,6 +262,7 @@ private fun TimerZone(
                     onSendSolveClick = {
                         timer.reset()
                         isTimerEnabled = true
+                        onSendResultClick()
                     },
                     modifier = Modifier.fillMaxSize()
                 )

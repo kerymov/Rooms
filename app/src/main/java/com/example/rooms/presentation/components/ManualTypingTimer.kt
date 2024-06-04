@@ -80,8 +80,7 @@ fun ManualTypingTimer(modifier: Modifier) = Column(
         readOnly = true,
         enabled = false,
         singleLine = true,
-        textStyle = MaterialTheme.typography.displayMedium.copy(textAlign = TextAlign.Center),
-        modifier = Modifier.weight(0.6f)
+        textStyle = MaterialTheme.typography.displayMedium.copy(textAlign = TextAlign.Center)
     )
 
     NumberKeyboard(

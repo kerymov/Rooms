@@ -52,7 +52,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.rooms.data.models.Room
+import com.example.rooms.data.remote.rooms.models.Room
 import com.example.rooms.presentation.uiModels.Event
 
 @OptIn(ExperimentalMaterial3Api::class)

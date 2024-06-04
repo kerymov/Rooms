@@ -20,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -69,6 +70,8 @@ fun ClickableTimer(
         )
     }
 
+    var isActionButtonsVisible by rememberSaveable { mutableStateOf(false) }
+
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -95,31 +98,39 @@ fun ClickableTimer(
             )
         }
 
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(32.dp, Alignment.CenterHorizontally),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            ActionButton(
-                icon = R.drawable.dot_not_finish,
-                contentDescription = "DNF",
-                onClick = { }
-            )
-            ActionButton(
-                icon = R.drawable.exposure_plus_2,
-                contentDescription = "Plus 2",
-                onClick = { }
-            )
-            ActionButton(
-                icon = Icons.Rounded.Send,
-                contentDescription = "Send",
-                onClick = onSendSolveClick
-            )
+        if (isActionButtonsVisible) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(32.dp, Alignment.CenterHorizontally),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                ActionButton(
+                    icon = R.drawable.dot_not_finish,
+                    contentDescription = "DNF",
+                    onClick = { }
+                )
+                ActionButton(
+                    icon = R.drawable.exposure_plus_2,
+                    contentDescription = "Plus 2",
+                    onClick = { }
+                )
+                ActionButton(
+                    icon = Icons.Rounded.Send,
+                    contentDescription = "Send",
+                    onClick = {
+                        isActionButtonsVisible = false
+                        onSendSolveClick()
+                    }
+                )
+            }
         }
 
         if (isActive) {
             ActiveTimerOverlay(
                 formattedTime = formattedTime,
-                onDismissRequest = { onStopClick() }
+                onDismissRequest = {
+                    isActionButtonsVisible = true
+                    onStopClick()
+                }
             )
         }
     }

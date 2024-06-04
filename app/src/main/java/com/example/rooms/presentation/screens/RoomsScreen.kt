@@ -25,6 +25,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.contentColorFor
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -39,21 +40,25 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.rooms.R
-import com.example.rooms.data.models.Room
+import com.example.rooms.data.remote.rooms.models.Room
 import com.example.rooms.presentation.components.TopBar
 import com.example.rooms.presentation.uiModels.Event
+import com.example.rooms.presentation.viewModels.RoomsViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RoomsScreen(
-    rooms: List<Room>,
+    roomsViewModel: RoomsViewModel = viewModel(),
     onRoomCardClick: (room: Room) -> Unit,
     onCreateRoomClick: (room: Room) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var isSheetOpen by rememberSaveable { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
+    val roomsUiState by roomsViewModel.uiState.collectAsState()
 
     Scaffold(
         topBar = {
@@ -81,13 +86,13 @@ fun RoomsScreen(
             ),
             modifier = Modifier.fillMaxSize()
         ) {
-            items(rooms) { item ->
-//                val event = Event.entries.find { event -> event.id == item.settings.puzzle }
-//                    ?: Event.THREE_BY_THREE
+            items(roomsUiState.rooms) { item ->
+                val event = Event.entries.find { event -> event.id == item.puzzle }
+                    ?: Event.THREE_BY_THREE
 
                 RoomCard(
-                    name = item.name,
-                    event = Event.THREE_BY_THREE,
+                    name = item.roomName,
+                    event = event,
                     isOpen = true,
                     modifier = Modifier
                         .padding(4.dp)

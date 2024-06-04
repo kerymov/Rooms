@@ -1,6 +1,6 @@
 package com.example.rooms.presentation
 
-import com.example.rooms.data.models.Room
+import com.example.rooms.data.remote.rooms.models.Room
 
 
 data class RoomsUiState(

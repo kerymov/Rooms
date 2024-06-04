@@ -17,6 +17,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -28,7 +29,8 @@ import com.example.rooms.presentation.components.TextField
 
 @Composable
 fun SignInScreen(
-    onSignInClick: (login: String, password: String) -> Unit,
+    onSignInClick: (login: String, password: String) -> Boolean,
+    onSignUpClick: () -> Unit,
     modifier: Modifier = Modifier
 ) = Column(
     verticalArrangement = Arrangement.Center,
@@ -66,24 +68,20 @@ fun SignInScreen(
             contentColor = MaterialTheme.colorScheme.onPrimary
         ),
         onClick = {
-            onSignInClick(userName, password)
+            isError = onSignInClick(userName, password)
         },
         modifier = Modifier.size(height = 48.dp, width = 184.dp)
     ) {
         Text(
-            text = "Sign In",
+            text = "Sign in",
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.onPrimary
         )
     }
     Spacer(modifier = Modifier.height(12.dp))
-    TextButton(
-        onClick = {
-
-        }
-    ) {
+    TextButton(onClick = onSignUpClick) {
         Text(
-            text = "Sign up",
+            text = "Go to sign up",
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.primary
         )
@@ -93,5 +91,9 @@ fun SignInScreen(
 @Preview
 @Composable
 private fun SignInScreenPreview() {
-//    SignInScreen({})
+    SignInScreen(
+        onSignInClick = { login, password -> true },
+        onSignUpClick = { },
+        modifier = Modifier.fillMaxSize()
+    )
 }

@@ -27,15 +27,19 @@ import com.example.rooms.presentation.components.Logo
 import com.example.rooms.presentation.components.TextField
 
 @Composable
-fun SignUpScreen() = Column(
+fun SignUpScreen(
+    onSignUpClick: (login: String, password: String) -> Boolean,
+    onSignInClick: () -> Unit,
+    modifier: Modifier = Modifier
+) = Column(
     verticalArrangement = Arrangement.Center,
     horizontalAlignment = Alignment.CenterHorizontally,
-    modifier = Modifier
+    modifier = modifier
         .fillMaxSize()
         .background(MaterialTheme.colorScheme.background)
         .padding(20.dp)
 ) {
-    var userName by rememberSaveable { mutableStateOf("") }
+    var login by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
     var repeatedPassword by rememberSaveable { mutableStateOf("") }
     var isError by rememberSaveable { mutableStateOf(false) }
@@ -43,8 +47,8 @@ fun SignUpScreen() = Column(
     Logo()
     Spacer(modifier = Modifier.height(64.dp))
     TextField(
-        value = userName,
-        onValueChange = { userName = it },
+        value = login,
+        onValueChange = { login = it },
         placeholderText = "Username",
         isError = false
     )
@@ -72,6 +76,9 @@ fun SignUpScreen() = Column(
         ),
         onClick = {
             isError = password != repeatedPassword
+            if (isError) return@TextButton
+
+            onSignUpClick(login, password)
         },
         modifier = Modifier.size(height = 48.dp, width = 184.dp)
     ) {
@@ -83,12 +90,10 @@ fun SignUpScreen() = Column(
     }
     Spacer(modifier = Modifier.height(12.dp))
     TextButton(
-        onClick = {
-
-        }
+        onClick = onSignInClick
     ) {
         Text(
-            text = "Sign in",
+            text = "Go to sign in",
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.primary
         )
@@ -98,5 +103,9 @@ fun SignUpScreen() = Column(
 @Preview
 @Composable
 private fun SignUpScreenPreview() {
-    SignUpScreen()
+    SignUpScreen(
+        onSignUpClick = { login, password -> true },
+        onSignInClick = { },
+        modifier = Modifier.fillMaxSize()
+    )
 }
