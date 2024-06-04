@@ -27,7 +27,7 @@ class RoomViewModel(private val room: Room) : ViewModel() {
         getScramble()
     }
 
-    private fun setRoom() {
+    fun setRoom() {
         _uiState.value = _uiState.value.copy(room = room)
     }
 

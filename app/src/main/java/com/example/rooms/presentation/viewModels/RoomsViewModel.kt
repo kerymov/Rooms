@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.rooms.data.remote.RetrofitInstance
 import com.example.rooms.data.remote.rooms.models.Room
+import com.example.rooms.data.remote.rooms.models.RoomCreationRequest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -26,7 +27,7 @@ class RoomsViewModel : ViewModel() {
         getRooms()
     }
 
-    private fun getRooms() {
+    fun getRooms() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val response = RetrofitInstance.roomsApi.getRooms()
@@ -42,4 +43,26 @@ class RoomsViewModel : ViewModel() {
         val room = _uiState.value.rooms.find { it.id == id }
         _uiState.value = _uiState.value.copy(currentRoom = room)
     }
+
+    fun createRoom(roomCreationRequest: RoomCreationRequest) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                RetrofitInstance.roomsApi.createRoom(roomCreationRequest)
+            } catch (e: Exception) {
+                Log.e("TAG", "Exception during request -> ${e.localizedMessage}")
+            }
+        }
+    }
+
+    fun deleteRoom(id: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                RetrofitInstance.roomsApi.deleteRoom(id)
+            } catch (e: Exception) {
+                Log.e("TAG", "Exception during request -> ${e.localizedMessage}")
+            }
+        }
+    }
+
+//    fun exitRoom()
 }

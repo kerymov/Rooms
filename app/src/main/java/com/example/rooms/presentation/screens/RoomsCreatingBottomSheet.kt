@@ -53,6 +53,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.rooms.data.remote.rooms.models.Room
+import com.example.rooms.data.remote.rooms.models.RoomCreationRequest
+import com.example.rooms.data.remote.rooms.models.RoomSettings
 import com.example.rooms.presentation.uiModels.Event
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -60,7 +62,7 @@ import com.example.rooms.presentation.uiModels.Event
 fun RoomsCreatingBottomSheet(
     sheetState: SheetState,
     onDismissRequest:() -> Unit,
-    onCreateClick: (room: Room) -> Unit,
+    onCreateClick: (roomCreationRequest: RoomCreationRequest) -> Unit,
     modifier: Modifier = Modifier
 ) = ModalBottomSheet(
     sheetState = sheetState,
@@ -100,14 +102,16 @@ fun RoomsCreatingBottomSheet(
                     if (isRoomLocked && password.isBlank()) isPasswordError = true
                     if (isRoomNameError || isPasswordError) return@TextButton
 
-//                    onCreateClick(
-////                        Room(
-////                            name = roomName,
-////                            event = event,
-////                            isOpen = !isRoomLocked,
-////                            password = if (isRoomLocked) password else null
-////                        )
-//                    )
+                    onCreateClick(
+                        RoomCreationRequest(
+                            roomName = roomName,
+                            roomPassword = if (isRoomLocked) password else "",
+                            settings = RoomSettings(
+                                puzzle = event.id,
+                                isOpen = !isRoomLocked
+                            )
+                        )
+                    )
                 }
             ) {
                 Text(

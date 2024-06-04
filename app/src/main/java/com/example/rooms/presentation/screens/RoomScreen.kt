@@ -75,13 +75,13 @@ fun RoomScreen(
     onNavigationButtonClick: () -> Unit,
     onActionButtonClick: () -> Unit,
 ) {
-    val roomsUiState by roomViewModel.uiState.collectAsState()
+    val roomUiState by roomViewModel.uiState.collectAsState()
 
-    val event = Event.entries.find { it.id == roomsUiState.room?.puzzle }
+    val event = Event.entries.find { it.id == roomUiState.room?.puzzle }
     Scaffold(
         topBar = {
             TopBar(
-                title = "${roomsUiState.room?.roomName} - ${event?.shortName}",
+                title = "${roomUiState.room?.roomName} - ${event?.shortName}",
                 navigationIcon = R.drawable.exit_to_app,
                 actionIcon = R.drawable.groups,
                 onNavigationButtonClick = onNavigationButtonClick,
@@ -102,7 +102,7 @@ fun RoomScreen(
                 .fillMaxSize()
                 .padding(it)
         ) {
-            val scramble = roomsUiState.scramble?.scramble ?: ""
+            val scramble = roomUiState.scramble?.scramble ?: ""
             val scrambleImage = R.drawable.cube_image
             ScrambleZone(scramble, scrambleImage)
             TimerZone(

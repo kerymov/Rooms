@@ -1,8 +1,10 @@
 package com.example.rooms.presentation.screens
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -25,6 +27,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.contentColorFor
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -46,19 +49,24 @@ import com.example.rooms.data.remote.rooms.models.Room
 import com.example.rooms.presentation.components.TopBar
 import com.example.rooms.presentation.uiModels.Event
 import com.example.rooms.presentation.viewModels.RoomsViewModel
+import kotlinx.coroutines.delay
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun RoomsScreen(
+    modifier: Modifier = Modifier,
     roomsViewModel: RoomsViewModel = viewModel(),
     onRoomCardClick: (room: Room) -> Unit,
-    onCreateRoomClick: (room: Room) -> Unit,
-    modifier: Modifier = Modifier
 ) {
     var isSheetOpen by rememberSaveable { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     val roomsUiState by roomsViewModel.uiState.collectAsState()
+
+    LaunchedEffect(key1 = true, key2 = isSheetOpen) {
+        delay(2000)
+        roomsViewModel.getRooms()
+    }
 
     Scaffold(
         topBar = {
@@ -93,10 +101,13 @@ fun RoomsScreen(
                 RoomCard(
                     name = item.roomName,
                     event = event,
-                    isOpen = true,
+                    isOpen = item.isOpen,
                     modifier = Modifier
                         .padding(4.dp)
-                        .clickable { onRoomCardClick(item) }
+                        .combinedClickable(
+                            onClick = { onRoomCardClick(item) },
+                            onLongClick = {  }
+                        )
                 )
             }
         }
@@ -105,8 +116,8 @@ fun RoomsScreen(
             RoomsCreatingBottomSheet(
                 sheetState = sheetState,
                 onDismissRequest = { isSheetOpen = false },
-                onCreateClick = { room ->
-                    onCreateRoomClick(room)
+                onCreateClick = { roomCreationRequest ->
+                    roomsViewModel.createRoom(roomCreationRequest)
                     isSheetOpen = false
                 },
                 modifier = Modifier.fillMaxSize()

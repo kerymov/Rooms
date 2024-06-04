@@ -73,8 +73,7 @@ fun RoomsApp(
                 roomsViewModel = roomsViewModel,
                 onRoomCardClick = { room ->
                     navController.navigate(Screen.ROOM.name + "/${room.id}")
-                },
-                onCreateRoomClick = {}
+                }
             )
         }
         composable(
@@ -86,6 +85,7 @@ fun RoomsApp(
                 roomsViewModel.getRoomById(it)
             } ?: return@composable
 
+//            roomsViewModel.setRoom()
             val room = roomsUiState.currentRoom ?: return@composable
             val roomViewModel = viewModel<RoomViewModel>(
                 factory = object : ViewModelProvider.Factory {
