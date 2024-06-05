@@ -4,8 +4,10 @@ import com.example.rooms.data.remote.rooms.models.Room
 import com.example.rooms.data.remote.rooms.models.RoomCreationRequest
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface RoomsApi {
@@ -16,6 +18,6 @@ interface RoomsApi {
     @POST("rooms")
     suspend fun createRoom(@Body roomCreationRequest: RoomCreationRequest)
 
-    @POST("rooms")
-    suspend fun deleteRoom(@Query("id") id: String)
+    @DELETE("rooms/{roomId}")
+    suspend fun deleteRoom(@Path("roomId") id: String)
 }

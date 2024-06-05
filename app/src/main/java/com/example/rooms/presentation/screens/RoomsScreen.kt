@@ -3,7 +3,6 @@ package com.example.rooms.presentation.screens
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,11 +18,15 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.contentColorFor
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -58,12 +61,16 @@ fun RoomsScreen(
     roomsViewModel: RoomsViewModel = viewModel(),
     onRoomCardClick: (room: Room) -> Unit,
 ) {
-    var isSheetOpen by rememberSaveable { mutableStateOf(false) }
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var isCreateRoomSheetOpen by rememberSaveable { mutableStateOf(false) }
+    val createRoomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
+    var roomIdToDelete by rememberSaveable { mutableStateOf<String?>(null) }
+    var isDeleteRoomSheetOpen by rememberSaveable { mutableStateOf(false) }
+    val deleteRoomSheetState = rememberModalBottomSheetState()
 
     val roomsUiState by roomsViewModel.uiState.collectAsState()
 
-    LaunchedEffect(key1 = true, key2 = isSheetOpen) {
+    LaunchedEffect(key1 = true, key2 = isCreateRoomSheetOpen, key3 = isDeleteRoomSheetOpen) {
         delay(2000)
         roomsViewModel.getRooms()
     }
@@ -76,7 +83,7 @@ fun RoomsScreen(
                 actionIcon = R.drawable.add,
                 onNavigationButtonClick = { },
                 onActionButtonClick = {
-                    isSheetOpen = true
+                    isCreateRoomSheetOpen = true
                 }
             )
         },
@@ -106,21 +113,39 @@ fun RoomsScreen(
                         .padding(4.dp)
                         .combinedClickable(
                             onClick = { onRoomCardClick(item) },
-                            onLongClick = {  }
+                            onLongClick = {
+                                isDeleteRoomSheetOpen = true
+                                roomIdToDelete = item.id
+                            }
                         )
                 )
             }
         }
 
-        if (isSheetOpen) {
+        if (isCreateRoomSheetOpen) {
             RoomsCreatingBottomSheet(
-                sheetState = sheetState,
-                onDismissRequest = { isSheetOpen = false },
+                sheetState = createRoomSheetState,
+                onDismissRequest = { isCreateRoomSheetOpen = false },
                 onCreateClick = { roomCreationRequest ->
                     roomsViewModel.createRoom(roomCreationRequest)
-                    isSheetOpen = false
+                    isCreateRoomSheetOpen = false
                 },
                 modifier = Modifier.fillMaxSize()
+            )
+        }
+
+        if (isDeleteRoomSheetOpen && roomIdToDelete != null) {
+            DeleteRoomModalBottomSheet(
+                sheetState = deleteRoomSheetState,
+                onDismissRequest = {
+                    isDeleteRoomSheetOpen = false
+                    roomIdToDelete = null
+                },
+                onDeleteClick = {
+                    roomsViewModel.deleteRoom(roomIdToDelete ?: "")
+                    isDeleteRoomSheetOpen = false
+                    roomIdToDelete = null
+                }
             )
         }
     }
@@ -179,6 +204,41 @@ private fun RoomCard(
             .background(MaterialTheme.colorScheme.primary)
             .padding(vertical = 8.dp, horizontal = 12.dp)
     )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun DeleteRoomModalBottomSheet(
+    sheetState: SheetState,
+    onDismissRequest: () -> Unit,
+    onDeleteClick: () -> Unit,
+    modifier: Modifier = Modifier
+) = ModalBottomSheet(
+    sheetState = sheetState,
+    onDismissRequest = onDismissRequest,
+    containerColor = MaterialTheme.colorScheme.background,
+    dragHandle = { BottomSheetDefaults.DragHandle(color = MaterialTheme.colorScheme.primary) },
+    modifier = modifier
+) {
+    Column(
+        modifier = modifier
+            .background(
+                color = MaterialTheme.colorScheme.background,
+                shape = RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp)
+            )
+            .fillMaxWidth()
+            .padding(4.dp)
+            .padding(bottom = 32.dp)
+    ) {
+        TextButton(onClick = { onDeleteClick() }) {
+            Text(
+                text = "Delete room",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+    }
 }
 
 @Preview(name = "Open room")
