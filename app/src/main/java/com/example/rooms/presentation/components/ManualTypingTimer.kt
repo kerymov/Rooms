@@ -8,8 +8,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Send
@@ -38,7 +36,10 @@ import com.example.rooms.presentation.features.MAX_TIME_LENGTH
 import com.example.rooms.presentation.features.TimerVisualTransformation
 
 @Composable
-fun ManualTypingTimer(modifier: Modifier) = Column(
+fun ManualTypingTimer(
+    modifier: Modifier,
+    onSendResultClick: () -> Unit
+) = Column(
     verticalArrangement = Arrangement.Center,
     horizontalAlignment = Alignment.CenterHorizontally,
     modifier = modifier
@@ -61,7 +62,10 @@ fun ManualTypingTimer(modifier: Modifier) = Column(
             IconButton(onClick = {}, enabled = false) { Box(modifier = Modifier.size(32.dp)) }
         },
         trailingIcon = {
-            IconButton(onClick = {}) {
+            IconButton(onClick = {
+                time = ""
+                onSendResultClick()
+            }) {
                 Icon(
                     imageVector = Icons.Rounded.Send,
                     contentDescription = "Send",
@@ -121,7 +125,7 @@ private fun NumberKeyboard(
             verticalAlignment = Alignment.CenterVertically
         ) {
             KeyboardNumberButton(text = "7", onClick = onButtonClick)
-            KeyboardNumberButton(text = "7", onClick = onButtonClick)
+            KeyboardNumberButton(text = "8", onClick = onButtonClick)
             KeyboardNumberButton(text = "9", onClick = onButtonClick)
         }
         Row(
@@ -148,7 +152,7 @@ private fun KeyboardNumberButton(
         containerColor = MaterialTheme.colorScheme.surfaceTint,
         contentColor = MaterialTheme.colorScheme.onPrimary
     ),
-    modifier = modifier.size(56.dp)
+    modifier = modifier.size(64.dp)
 ) {
     Text(
         text = text,
@@ -163,7 +167,7 @@ private fun KeyboardIconButton(
     modifier: Modifier = Modifier
 ) = IconButton(
     onClick = onClick,
-    modifier = modifier.size(56.dp)
+    modifier = modifier.size(64.dp)
 ) {
     Icon(
         imageVector = ImageVector.vectorResource(icon),

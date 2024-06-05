@@ -39,6 +39,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
@@ -50,6 +51,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.rooms.R
 import com.example.rooms.data.remote.rooms.models.Room
 import com.example.rooms.presentation.components.TopBar
+import com.example.rooms.presentation.theme.ChangeSystemBarsColors
 import com.example.rooms.presentation.uiModels.Event
 import com.example.rooms.presentation.viewModels.RoomsViewModel
 import kotlinx.coroutines.delay
@@ -61,6 +63,13 @@ fun RoomsScreen(
     roomsViewModel: RoomsViewModel = viewModel(),
     onRoomCardClick: (room: Room) -> Unit,
 ) {
+    ChangeSystemBarsColors(
+        systemBarColor = MaterialTheme.colorScheme.background.toArgb(),
+        isAppearanceLightStatusBars = true,
+        navigationBarColor = MaterialTheme.colorScheme.background.toArgb(),
+        isAppearanceLightNavigationBars = true
+    )
+
     var isCreateRoomSheetOpen by rememberSaveable { mutableStateOf(false) }
     val createRoomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 

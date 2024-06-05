@@ -19,18 +19,25 @@ fun ActionButton(
     @DrawableRes icon: Int,
     contentDescription: String,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isSelected: Boolean = false
 ) = IconButton(
     onClick = onClick,
     modifier = modifier
         .size(56.dp)
         .clip(RoundedCornerShape(16.dp))
-        .background(MaterialTheme.colorScheme.surfaceTint)
+        .background(
+            if (isSelected) {
+                MaterialTheme.colorScheme.onPrimary
+            } else {
+                MaterialTheme.colorScheme.surfaceTint
+            }
+        )
 ) {
     Icon(
         imageVector = ImageVector.vectorResource(icon),
         contentDescription = contentDescription,
-        tint = MaterialTheme.colorScheme.onPrimary,
+        tint = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onPrimary,
         modifier = Modifier.size(32.dp)
     )
 }
@@ -40,18 +47,25 @@ fun ActionButton(
     icon: ImageVector,
     contentDescription: String,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isSelected: Boolean = false
 ) = IconButton(
     onClick = onClick,
     modifier = modifier
         .size(56.dp)
         .clip(RoundedCornerShape(16.dp))
-        .background(MaterialTheme.colorScheme.surfaceTint)
+        .background(
+            if (isSelected) {
+                MaterialTheme.colorScheme.onPrimary
+            } else {
+                MaterialTheme.colorScheme.surfaceTint
+            }
+        )
 ) {
     Icon(
         imageVector = icon,
         contentDescription = contentDescription,
-        tint = MaterialTheme.colorScheme.onPrimary,
+        tint = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onPrimary,
         modifier = Modifier.size(32.dp)
     )
 }

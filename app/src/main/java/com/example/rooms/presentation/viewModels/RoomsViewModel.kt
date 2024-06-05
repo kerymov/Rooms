@@ -63,6 +63,4 @@ class RoomsViewModel : ViewModel() {
             }
         }
     }
-
-//    fun exitRoom()
 }

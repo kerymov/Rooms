@@ -56,6 +56,9 @@ import com.example.rooms.presentation.components.TopBar
 import com.example.rooms.presentation.features.Timer
 import com.example.rooms.presentation.features.TimerState
 import com.example.rooms.presentation.uiModels.Event
+import com.example.rooms.presentation.viewModels.AccountViewModel
+import com.example.rooms.presentation.Solve
+import com.example.rooms.presentation.SolvesRepository
 
 private enum class Page {
     SCRAMBLE,
@@ -71,6 +74,7 @@ private enum class TimerMode(val label: String) {
 @Composable
 fun RoomScreen(
     modifier: Modifier = Modifier,
+    accountViewModel: AccountViewModel = viewModel(),
     roomViewModel: RoomViewModel = viewModel(),
     onNavigationButtonClick: () -> Unit,
     onActionButtonClick: () -> Unit,
@@ -109,8 +113,19 @@ fun RoomScreen(
                 timerMode = timerMode,
                 isSelectModeMenuShown = isSheetOpen,
                 onChangeTimerModeClick = { isSheetOpen = !isSheetOpen },
-                onSendResultClick = { roomViewModel.getScramble() },
-                modifier = Modifier.fillMaxSize()
+                onSendResultClick = { resultInMills ->
+                    roomViewModel.getScramble()
+                    SolvesRepository.addSolve(
+                        Solve(
+                            username = accountViewModel.uiState.value.userName,
+                            roomName = roomViewModel.uiState.value.room?.roomName ?: "",
+                            resultInMills = resultInMills
+                        )
+                    )
+                },
+                modifier = Modifier
+                    .fillMaxSize()
+                    .weight(1f)
             )
         }
 
@@ -204,7 +219,7 @@ private fun TimerZone(
     timerMode: TimerMode,
     isSelectModeMenuShown: Boolean,
     onChangeTimerModeClick: () -> Unit,
-    onSendResultClick: () -> Unit,
+    onSendResultClick: (Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var isTimerEnabled by rememberSaveable { mutableStateOf(true) }
@@ -251,6 +266,7 @@ private fun TimerZone(
                     formattedTime = timer.formattedTime,
                     isActive = timer.state == TimerState.ACTIVE,
                     isEnabled = isTimerEnabled,
+                    penalty = timer.penalty,
                     onStartClick = {
                         timer.reset()
                         timer.start()
@@ -259,16 +275,21 @@ private fun TimerZone(
                         timer.stop()
                         isTimerEnabled = false
                     },
-                    onSendSolveClick = {
+                    onSendResultClick = {
+                        onSendResultClick(timer.timeInMills)
                         timer.reset()
                         isTimerEnabled = true
-                        onSendResultClick()
                     },
+                    onPlusTwoClick = { timer.managePlusTwoPenalty() },
+                    onDnfClick = { timer.manageDnfPenalty() },
                     modifier = Modifier.fillMaxSize()
                 )
             }
             TimerMode.TYPING -> {
-                ManualTypingTimer(modifier = Modifier.fillMaxSize())
+                ManualTypingTimer(
+                    onSendResultClick = { onSendResultClick(12L) },
+                    modifier = Modifier.fillMaxSize()
+                )
             }
         }
     }

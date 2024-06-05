@@ -19,12 +19,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
@@ -33,15 +31,11 @@ import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
-import androidx.compose.ui.window.PopupProperties
 import com.example.rooms.R
+import com.example.rooms.presentation.features.Penalty
 import com.example.rooms.presentation.theme.ChangeSystemBarsColors
-import com.example.rooms.presentation.theme.HideSystemBars
-import com.example.rooms.presentation.theme.ShowSystemBars
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -49,9 +43,12 @@ fun ClickableTimer(
     formattedTime: String,
     isActive: Boolean,
     isEnabled: Boolean,
+    penalty: Penalty,
     onStartClick: () -> Unit,
     onStopClick: () -> Unit,
-    onSendSolveClick: () -> Unit,
+    onSendResultClick: () -> Unit,
+    onPlusTwoClick: () -> Unit,
+    onDnfClick: () -> Unit,
     modifier: Modifier
 ) {
     if (isActive) {
@@ -91,7 +88,7 @@ fun ClickableTimer(
                 .padding(bottom = 48.dp)
         ) {
             Text(
-                text = formattedTime,
+                text = if (penalty == Penalty.DNF) "DNF" else formattedTime,
                 style = MaterialTheme.typography.displayLarge,
                 color = MaterialTheme.colorScheme.onPrimary,
                 textAlign = TextAlign.Center
@@ -104,21 +101,23 @@ fun ClickableTimer(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 ActionButton(
-                    icon = R.drawable.dot_not_finish,
+                    icon = R.drawable.did_not_finish,
                     contentDescription = "DNF",
-                    onClick = { }
+                    isSelected = penalty == Penalty.DNF,
+                    onClick = onDnfClick
                 )
                 ActionButton(
                     icon = R.drawable.exposure_plus_2,
                     contentDescription = "Plus 2",
-                    onClick = { }
+                    isSelected = penalty == Penalty.PLUS_TWO,
+                    onClick = onPlusTwoClick
                 )
                 ActionButton(
                     icon = Icons.Rounded.Send,
                     contentDescription = "Send",
                     onClick = {
                         isActionButtonsVisible = false
-                        onSendSolveClick()
+                        onSendResultClick()
                     }
                 )
             }

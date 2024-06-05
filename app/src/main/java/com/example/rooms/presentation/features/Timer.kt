@@ -20,6 +20,12 @@ enum class TimerState {
     ACTIVE
 }
 
+enum class Penalty {
+    NO_PENALTY,
+    PLUS_TWO,
+    DNF
+}
+
 private enum class Duration(val timeInMills: Long, val formatPattern: String) {
     INITIAL_AND_MORE(0, "s.SS"),
     TEN_SECONDS_AND_MORE(10000, "ss.SS"),
@@ -36,9 +42,13 @@ class Timer {
     var state by mutableStateOf(TimerState.IDLE)
         private set
 
+    var penalty by mutableStateOf(Penalty.NO_PENALTY)
+        private set
+
     private var coroutineScope = CoroutineScope(Dispatchers.Main)
 
-    private var timeInMills = 0L
+    var timeInMills = 0L
+        private set
     private var lastTimestamp = 0L
 
     fun start() {
@@ -68,6 +78,48 @@ class Timer {
         lastTimestamp = 0L
         formattedTime = "0.00"
         state = TimerState.IDLE
+        penalty = Penalty.NO_PENALTY
+    }
+
+    fun managePlusTwoPenalty() = when (penalty) {
+        Penalty.NO_PENALTY, Penalty.DNF -> {
+            penalty = Penalty.PLUS_TWO
+            addTwoSeconds()
+        }
+
+        Penalty.PLUS_TWO -> {
+            penalty = Penalty.NO_PENALTY
+            subtractTwoSeconds()
+        }
+    }
+
+    fun manageDnfPenalty() = when (penalty) {
+        Penalty.NO_PENALTY -> {
+            penalty = Penalty.DNF
+        }
+
+        Penalty.PLUS_TWO -> {
+            penalty = Penalty.DNF
+            subtractTwoSeconds()
+        }
+
+        Penalty.DNF -> {
+            penalty = Penalty.NO_PENALTY
+        }
+    }
+
+    private fun addTwoSeconds() {
+        timeInMills += 2000L
+        formattedTime = formatTime(timeInMills)
+    }
+
+    private fun subtractTwoSeconds() {
+        timeInMills -= 2000L
+        formattedTime = formatTime(timeInMills)
+    }
+
+    fun setDnf() {
+
     }
 
     private fun formatTime(timeInMills: Long): String {

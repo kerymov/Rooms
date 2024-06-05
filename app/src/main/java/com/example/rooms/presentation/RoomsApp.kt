@@ -17,6 +17,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.rooms.presentation.navigation.Screen
+import com.example.rooms.presentation.screens.ResultsScreen
 import com.example.rooms.presentation.screens.RoomScreen
 import com.example.rooms.presentation.screens.RoomsScreen
 import com.example.rooms.presentation.screens.SignInScreen
@@ -33,7 +34,7 @@ fun RoomsApp(
     val roomsUiState by roomsViewModel.uiState.collectAsState()
     NavHost(
         navController = navController,
-        startDestination = Screen.ROOMS.name,
+        startDestination = Screen.SIGN_IN.name,
         modifier = Modifier.fillMaxSize()
     ) {
         composable(route = Screen.SIGN_IN.name) {
@@ -85,7 +86,6 @@ fun RoomsApp(
                 roomsViewModel.getRoomById(it)
             } ?: return@composable
 
-//            roomsViewModel.setRoom()
             val room = roomsUiState.currentRoom ?: return@composable
             val roomViewModel = viewModel<RoomViewModel>(
                 factory = object : ViewModelProvider.Factory {
@@ -96,13 +96,26 @@ fun RoomsApp(
                 }
             )
             RoomScreen(
+                accountViewModel = accountViewModel,
                 roomViewModel = roomViewModel,
                 onNavigationButtonClick = { navController.popBackStack() },
-                onActionButtonClick = { navController.navigate(Screen.RESULTS.name) }
+                onActionButtonClick = { navController.navigate(Screen.RESULTS.name + "/${room.id}") }
             )
         }
-        composable(route = Screen.RESULTS.name) {
+        composable(
+            route = Screen.RESULTS.name + "/{roomId}",
+            arguments = listOf(navArgument("roomId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val roomId = backStackEntry.arguments?.getString("roomId")
+            roomId?.let {
+                roomsViewModel.getRoomById(it)
+            } ?: return@composable
 
+            val room = roomsUiState.currentRoom ?: return@composable
+            ResultsScreen(
+                roomName = room.roomName,
+                onNavigationButtonClick = { navController.popBackStack() }
+            )
         }
     }
 }
