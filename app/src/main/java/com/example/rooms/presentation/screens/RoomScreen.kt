@@ -3,9 +3,7 @@
 package com.example.rooms.presentation.screens
 
 import com.example.rooms.presentation.viewModels.RoomViewModel
-import androidx.annotation.DrawableRes
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -50,15 +48,17 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.rooms.R
+import com.example.rooms.data.remote.scramble.models.Image
 import com.example.rooms.presentation.components.ClickableTimer
 import com.example.rooms.presentation.components.ManualTypingTimer
 import com.example.rooms.presentation.components.TopBar
-import com.example.rooms.presentation.features.Timer
-import com.example.rooms.presentation.features.TimerState
+import com.example.rooms.presentation.utils.Timer
+import com.example.rooms.presentation.utils.TimerState
 import com.example.rooms.presentation.uiModels.Event
-import com.example.rooms.presentation.viewModels.AccountViewModel
+import com.example.rooms.presentation.viewModels.SignInViewModel
 import com.example.rooms.presentation.Solve
 import com.example.rooms.presentation.SolvesRepository
+import com.example.rooms.presentation.components.ScrambleImage
 
 private enum class Page {
     SCRAMBLE,
@@ -74,7 +74,7 @@ private enum class TimerMode(val label: String) {
 @Composable
 fun RoomScreen(
     modifier: Modifier = Modifier,
-    accountViewModel: AccountViewModel = viewModel(),
+    signInViewModel: SignInViewModel = viewModel(),
     roomViewModel: RoomViewModel = viewModel(),
     onNavigationButtonClick: () -> Unit,
     onActionButtonClick: () -> Unit,
@@ -107,8 +107,8 @@ fun RoomScreen(
                 .padding(it)
         ) {
             val scramble = roomUiState.scramble?.scramble ?: ""
-            val scrambleImage = R.drawable.cube_image
-            ScrambleZone(scramble, scrambleImage)
+            val image = roomUiState.scramble?.image ?: Image(listOf())
+            ScrambleZone(scramble, image)
             TimerZone(
                 timerMode = timerMode,
                 isSelectModeMenuShown = isSheetOpen,
@@ -117,7 +117,7 @@ fun RoomScreen(
                     roomViewModel.getScramble()
                     SolvesRepository.addSolve(
                         Solve(
-                            username = accountViewModel.uiState.value.userName,
+                            username = signInViewModel.uiState.value.userName ?: "",
                             roomName = roomViewModel.uiState.value.room?.roomName ?: "",
                             resultInMills = resultInMills
                         )
@@ -147,7 +147,7 @@ fun RoomScreen(
 @Composable
 private fun ScrambleZone(
     scramble: String,
-    @DrawableRes scrambleImage: Int
+    image: Image
 ) {
     val pagerState = rememberPagerState(
         initialPage = Page.SCRAMBLE.ordinal,
@@ -174,10 +174,8 @@ private fun ScrambleZone(
                 )
             }
             Page.SCRAMBLE_IMAGE.ordinal -> {
-                Image(
-                    imageVector = ImageVector.vectorResource(scrambleImage),
-                    contentDescription = "Scramble image",
-                    alignment = Alignment.Center,
+                ScrambleImage(
+                    image = image,
                     modifier = Modifier.fillMaxWidth()
                 )
             }

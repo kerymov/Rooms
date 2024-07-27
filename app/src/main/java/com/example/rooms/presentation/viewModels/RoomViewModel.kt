@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.rooms.data.remote.RetrofitInstance
 import com.example.rooms.data.remote.rooms.models.Room
+import com.example.rooms.data.remote.scramble.models.Image
 import com.example.rooms.data.remote.scramble.models.Scramble
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,19 +18,18 @@ data class RoomUiState(
     val scramble: Scramble? = null
 )
 
-class RoomViewModel(private val room: Room) : ViewModel() {
+class RoomViewModel(private val roomId: String) : ViewModel() {
 
     private val _uiState = MutableStateFlow(RoomUiState())
     val uiState: StateFlow<RoomUiState> = _uiState.asStateFlow()
 
     init {
-        setRoom()
         getScramble()
     }
 
-    fun setRoom() {
-        _uiState.value = _uiState.value.copy(room = room)
-    }
+//    fun getRoomById() {
+//        _uiState.value = _uiState.value.copy(room = room)
+//    }
 
     fun getScramble() {
         viewModelScope.launch(Dispatchers.IO) {

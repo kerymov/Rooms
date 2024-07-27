@@ -32,8 +32,8 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.rooms.R
-import com.example.rooms.presentation.features.MAX_TIME_LENGTH
-import com.example.rooms.presentation.features.TimerVisualTransformation
+import com.example.rooms.presentation.utils.MAX_TIME_LENGTH
+import com.example.rooms.presentation.utils.TimerVisualTransformation
 
 @Composable
 fun ManualTypingTimer(

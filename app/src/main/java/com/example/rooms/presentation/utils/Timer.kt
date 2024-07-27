@@ -1,4 +1,4 @@
-package com.example.rooms.presentation.features
+package com.example.rooms.presentation.utils
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf

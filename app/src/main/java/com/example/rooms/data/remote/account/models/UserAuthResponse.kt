@@ -1,6 +1,6 @@
 package com.example.rooms.data.remote.account.models
 
-data class UserLoginResponse(
+data class UserAuthResponse(
     val errorMessage: String?,
     val expiresIn: Int,
     val isSuccess: Boolean,

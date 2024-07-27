@@ -15,7 +15,7 @@ import retrofit2.create
 object RetrofitInstance {
 
 //    private val sharedPreferences = applicationContext.getSharedPreferences("preference_key", Context.MODE_PRIVATE);
-    private var token = "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJuYW1laWQiOiJrZXJ5bW92IiwibmJmIjoxNzE3NTE2OTYyLCJleHAiOjE3MTgxMjE3NjIsImlhdCI6MTcxNzUxNjk2Mn0.BFHSau3t_PMdLK7a-CHe2-_8kE1K0DQdBOTXr-3wC35JpWMxUwayPrG9_NLCEdruEp-FVQsCGq64rdTXpxnjvw"
+    private var token = "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJuYW1laWQiOiJrZXJ5bW92IiwibmJmIjoxNzE3OTYwMTIwLCJleHAiOjE3MTg1NjQ5MjAsImlhdCI6MTcxNzk2MDEyMH0.EpInCcWX7Qfka9RnHhYJ14OQWuDKguiGWku-iZPLwExmHiyYz4MtGtMQ5-SxyQmcTvpXaVoh1QGGHhW9IP1W_Q"
 
     private val httpLoggingInterceptor = HttpLoggingInterceptor().apply {
         this.level = HttpLoggingInterceptor.Level.BODY

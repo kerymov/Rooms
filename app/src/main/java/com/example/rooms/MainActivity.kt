@@ -6,7 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.lifecycle.ViewModelProvider
 import com.example.rooms.presentation.RoomsApp
 import com.example.rooms.presentation.theme.RoomsTheme
-import com.example.rooms.presentation.viewModels.AccountViewModel
+import com.example.rooms.presentation.viewModels.SignInViewModel
 import com.example.rooms.presentation.viewModels.RoomsViewModel
 
 class MainActivity : ComponentActivity() {
@@ -16,11 +16,11 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             RoomsTheme {
-                val accountViewModel = ViewModelProvider(this)[AccountViewModel::class.java]
+                val signInViewModel = ViewModelProvider(this)[SignInViewModel::class.java]
                 val roomsViewModel = ViewModelProvider(this)[RoomsViewModel::class.java]
 
                 RoomsApp(
-                    accountViewModel = accountViewModel,
+                    signInViewModel = signInViewModel,
                     roomsViewModel = roomsViewModel
                 )
             }

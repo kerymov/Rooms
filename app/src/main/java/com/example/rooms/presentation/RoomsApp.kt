@@ -22,16 +22,17 @@ import com.example.rooms.presentation.screens.RoomScreen
 import com.example.rooms.presentation.screens.RoomsScreen
 import com.example.rooms.presentation.screens.SignInScreen
 import com.example.rooms.presentation.screens.SignUpScreen
-import com.example.rooms.presentation.viewModels.AccountViewModel
+import com.example.rooms.presentation.viewModels.SignInViewModel
 import com.example.rooms.presentation.viewModels.RoomsViewModel
 
 @Composable
 fun RoomsApp(
-    accountViewModel: AccountViewModel = viewModel(),
+    signInViewModel: SignInViewModel = viewModel(),
     roomsViewModel: RoomsViewModel = viewModel(),
     navController: NavHostController = rememberNavController(),
 ) {
     val roomsUiState by roomsViewModel.uiState.collectAsState()
+
     NavHost(
         navController = navController,
         startDestination = Screen.SIGN_IN.name,
@@ -40,11 +41,26 @@ fun RoomsApp(
         composable(route = Screen.SIGN_IN.name) {
             SignInScreen(
                 onSignInClick = { login, password ->
+                    signInViewModel.signIn(login = login, password = password)
+                },
+                onSignInSuccess = {
+                    navController.navigate(Screen.ROOMS.name)
+                },
+                onSignUpClick = {
+                    navController.navigate(Screen.SIGN_UP.name)
+                },
+                signInViewModel = signInViewModel
+            )
+        }
+        composable(route = Screen.SIGN_UP.name) {
+            SignUpScreen(
+                onSignUpClick = { login, password, confirmedPassword ->
                     var result = false
 
-                    accountViewModel.login(
+                    signInViewModel.signUp(
                         login = login,
                         password = password,
+                        passwordConfirm = confirmedPassword,
                         onSuccess = {
                             navController.navigate(Screen.ROOMS.name)
                             result = true
@@ -54,16 +70,8 @@ fun RoomsApp(
                         }
                     )
 
-                    return@SignInScreen result
+                    return@SignUpScreen result
                 },
-                onSignUpClick = {
-                    navController.navigate(Screen.SIGN_UP.name)
-                }
-            )
-        }
-        composable(route = Screen.SIGN_UP.name) {
-            SignUpScreen(
-                onSignUpClick = { login, password -> true },
                 onSignInClick = {
                     navController.navigate(Screen.SIGN_IN.name)
                 }
@@ -86,20 +94,19 @@ fun RoomsApp(
                 roomsViewModel.getRoomById(it)
             } ?: return@composable
 
-            val room = roomsUiState.currentRoom ?: return@composable
             val roomViewModel = viewModel<RoomViewModel>(
                 factory = object : ViewModelProvider.Factory {
                     @Suppress("UNCHECKED_CAST")
                     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                        return RoomViewModel(room) as T
+                        return RoomViewModel(roomId) as T
                     }
                 }
             )
             RoomScreen(
-                accountViewModel = accountViewModel,
+                signInViewModel = signInViewModel,
                 roomViewModel = roomViewModel,
                 onNavigationButtonClick = { navController.popBackStack() },
-                onActionButtonClick = { navController.navigate(Screen.RESULTS.name + "/${room.id}") }
+                onActionButtonClick = { navController.navigate(Screen.RESULTS.name + "/${roomId}") }
             )
         }
         composable(

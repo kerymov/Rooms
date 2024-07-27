@@ -34,7 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
 import com.example.rooms.R
-import com.example.rooms.presentation.features.Penalty
+import com.example.rooms.presentation.utils.Penalty
 import com.example.rooms.presentation.theme.ChangeSystemBarsColors
 
 @OptIn(ExperimentalFoundationApi::class)

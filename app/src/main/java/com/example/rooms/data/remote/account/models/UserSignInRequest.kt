@@ -1,6 +1,6 @@
 package com.example.rooms.data.remote.account.models
 
-data class UserLoginRequest(
+data class UserSignInRequest(
     val login: String,
     val password: String
 )

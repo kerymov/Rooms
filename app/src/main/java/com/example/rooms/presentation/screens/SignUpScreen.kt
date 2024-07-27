@@ -28,7 +28,7 @@ import com.example.rooms.presentation.components.TextField
 
 @Composable
 fun SignUpScreen(
-    onSignUpClick: (login: String, password: String) -> Boolean,
+    onSignUpClick: (login: String, password: String, confirmedPassword: String) -> Boolean,
     onSignInClick: () -> Unit,
     modifier: Modifier = Modifier
 ) = Column(
@@ -78,7 +78,7 @@ fun SignUpScreen(
             isError = password != repeatedPassword
             if (isError) return@TextButton
 
-            onSignUpClick(login, password)
+            onSignUpClick(login, password, repeatedPassword)
         },
         modifier = Modifier.size(height = 48.dp, width = 184.dp)
     ) {
@@ -104,7 +104,7 @@ fun SignUpScreen(
 @Composable
 private fun SignUpScreenPreview() {
     SignUpScreen(
-        onSignUpClick = { login, password -> true },
+        onSignUpClick = { login, password, confirmedPassword -> true },
         onSignInClick = { },
         modifier = Modifier.fillMaxSize()
     )
