@@ -1,9 +1,11 @@
 package com.example.rooms.data.remote
 
 import android.content.Context
+import android.preference.PreferenceManager
 import com.example.rooms.data.remote.rooms.RoomsApi
 import com.example.rooms.data.remote.account.AccountApi
 import com.example.rooms.data.remote.scramble.ScrambleApi
+import com.example.rooms.utils.AppPreferences
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.logging.HttpLoggingInterceptor
@@ -14,12 +16,11 @@ import retrofit2.create
 
 object RetrofitInstance {
 
-//    private val sharedPreferences = applicationContext.getSharedPreferences("preference_key", Context.MODE_PRIVATE);
-    private var token = "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJuYW1laWQiOiJrZXJ5bW92IiwibmJmIjoxNzE3OTYwMTIwLCJleHAiOjE3MTg1NjQ5MjAsImlhdCI6MTcxNzk2MDEyMH0.EpInCcWX7Qfka9RnHhYJ14OQWuDKguiGWku-iZPLwExmHiyYz4MtGtMQ5-SxyQmcTvpXaVoh1QGGHhW9IP1W_Q"
-
     private val httpLoggingInterceptor = HttpLoggingInterceptor().apply {
         this.level = HttpLoggingInterceptor.Level.BODY
     }
+
+    private var token = AppPreferences.accessToken
 
     private val httpClient = OkHttpClient.Builder()
         .addInterceptor { chain ->

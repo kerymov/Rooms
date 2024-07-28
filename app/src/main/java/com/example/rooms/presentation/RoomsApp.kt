@@ -1,5 +1,7 @@
 package com.example.rooms.presentation
 
+import android.content.Context
+import android.content.SharedPreferences
 import com.example.rooms.presentation.viewModels.RoomViewModel
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -30,12 +32,13 @@ fun RoomsApp(
     signInViewModel: SignInViewModel = viewModel(),
     roomsViewModel: RoomsViewModel = viewModel(),
     navController: NavHostController = rememberNavController(),
+    startDestination: String = Screen.SIGN_IN.name
 ) {
     val roomsUiState by roomsViewModel.uiState.collectAsState()
 
     NavHost(
         navController = navController,
-        startDestination = Screen.SIGN_IN.name,
+        startDestination = startDestination,
         modifier = Modifier.fillMaxSize()
     ) {
         composable(route = Screen.SIGN_IN.name) {

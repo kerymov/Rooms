@@ -42,7 +42,9 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.rooms.presentation.components.BaseTextField
 import com.example.rooms.presentation.components.Logo
+import com.example.rooms.presentation.components.PasswordTextField
 import com.example.rooms.presentation.viewModels.SignInViewModel
 
 @Composable
@@ -72,82 +74,20 @@ fun SignInScreen(
     ) {
         Logo()
         Spacer(modifier = Modifier.height(64.dp))
-        OutlinedTextField(
+        BaseTextField(
             value = userName,
-            onValueChange = {
-                userName = it
-                isError = false
-            },
-            textStyle = MaterialTheme.typography.bodyLarge,
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = MaterialTheme.colorScheme.primary,
-                unfocusedBorderColor = MaterialTheme.colorScheme.outline,
-                errorBorderColor = MaterialTheme.colorScheme.error,
-                focusedTextColor = MaterialTheme.colorScheme.onBackground,
-                unfocusedTextColor = MaterialTheme.colorScheme.onBackground,
-                errorTextColor = MaterialTheme.colorScheme.onBackground,
-                cursorColor = MaterialTheme.colorScheme.onBackground,
-                focusedPlaceholderColor = MaterialTheme.colorScheme.outlineVariant,
-                unfocusedPlaceholderColor = MaterialTheme.colorScheme.outlineVariant,
-            ),
-            shape = RoundedCornerShape(8.dp),
-            placeholder = {
-                Text(
-                    text = "Username",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.outlineVariant
-                )
-            },
-            singleLine = true,
+            onValueChange = { userName = it },
+            placeholderText = "Username",
             isError = isError,
-            modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(16.dp))
-        OutlinedTextField(
+        PasswordTextField(
             value = password,
-            onValueChange = {
-                password = it
-                isError = false
-            },
-            textStyle = MaterialTheme.typography.bodyLarge,
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = MaterialTheme.colorScheme.primary,
-                unfocusedBorderColor = MaterialTheme.colorScheme.outline,
-                errorBorderColor = MaterialTheme.colorScheme.error,
-                focusedTextColor = MaterialTheme.colorScheme.onBackground,
-                unfocusedTextColor = MaterialTheme.colorScheme.onBackground,
-                errorTextColor = MaterialTheme.colorScheme.onBackground,
-                cursorColor = MaterialTheme.colorScheme.onBackground,
-                focusedPlaceholderColor = MaterialTheme.colorScheme.outlineVariant,
-                unfocusedPlaceholderColor = MaterialTheme.colorScheme.outlineVariant,
-                focusedTrailingIconColor = MaterialTheme.colorScheme.onBackground,
-                unfocusedTrailingIconColor = MaterialTheme.colorScheme.onBackground,
-            ),
-            shape = RoundedCornerShape(8.dp),
-            placeholder = {
-                Text(
-                    text = "Password",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.outlineVariant
-                )
-            },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-            visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-            trailingIcon = {
-                val icon =
-                    if (isPasswordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
-                val description = if (isPasswordVisible) "Hide password" else "Show password"
-
-                IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
-                    Icon(
-                        imageVector = icon,
-                        contentDescription = description
-                    )
-                }
-            },
-            singleLine = true,
-            isError = isError,
-            modifier = Modifier.fillMaxWidth()
+            onValueChange = { password = it },
+            isValueVisible = isPasswordVisible,
+            onValueVisibilityChange = { isPasswordVisible = !isPasswordVisible },
+            placeholderText = "Password",
+            isError = isError
         )
         Spacer(modifier = Modifier.height(48.dp))
         TextButton(

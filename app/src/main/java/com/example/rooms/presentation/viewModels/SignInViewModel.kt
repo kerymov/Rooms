@@ -1,5 +1,7 @@
 package com.example.rooms.presentation.viewModels
 
+import android.app.Application
+import android.content.Context
 import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
@@ -8,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.rooms.data.remote.account.models.UserSignInRequest
 import com.example.rooms.data.remote.RetrofitInstance
 import com.example.rooms.data.remote.account.models.UserSignUpRequest
+import com.example.rooms.utils.AppPreferences
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
@@ -25,7 +28,6 @@ data class SignInUiState(
 )
 
 class SignInViewModel : ViewModel() {
-
     private val _uiState = MutableStateFlow(SignInUiState())
     val uiState = _uiState.asStateFlow()
 
@@ -42,7 +44,10 @@ class SignInViewModel : ViewModel() {
                 val userName = response.body()?.username.orEmpty()
                 val errorMessage = response.body()?.errorMessage.orEmpty()
                 val isSuccessful = response.body()?.isSuccess ?: false
-                
+                val token = response.body()?.token
+
+                AppPreferences.accessToken = token
+
                 _uiState.update { currentState ->
                     currentState.copy(
                         userName = userName,

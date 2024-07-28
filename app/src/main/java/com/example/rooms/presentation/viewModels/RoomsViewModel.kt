@@ -11,10 +11,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 data class RoomsUiState(
-    val text: String = "mmmm",
     val rooms: List<Room> = listOf(),
     val currentRoom: Room? = null
 )
@@ -33,7 +33,7 @@ class RoomsViewModel : ViewModel() {
             try {
                 val response = RetrofitInstance.roomsApi.getRooms()
                 val rooms = response.body() ?: listOf()
-                _uiState.value = _uiState.value.copy(rooms = rooms, text = rooms.size.toString())
+                _uiState.update { it.copy(rooms = rooms) }
             } catch (e: Exception) {
                 Log.e("TAG", "Exception during request -> ${e.localizedMessage}")
             }

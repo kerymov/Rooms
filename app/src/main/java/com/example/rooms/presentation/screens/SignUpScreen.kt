@@ -23,8 +23,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.rooms.presentation.components.BaseTextField
 import com.example.rooms.presentation.components.Logo
-import com.example.rooms.presentation.components.TextField
+import com.example.rooms.presentation.components.PasswordTextField
 
 @Composable
 fun SignUpScreen(
@@ -42,27 +43,33 @@ fun SignUpScreen(
     var login by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
     var repeatedPassword by rememberSaveable { mutableStateOf("") }
+    var isPasswordVisible by rememberSaveable { mutableStateOf(false) }
+    var isRepeatedPasswordVisible by rememberSaveable { mutableStateOf(false) }
     var isError by rememberSaveable { mutableStateOf(false) }
 
     Logo()
     Spacer(modifier = Modifier.height(64.dp))
-    TextField(
+    BaseTextField(
         value = login,
         onValueChange = { login = it },
         placeholderText = "Username",
         isError = false
     )
     Spacer(modifier = Modifier.height(16.dp))
-    TextField(
+    PasswordTextField(
         value = password,
         onValueChange = { password = it },
+        isValueVisible = isPasswordVisible,
+        onValueVisibilityChange = { isPasswordVisible = !isPasswordVisible },
         placeholderText = "Password",
-        isError = false
+        isError = isError,
     )
     Spacer(modifier = Modifier.height(16.dp))
-    TextField(
+    PasswordTextField(
         value = repeatedPassword,
         onValueChange = { repeatedPassword = it },
+        isValueVisible = isRepeatedPasswordVisible,
+        onValueVisibilityChange = { isRepeatedPasswordVisible = !isRepeatedPasswordVisible },
         placeholderText = "Repeat password",
         isError = isError
     )
