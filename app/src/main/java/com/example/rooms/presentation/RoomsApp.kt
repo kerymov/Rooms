@@ -1,8 +1,5 @@
 package com.example.rooms.presentation
 
-import android.content.Context
-import android.content.SharedPreferences
-import com.example.rooms.presentation.viewModels.RoomViewModel
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -24,8 +21,9 @@ import com.example.rooms.presentation.screens.RoomScreen
 import com.example.rooms.presentation.screens.RoomsScreen
 import com.example.rooms.presentation.screens.SignInScreen
 import com.example.rooms.presentation.screens.SignUpScreen
-import com.example.rooms.presentation.viewModels.SignInViewModel
+import com.example.rooms.presentation.viewModels.RoomViewModel
 import com.example.rooms.presentation.viewModels.RoomsViewModel
+import com.example.rooms.presentation.viewModels.SignInViewModel
 
 @Composable
 fun RoomsApp(
@@ -93,7 +91,7 @@ fun RoomsApp(
             arguments = listOf(navArgument("roomId") { type = NavType.StringType })
         ) { backStackEntry ->
             val roomId = backStackEntry.arguments?.getString("roomId")
-            roomId?.let {
+            val room = roomId?.let {
                 roomsViewModel.getRoomById(it)
             } ?: return@composable
 
@@ -101,7 +99,7 @@ fun RoomsApp(
                 factory = object : ViewModelProvider.Factory {
                     @Suppress("UNCHECKED_CAST")
                     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                        return RoomViewModel(roomId) as T
+                        return RoomViewModel(room) as T
                     }
                 }
             )

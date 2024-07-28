@@ -1,7 +1,6 @@
 package com.example.rooms.presentation.viewModels
 
 import android.util.Log
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.rooms.data.remote.RetrofitInstance
@@ -40,9 +39,10 @@ class RoomsViewModel : ViewModel() {
         }
     }
 
-    fun getRoomById(id: String) {
+    fun getRoomById(id: String): Room? {
         val room = _uiState.value.rooms.find { it.id == id }
         _uiState.value = _uiState.value.copy(currentRoom = room)
+        return room
     }
 
     fun createRoom(roomCreationRequest: RoomCreationRequest) {

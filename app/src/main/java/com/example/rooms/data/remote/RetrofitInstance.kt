@@ -1,9 +1,7 @@
 package com.example.rooms.data.remote
 
-import android.content.Context
-import android.preference.PreferenceManager
-import com.example.rooms.data.remote.rooms.RoomsApi
 import com.example.rooms.data.remote.account.AccountApi
+import com.example.rooms.data.remote.rooms.RoomsApi
 import com.example.rooms.data.remote.scramble.ScrambleApi
 import com.example.rooms.utils.AppPreferences
 import okhttp3.OkHttpClient
@@ -11,7 +9,6 @@ import okhttp3.Request
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.create
 
 
 object RetrofitInstance {
