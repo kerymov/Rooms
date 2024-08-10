@@ -15,15 +15,15 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.rooms.presentation.navigation.Screen
-import com.example.rooms.presentation.screens.ResultsScreen
-import com.example.rooms.presentation.screens.RoomScreen
-import com.example.rooms.presentation.screens.RoomsScreen
-import com.example.rooms.presentation.screens.SignInScreen
-import com.example.rooms.presentation.screens.SignUpScreen
-import com.example.rooms.presentation.viewModels.RoomViewModel
-import com.example.rooms.presentation.viewModels.RoomsViewModel
-import com.example.rooms.presentation.viewModels.SignInViewModel
+import com.example.rooms.presentation.ui.navigation.Screen
+import com.example.rooms.presentation.ui.screens.ResultsScreen
+import com.example.rooms.presentation.ui.screens.RoomScreen
+import com.example.rooms.presentation.ui.screens.RoomsScreen
+import com.example.rooms.presentation.ui.screens.SignInScreen
+import com.example.rooms.presentation.ui.screens.SignUpScreen
+import com.example.rooms.presentation.ui.viewModels.RoomViewModel
+import com.example.rooms.presentation.ui.viewModels.RoomsViewModel
+import com.example.rooms.presentation.ui.viewModels.SignInViewModel
 
 @Composable
 fun RoomsApp(
@@ -41,13 +41,10 @@ fun RoomsApp(
     ) {
         composable(route = Screen.SIGN_IN.name) {
             SignInScreen(
-                onSignInClick = { login, password ->
-                    signInViewModel.signIn(login = login, password = password)
-                },
                 onSignInSuccess = {
                     navController.navigate(Screen.ROOMS.name)
                 },
-                onSignUpClick = {
+                onGoToSignUpClick = {
                     navController.navigate(Screen.SIGN_UP.name)
                 },
                 signInViewModel = signInViewModel
@@ -58,18 +55,18 @@ fun RoomsApp(
                 onSignUpClick = { login, password, confirmedPassword ->
                     var result = false
 
-                    signInViewModel.signUp(
-                        login = login,
-                        password = password,
-                        passwordConfirm = confirmedPassword,
-                        onSuccess = {
-                            navController.navigate(Screen.ROOMS.name)
-                            result = true
-                        },
-                        onFailure = {
-                            result = false
-                        }
-                    )
+//                    signInViewModel.signUp(
+//                        login = login,
+//                        password = password,
+//                        passwordConfirm = confirmedPassword,
+//                        onSuccess = {
+//                            navController.navigate(Screen.ROOMS.name)
+//                            result = true
+//                        },
+//                        onFailure = {
+//                            result = false
+//                        }
+//                    )
 
                     return@SignUpScreen result
                 },
