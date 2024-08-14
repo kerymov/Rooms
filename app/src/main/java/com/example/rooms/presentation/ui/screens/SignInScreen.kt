@@ -27,8 +27,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.rooms.presentation.ui.components.BaseTextField
+import com.example.rooms.presentation.ui.components.LoadingScreen
 import com.example.rooms.presentation.ui.components.Logo
 import com.example.rooms.presentation.ui.components.PasswordTextField
 import com.example.rooms.presentation.ui.viewModels.SignInUiState
@@ -47,9 +49,50 @@ fun SignInScreen(
 
     var username by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
+
     var isPasswordVisible by rememberSaveable { mutableStateOf(false) }
+    var isLoading by rememberSaveable { mutableStateOf(false) }
     var isError by rememberSaveable { mutableStateOf(false) }
 
+    LaunchedEffect(uiState) {
+        when (val state = uiState) {
+            is SignInUiState.Success -> {
+                isLoading = false
+                isError = false
+                onSignInSuccess()
+                val toast = Toast.makeText(
+                    context,
+                    "Success!",
+                    Toast.LENGTH_SHORT
+                )
+                toast.show()
+            }
+
+            is SignInUiState.Error -> {
+                isLoading = false
+                isError = true
+                val toast = Toast.makeText(
+                    context,
+                    state.message,
+                    Toast.LENGTH_LONG
+                )
+                toast.show()
+            }
+
+            is SignInUiState.Loading -> {
+                isLoading = true
+                isError = false
+            }
+
+            is SignInUiState.None -> {
+                isLoading = false
+                isError = false
+            }
+        }
+    }
+    if (isLoading) {
+        LoadingScreen()
+    }
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -101,36 +144,6 @@ fun SignInScreen(
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.primary
             )
-        }
-    }
-
-    LaunchedEffect(uiState) {
-        when (val state = uiState) {
-            is SignInUiState.Success -> {
-                isError = false
-                onSignInSuccess()
-                val toast = Toast.makeText(
-                    context,
-                    "Success!",
-                    Toast.LENGTH_SHORT
-                )
-                toast.show()
-            }
-            is SignInUiState.Error -> {
-                isError = true
-                val toast = Toast.makeText(
-                    context,
-                    state.message,
-                    Toast.LENGTH_LONG
-                )
-                toast.show()
-            }
-            is SignInUiState.Loading -> {
-                isError = false
-            }
-            is SignInUiState.None -> {
-                isError = false
-            }
         }
     }
 }

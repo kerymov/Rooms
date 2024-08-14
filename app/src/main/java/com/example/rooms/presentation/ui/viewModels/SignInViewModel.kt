@@ -30,32 +30,24 @@ class SignInViewModel(
     private val singInUseCase: SignInUseCase
 ) : ViewModel() {
     private val _uiState: MutableStateFlow<SignInUiState> = MutableStateFlow(SignInUiState.None)
-    val uiState: StateFlow<SignInUiState>
-        get() = _uiState.asStateFlow()
+    val uiState: StateFlow<SignInUiState> = _uiState.asStateFlow()
 
     fun signIn(
         login: String,
         password: String
     ) {
         viewModelScope.launch(Dispatchers.IO) {
+            _uiState.value = SignInUiState.Loading
+
             singInUseCase.invoke(login, password)
-                .onStart { _uiState.value = SignInUiState.Loading }
                 .catch { e ->
                     _uiState.value = SignInUiState.Error(code = null, message = e.localizedMessage)
                 }
                 .collect { result ->
                     _uiState.value = when (result) {
-                        is BaseResult.Success -> {
-                            SignInUiState.Success
-                        }
-
-                        is BaseResult.Error -> {
-                            SignInUiState.Error(result.code, result.message)
-                        }
-
-                        is BaseResult.Exception -> {
-                            SignInUiState.Error(null, result.message)
-                        }
+                        is BaseResult.Success -> SignInUiState.Success
+                        is BaseResult.Error -> SignInUiState.Error(result.code, result.message)
+                        is BaseResult.Exception -> SignInUiState.Error(null, result.message)
                     }
                 }
         }
