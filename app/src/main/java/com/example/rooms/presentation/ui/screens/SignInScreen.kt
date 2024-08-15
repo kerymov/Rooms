@@ -35,11 +35,12 @@ import com.example.rooms.presentation.ui.components.Logo
 import com.example.rooms.presentation.ui.components.PasswordTextField
 import com.example.rooms.presentation.ui.viewModels.SignInUiState
 import com.example.rooms.presentation.ui.viewModels.SignInViewModel
+import com.example.rooms.presentation.ui.viewModels.SignUpUiState
 
 @Composable
 fun SignInScreen(
-    onGoToSignUpClick: () -> Unit,
     onSignInSuccess: () -> Unit,
+    onGoToSignUpClick: () -> Unit,
     modifier: Modifier = Modifier,
     signInViewModel: SignInViewModel = viewModel()
 ) {
@@ -49,8 +50,8 @@ fun SignInScreen(
 
     var username by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
-
     var isPasswordVisible by rememberSaveable { mutableStateOf(false) }
+
     var isLoading by rememberSaveable { mutableStateOf(false) }
     var isError by rememberSaveable { mutableStateOf(false) }
 
@@ -90,9 +91,11 @@ fun SignInScreen(
             }
         }
     }
+
     if (isLoading) {
         LoadingScreen()
     }
+
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,

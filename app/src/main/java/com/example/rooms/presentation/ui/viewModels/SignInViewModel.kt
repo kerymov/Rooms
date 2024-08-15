@@ -27,7 +27,7 @@ sealed class SignInUiState {
 }
 
 class SignInViewModel(
-    private val singInUseCase: SignInUseCase
+    private val useCase: SignInUseCase
 ) : ViewModel() {
     private val _uiState: MutableStateFlow<SignInUiState> = MutableStateFlow(SignInUiState.None)
     val uiState: StateFlow<SignInUiState> = _uiState.asStateFlow()
@@ -39,7 +39,7 @@ class SignInViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             _uiState.value = SignInUiState.Loading
 
-            singInUseCase.invoke(login, password)
+            useCase.invoke(login, password)
                 .catch { e ->
                     _uiState.value = SignInUiState.Error(code = null, message = e.localizedMessage)
                 }

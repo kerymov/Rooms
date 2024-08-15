@@ -34,9 +34,21 @@ class AccountRepositoryImpl(
 
     override suspend fun signUp(username: String, password: String, passwordConfirm: String): Flow<BaseResult<User>> {
         val userSignUpRequestDto = UserSignUpRequestDto(username, password, passwordConfirm)
-        val response = remoteDataSource.signUp(userSignUpRequestDto)
-
-        TODO("Not yet implemented")
+        val result = remoteDataSource.signUp(userSignUpRequestDto)
+        return flow {
+            when (result) {
+                is NetworkResult.Success -> {
+                    val user = User(result.data.username)
+                    emit(BaseResult.Success(user))
+                }
+                is NetworkResult.Error -> {
+                    emit(BaseResult.Error(code = result.code, message = result.message))
+                }
+                is NetworkResult.Exception -> {
+                    emit(BaseResult.Exception(message = result.e.message))
+                }
+            }
+        }
     }
 }
 

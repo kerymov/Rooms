@@ -24,10 +24,12 @@ import com.example.rooms.presentation.ui.screens.SignUpScreen
 import com.example.rooms.presentation.ui.viewModels.RoomViewModel
 import com.example.rooms.presentation.ui.viewModels.RoomsViewModel
 import com.example.rooms.presentation.ui.viewModels.SignInViewModel
+import com.example.rooms.presentation.ui.viewModels.SignUpViewModel
 
 @Composable
 fun RoomsApp(
     signInViewModel: SignInViewModel = viewModel(),
+    signUpViewModel: SignUpViewModel = viewModel(),
     roomsViewModel: RoomsViewModel = viewModel(),
     navController: NavHostController = rememberNavController(),
     startDestination: String = Screen.SIGN_IN.name
@@ -52,27 +54,13 @@ fun RoomsApp(
         }
         composable(route = Screen.SIGN_UP.name) {
             SignUpScreen(
-                onSignUpClick = { login, password, confirmedPassword ->
-                    var result = false
-
-//                    signInViewModel.signUp(
-//                        login = login,
-//                        password = password,
-//                        passwordConfirm = confirmedPassword,
-//                        onSuccess = {
-//                            navController.navigate(Screen.ROOMS.name)
-//                            result = true
-//                        },
-//                        onFailure = {
-//                            result = false
-//                        }
-//                    )
-
-                    return@SignUpScreen result
+                onSignUpSuccess = {
+                    navController.navigate(Screen.ROOMS.name)
                 },
-                onSignInClick = {
+                onGoToSignInClick = {
                     navController.navigate(Screen.SIGN_IN.name)
-                }
+                },
+                signUpViewModel = signUpViewModel,
             )
         }
         composable(route = Screen.ROOMS.name) {
