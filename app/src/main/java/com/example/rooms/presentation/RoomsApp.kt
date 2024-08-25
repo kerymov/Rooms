@@ -32,7 +32,7 @@ fun RoomsApp(
     signUpViewModel: SignUpViewModel = viewModel(),
     roomsViewModel: RoomsViewModel = viewModel(),
     navController: NavHostController = rememberNavController(),
-    startDestination: String = Screen.SIGN_IN.name
+    startDestination: String
 ) {
     val roomsUiState by roomsViewModel.uiState.collectAsState()
 

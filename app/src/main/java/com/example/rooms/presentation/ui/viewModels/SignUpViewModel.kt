@@ -1,11 +1,15 @@
 package com.example.rooms.presentation.ui.viewModels
 
+import android.app.Application
+import android.content.Context
 import android.util.Log
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import com.example.rooms.data.dataSource.LocalAccountDataSource
 import com.example.rooms.data.dataSource.RemoteAccountDataSource
 import com.example.rooms.data.network.RetrofitInstance
 import com.example.rooms.data.model.account.auth.UserSignUpRequestDto
@@ -30,7 +34,7 @@ sealed class SignUpUiState {
 }
 
 class SignUpViewModel(
-    private val useCase: SignUpUseCase
+    private val useCase: SignUpUseCase,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<SignUpUiState>(SignUpUiState.None)
@@ -60,10 +64,15 @@ class SignUpViewModel(
 
     companion object {
 
-        val Factory: ViewModelProvider.Factory = viewModelFactory {
+        fun createFactory(context: Context) = viewModelFactory {
             initializer {
                 SignUpViewModel(
-                    SignUpUseCase(AccountRepositoryImpl(RemoteAccountDataSource()))
+                    SignUpUseCase(
+                        AccountRepositoryImpl(
+                            LocalAccountDataSource(context = context),
+                            RemoteAccountDataSource(),
+                        )
+                    )
                 )
             }
         }
