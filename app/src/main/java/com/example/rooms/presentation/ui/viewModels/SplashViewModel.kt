@@ -9,9 +9,7 @@ import com.example.rooms.data.dataSource.LocalAccountDataSource
 import com.example.rooms.data.dataSource.RemoteAccountDataSource
 import com.example.rooms.data.repository.AccountRepositoryImpl
 import com.example.rooms.domain.model.BaseResult
-import com.example.rooms.domain.model.User
-import com.example.rooms.domain.useCases.GetUserUseCase
-import com.example.rooms.domain.useCases.SignUpUseCase
+import com.example.rooms.domain.useCases.auth.GetUserUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

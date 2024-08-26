@@ -2,7 +2,6 @@ package com.example.rooms.presentation.ui.viewModels
 
 import android.content.Context
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
@@ -10,8 +9,7 @@ import com.example.rooms.data.dataSource.LocalAccountDataSource
 import com.example.rooms.data.dataSource.RemoteAccountDataSource
 import com.example.rooms.data.repository.AccountRepositoryImpl
 import com.example.rooms.domain.model.BaseResult
-import com.example.rooms.domain.useCases.SignInUseCase
-import com.example.rooms.domain.useCases.SignUpUseCase
+import com.example.rooms.domain.useCases.auth.SignInUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
