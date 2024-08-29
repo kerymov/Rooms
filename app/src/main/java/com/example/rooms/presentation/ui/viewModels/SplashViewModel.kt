@@ -43,9 +43,7 @@ class SplashViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             val result = getUserUseCase.invoke()
                 .onStart {
-                    delay(2000)
                     _uiState.value = SplashUiState.Loading
-                    delay(2000)
                 }
                 .catch { e ->
                     _uiState.value = SplashUiState.Error(code = null, message = e.localizedMessage)
