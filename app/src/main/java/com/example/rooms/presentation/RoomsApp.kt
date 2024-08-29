@@ -21,54 +21,50 @@ import com.example.rooms.presentation.ui.screens.RoomScreen
 import com.example.rooms.presentation.ui.screens.RoomsScreen
 import com.example.rooms.presentation.ui.screens.SignInScreen
 import com.example.rooms.presentation.ui.screens.SignUpScreen
+import com.example.rooms.presentation.ui.screens.SplashScreen
 import com.example.rooms.presentation.ui.viewModels.RoomViewModel
 import com.example.rooms.presentation.ui.viewModels.RoomsViewModel
 import com.example.rooms.presentation.ui.viewModels.SignInViewModel
 import com.example.rooms.presentation.ui.viewModels.SignUpViewModel
+import com.example.rooms.presentation.ui.viewModels.SplashViewModel
 
 @Composable
 fun RoomsApp(
+    splashViewModel: SplashViewModel = viewModel(),
     signInViewModel: SignInViewModel = viewModel(),
     signUpViewModel: SignUpViewModel = viewModel(),
     roomsViewModel: RoomsViewModel = viewModel(),
     navController: NavHostController = rememberNavController(),
-    startDestination: String
 ) {
     val roomsUiState by roomsViewModel.uiState.collectAsState()
 
     NavHost(
         navController = navController,
-        startDestination = startDestination,
+        startDestination = Screen.SPLASH.name,
         modifier = Modifier.fillMaxSize()
     ) {
+        composable(route = Screen.SPLASH.name) {
+            SplashScreen(
+                navController = navController,
+                splashViewModel = splashViewModel
+            )
+        }
         composable(route = Screen.SIGN_IN.name) {
             SignInScreen(
-                onSignInSuccess = {
-                    navController.navigate(Screen.ROOMS.name)
-                },
-                onGoToSignUpClick = {
-                    navController.navigate(Screen.SIGN_UP.name)
-                },
+                navController = navController,
                 signInViewModel = signInViewModel
             )
         }
         composable(route = Screen.SIGN_UP.name) {
             SignUpScreen(
-                onSignUpSuccess = {
-                    navController.navigate(Screen.ROOMS.name)
-                },
-                onGoToSignInClick = {
-                    navController.navigate(Screen.SIGN_IN.name)
-                },
+                navController = navController,
                 signUpViewModel = signUpViewModel,
             )
         }
         composable(route = Screen.ROOMS.name) {
             RoomsScreen(
+                navController = navController,
                 roomsViewModel = roomsViewModel,
-                onRoomCardClick = { room ->
-                    navController.navigate(Screen.ROOM.name + "/${room.id}")
-                }
             )
         }
         composable(
@@ -89,10 +85,9 @@ fun RoomsApp(
                 }
             )
             RoomScreen(
+                navController = rememberNavController(),
                 signInViewModel = signInViewModel,
                 roomViewModel = roomViewModel,
-                onNavigationButtonClick = { navController.popBackStack() },
-                onActionButtonClick = { navController.navigate(Screen.RESULTS.name + "/${roomId}") }
             )
         }
         composable(
@@ -106,8 +101,8 @@ fun RoomsApp(
 
             val room = roomsUiState.currentRoom ?: return@composable
             ResultsScreen(
+                navController = navController,
                 roomName = room.roomName,
-                onNavigationButtonClick = { navController.popBackStack() }
             )
         }
     }

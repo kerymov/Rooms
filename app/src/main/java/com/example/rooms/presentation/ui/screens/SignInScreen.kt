@@ -27,20 +27,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.rooms.presentation.ui.components.BaseTextField
 import com.example.rooms.presentation.ui.components.LoadingScreen
 import com.example.rooms.presentation.ui.components.Logo
 import com.example.rooms.presentation.ui.components.PasswordTextField
+import com.example.rooms.presentation.ui.navigation.Screen
 import com.example.rooms.presentation.ui.viewModels.SignInUiState
 import com.example.rooms.presentation.ui.viewModels.SignInViewModel
-import com.example.rooms.presentation.ui.viewModels.SignUpUiState
 
 @Composable
 fun SignInScreen(
-    onSignInSuccess: () -> Unit,
-    onGoToSignUpClick: () -> Unit,
+    navController: NavController,
     modifier: Modifier = Modifier,
     signInViewModel: SignInViewModel = viewModel()
 ) {
@@ -60,13 +60,15 @@ fun SignInScreen(
             is SignInUiState.Success -> {
                 isLoading = false
                 isError = false
-                onSignInSuccess()
+
                 val toast = Toast.makeText(
                     context,
                     "Success!",
                     Toast.LENGTH_SHORT
                 )
                 toast.show()
+
+                navController.navigate(Screen.ROOMS.name)
             }
 
             is SignInUiState.Error -> {
@@ -141,7 +143,9 @@ fun SignInScreen(
             )
         }
         Spacer(modifier = Modifier.height(12.dp))
-        TextButton(onClick = onGoToSignUpClick) {
+        TextButton(onClick = {
+            navController.navigate(Screen.SIGN_UP.name)
+        }) {
             Text(
                 text = "Go to sign up",
                 style = MaterialTheme.typography.titleMedium,
@@ -155,8 +159,7 @@ fun SignInScreen(
 @Composable
 private fun SignInScreenPreview() {
     SignInScreen(
-        onGoToSignUpClick = { },
-        onSignInSuccess = { },
+        navController = rememberNavController(),
         modifier = Modifier.fillMaxSize()
     )
 }

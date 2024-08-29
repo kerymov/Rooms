@@ -2,7 +2,6 @@
 
 package com.example.rooms.presentation.ui.screens
 
-import com.example.rooms.presentation.ui.viewModels.RoomViewModel
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -47,18 +46,19 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.example.rooms.R
 import com.example.rooms.data.model.scramble.ImageDto
+import com.example.rooms.presentation.model.Event
 import com.example.rooms.presentation.ui.components.ClickableTimer
 import com.example.rooms.presentation.ui.components.ManualTypingTimer
+import com.example.rooms.presentation.ui.components.ScrambleImage
 import com.example.rooms.presentation.ui.components.TopBar
+import com.example.rooms.presentation.ui.navigation.Screen
+import com.example.rooms.presentation.ui.viewModels.RoomViewModel
+import com.example.rooms.presentation.ui.viewModels.SignInViewModel
 import com.example.rooms.presentation.utils.Timer
 import com.example.rooms.presentation.utils.TimerState
-import com.example.rooms.presentation.model.Event
-import com.example.rooms.presentation.ui.viewModels.SignInViewModel
-import com.example.rooms.presentation.Solve
-import com.example.rooms.presentation.SolvesRepository
-import com.example.rooms.presentation.ui.components.ScrambleImage
 
 private enum class Page {
     SCRAMBLE,
@@ -73,11 +73,10 @@ private enum class TimerMode(val label: String) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RoomScreen(
+    navController: NavController,
     modifier: Modifier = Modifier,
     signInViewModel: SignInViewModel = viewModel(),
     roomViewModel: RoomViewModel = viewModel(),
-    onNavigationButtonClick: () -> Unit,
-    onActionButtonClick: () -> Unit,
 ) {
     val roomUiState by roomViewModel.uiState.collectAsState()
 
@@ -88,8 +87,10 @@ fun RoomScreen(
                 title = "${roomUiState.room?.roomName} - ${event?.shortName}",
                 navigationIcon = R.drawable.exit_to_app,
                 actionIcon = R.drawable.groups,
-                onNavigationButtonClick = onNavigationButtonClick,
-                onActionButtonClick = onActionButtonClick
+                onNavigationButtonClick = { navController.popBackStack() },
+                onActionButtonClick = {
+                    navController.navigate(Screen.RESULTS.name + "/${roomUiState.room?.id}")
+                }
             )
         },
         containerColor = MaterialTheme.colorScheme.background,

@@ -27,6 +27,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.example.rooms.R
 import com.example.rooms.presentation.SolvesRepository
 import com.example.rooms.presentation.ui.components.TopBar
@@ -40,7 +41,7 @@ import java.util.Locale
 @Composable
 fun ResultsScreen(
     roomName: String,
-    onNavigationButtonClick: () -> Unit,
+    navController: NavController,
     modifier: Modifier = Modifier
 ) {
     ChangeSystemBarsColors(
@@ -56,7 +57,7 @@ fun ResultsScreen(
                 title = "Results",
                 navigationIcon = R.drawable.arrow_back,
                 actionIcon = null,
-                onNavigationButtonClick = onNavigationButtonClick,
+                onNavigationButtonClick = { navController.popBackStack() },
                 onActionButtonClick = {}
             )
         },

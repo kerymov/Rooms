@@ -3,7 +3,6 @@ package com.example.rooms.data.network
 import com.example.rooms.data.network.account.AccountApi
 import com.example.rooms.data.network.rooms.RoomsApi
 import com.example.rooms.data.network.scramble.ScrambleApi
-import com.example.rooms.utils.AppPreferences
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.logging.HttpLoggingInterceptor
@@ -17,7 +16,8 @@ object RetrofitInstance {
         this.level = HttpLoggingInterceptor.Level.BODY
     }
 
-    private var token = AppPreferences.accessToken
+//    private var token = AppPreferences.accessToken
+    private val token: String? = null
 
     private val httpClient = OkHttpClient.Builder()
         .addInterceptor { chain ->

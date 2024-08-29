@@ -48,20 +48,22 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.example.rooms.R
 import com.example.rooms.data.model.rooms.RoomDto
 import com.example.rooms.presentation.ui.components.TopBar
 import com.example.rooms.presentation.ui.theme.ChangeSystemBarsColors
 import com.example.rooms.presentation.model.Event
+import com.example.rooms.presentation.ui.navigation.Screen
 import com.example.rooms.presentation.ui.viewModels.RoomsViewModel
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun RoomsScreen(
+    navController: NavController,
     modifier: Modifier = Modifier,
     roomsViewModel: RoomsViewModel = viewModel(),
-    onRoomCardClick: (room: RoomDto) -> Unit,
 ) {
     ChangeSystemBarsColors(
         systemBarColor = MaterialTheme.colorScheme.background.toArgb(),
@@ -121,7 +123,9 @@ fun RoomsScreen(
                     modifier = Modifier
                         .padding(4.dp)
                         .combinedClickable(
-                            onClick = { onRoomCardClick(item) },
+                            onClick = {
+                                navController.navigate(Screen.ROOM.name + "/${item.id}")
+                            },
                             onLongClick = {
                                 isDeleteRoomSheetOpen = true
                                 roomIdToDelete = item.id

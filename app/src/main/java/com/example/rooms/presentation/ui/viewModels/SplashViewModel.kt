@@ -11,10 +11,14 @@ import com.example.rooms.data.repository.AccountRepositoryImpl
 import com.example.rooms.domain.model.BaseResult
 import com.example.rooms.domain.useCases.auth.GetUserUseCase
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 
 sealed class SplashUiState {
@@ -36,20 +40,23 @@ class SplashViewModel(
     }
 
     private fun getUser() {
-        _uiState.value = SplashUiState.Loading
-
         viewModelScope.launch(Dispatchers.IO) {
-            getUserUseCase.invoke()
+            val result = getUserUseCase.invoke()
+                .onStart {
+                    delay(2000)
+                    _uiState.value = SplashUiState.Loading
+                    delay(2000)
+                }
                 .catch { e ->
                     _uiState.value = SplashUiState.Error(code = null, message = e.localizedMessage)
                 }
-                .collect { result ->
-                    _uiState.value = when (result) {
-                        is BaseResult.Success -> { SplashUiState.Success }
-                        is BaseResult.Error -> SplashUiState.Error(result.code, result.message)
-                        is BaseResult.Exception -> SplashUiState.Error(null, result.message)
-                    }
-                }
+                .first()
+
+            _uiState.value = when (result) {
+                is BaseResult.Success -> { SplashUiState.Success }
+                is BaseResult.Error -> SplashUiState.Error(result.code, result.message)
+                is BaseResult.Exception -> SplashUiState.Error(null, result.message)
+            }
         }
     }
 
