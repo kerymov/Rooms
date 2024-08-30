@@ -85,6 +85,10 @@ class AccountRepositoryImpl(
         }
     }
 
+    override suspend fun signOut() {
+        localDataSource.removeUser()
+    }
+
     override suspend fun saveUser(username: String, token: String, expiresIn: Int) {
         val user = UserDto(username, token, expiresIn)
         localDataSource.saveUser(user)

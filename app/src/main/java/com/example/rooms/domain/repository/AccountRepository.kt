@@ -10,6 +10,8 @@ interface AccountRepository {
 
     suspend fun signUp(username: String, password: String, passwordConfirm: String): Flow<BaseResult<User>>
 
+    suspend fun signOut()
+
     suspend fun saveUser(username: String, token: String, expiresIn: Int)
 
     suspend fun getUser(): Flow<BaseResult<User>>

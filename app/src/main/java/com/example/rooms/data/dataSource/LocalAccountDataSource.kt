@@ -33,4 +33,10 @@ class LocalAccountDataSource(context: Context) {
                 userJson?.let { UserDto.fromJson(it) }
             }
     }
+
+    suspend fun removeUser() {
+        dataStore.edit { preferences ->
+            preferences.remove(USER_KEY)
+        }
+    }
 }
