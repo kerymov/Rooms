@@ -39,13 +39,15 @@ class SignInViewModel(
 
             useCase.invoke(login, password)
                 .catch { e ->
-                    _uiState.value = SignInUiState.Error(code = null, message = e.localizedMessage)
+                    _uiState.value = SignInUiState.Error(code = null, message = e.message)
                 }
                 .collect { result ->
                     _uiState.value = when (result) {
                         is BaseResult.Success -> SignInUiState.Success
-                        is BaseResult.Error -> SignInUiState.Error(result.code, result.message)
-                        is BaseResult.Exception -> SignInUiState.Error(null, result.message)
+                        is BaseResult.Error ->
+                            SignInUiState.Error(result.code, result.message)
+                        is BaseResult.Exception ->
+                            SignInUiState.Error(null, result.message)
                     }
                 }
         }

@@ -6,14 +6,15 @@ import com.example.rooms.data.model.account.auth.UserSignUpRequestDto
 import com.example.rooms.data.network.NetworkResult
 import com.example.rooms.data.network.RetrofitInstance
 import com.example.rooms.data.network.handleApi
+import retrofit2.Response
 
 class RemoteAccountDataSource {
 
-    suspend fun signIn(userSignInRequest: UserSignInRequestDto): NetworkResult<UserAuthResponseDto> {
-        return handleApi { RetrofitInstance.accountApi.signIn(userSignInRequest) }
+    suspend fun signIn(userSignInRequest: UserSignInRequestDto): Response<UserAuthResponseDto> {
+        return RetrofitInstance.accountApi.signIn(userSignInRequest)
     }
 
-    suspend fun signUp(userSignUpRequest: UserSignUpRequestDto): NetworkResult<UserAuthResponseDto> {
-        return handleApi { RetrofitInstance.accountApi.signUp(userSignUpRequest) }
+    suspend fun signUp(userSignUpRequest: UserSignUpRequestDto): Response<UserAuthResponseDto> {
+        return RetrofitInstance.accountApi.signUp(userSignUpRequest)
     }
 }
