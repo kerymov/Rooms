@@ -1,4 +1,4 @@
-package com.example.rooms.presentation.ui.screens
+package com.example.rooms.presentation.ui.screens.auth
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -19,12 +19,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -36,45 +37,51 @@ import com.example.rooms.presentation.ui.components.LoadingScreen
 import com.example.rooms.presentation.ui.components.Logo
 import com.example.rooms.presentation.ui.components.PasswordTextField
 import com.example.rooms.presentation.ui.navigation.Screen
-import com.example.rooms.presentation.ui.viewModels.SignInUiState
-import com.example.rooms.presentation.ui.viewModels.SignInViewModel
-import kotlinx.coroutines.delay
+import com.example.rooms.presentation.ui.viewModels.SignUpUiState
+import com.example.rooms.presentation.ui.viewModels.SignUpViewModel
 
 @Composable
-fun SignInScreen(
+fun SignUpScreen(
     navController: NavController,
     modifier: Modifier = Modifier,
-    signInViewModel: SignInViewModel = viewModel()
+    signUpViewModel: SignUpViewModel = viewModel()
 ) {
-    val uiState by signInViewModel.uiState.collectAsState()
+    val uiState by signUpViewModel.uiState.collectAsState()
 
     var username by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
+    var repeatedPassword by rememberSaveable { mutableStateOf("") }
     var isPasswordVisible by rememberSaveable { mutableStateOf(false) }
+    var isRepeatedPasswordVisible by rememberSaveable { mutableStateOf(false) }
 
     var isLoading by rememberSaveable { mutableStateOf(false) }
     var errorMessage by rememberSaveable { mutableStateOf<String?>(null) }
 
+    val incorrectFields = remember { mutableStateListOf<Field>() }
+
     LaunchedEffect(uiState) {
         when (val state = uiState) {
-            is SignInUiState.Success -> {
+            is SignUpUiState.Success -> {
                 isLoading = false
                 errorMessage = null
 
                 navController.navigate(Screen.ROOMS.name)
             }
 
-            is SignInUiState.Error -> {
+            is SignUpUiState.Error -> {
                 isLoading = false
                 errorMessage = state.message
+                incorrectFields.addAll(
+                    listOf(Field.PASSWORD, Field.REPEAT_PASSWORD, Field.REPEAT_PASSWORD)
+                )
             }
 
-            is SignInUiState.Loading -> {
+            is SignUpUiState.Loading -> {
                 isLoading = true
                 errorMessage = null
             }
 
-            is SignInUiState.None -> {
+            is SignUpUiState.None -> {
                 isLoading = false
                 errorMessage = null
             }
@@ -93,6 +100,7 @@ fun SignInScreen(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = modifier
+                .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
                 .padding(20.dp)
         ) {
@@ -103,10 +111,10 @@ fun SignInScreen(
                 onValueChange = {
                     username = it
                     errorMessage = null
+                    incorrectFields.remove(Field.USERNAME)
                 },
                 placeholderText = "Username",
-                isError = !errorMessage.isNullOrBlank(),
-                imeAction = ImeAction.Next
+                isError = Field.USERNAME in incorrectFields
             )
             Spacer(modifier = Modifier.height(16.dp))
             PasswordTextField(
@@ -114,12 +122,25 @@ fun SignInScreen(
                 onValueChange = {
                     password = it
                     errorMessage = null
+                    incorrectFields.remove(Field.PASSWORD)
                 },
                 isValueVisible = isPasswordVisible,
                 onValueVisibilityChange = { isPasswordVisible = !isPasswordVisible },
-                placeholderText = "Password",
-                isError = !errorMessage.isNullOrBlank(),
-                imeAction = ImeAction.Done
+                placeholderText = Field.PASSWORD.placeholder,
+                isError = Field.PASSWORD in incorrectFields,
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            PasswordTextField(
+                value = repeatedPassword,
+                onValueChange = {
+                    repeatedPassword = it
+                    errorMessage = null
+                    incorrectFields.remove(Field.REPEAT_PASSWORD)
+                },
+                isValueVisible = isRepeatedPasswordVisible,
+                onValueVisibilityChange = { isRepeatedPasswordVisible = !isRepeatedPasswordVisible },
+                placeholderText = Field.REPEAT_PASSWORD.placeholder,
+                isError = Field.REPEAT_PASSWORD in incorrectFields,
             )
             Spacer(modifier = Modifier.height(48.dp))
             TextButton(
@@ -130,22 +151,47 @@ fun SignInScreen(
                     contentColor = MaterialTheme.colorScheme.onPrimary
                 ),
                 onClick = {
-                    signInViewModel.signIn(login = username, password = password)
+                    incorrectFields.clear()
+
+                    when {
+                        username.isBlank() -> {
+                            incorrectFields.add(Field.USERNAME)
+                            errorMessage = Field.USERNAME.onEmptyErrorMessage
+                        }
+                        password.isBlank() -> {
+                            incorrectFields.add(Field.PASSWORD)
+                            errorMessage = Field.PASSWORD.onEmptyErrorMessage
+                        }
+                        repeatedPassword.isBlank() -> {
+                            incorrectFields.add(Field.REPEAT_PASSWORD)
+                            errorMessage = Field.REPEAT_PASSWORD.onEmptyErrorMessage
+                        }
+                        password != repeatedPassword -> {
+                            incorrectFields.addAll(listOf(Field.PASSWORD, Field.REPEAT_PASSWORD))
+                            errorMessage = "Passwords do not match"
+                        }
+                    }
+
+                    if (!errorMessage.isNullOrBlank()) return@TextButton
+
+                    signUpViewModel.signUp(username, password, repeatedPassword)
                 },
                 modifier = Modifier.size(height = 48.dp, width = 184.dp)
             ) {
                 Text(
-                    text = "Sign in",
+                    text = "Sign up",
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onPrimary
                 )
             }
             Spacer(modifier = Modifier.height(12.dp))
-            TextButton(onClick = {
-                navController.navigate(Screen.SIGN_UP.name)
-            }) {
+            TextButton(
+                onClick = {
+                    navController.navigate(Screen.SIGN_IN.name)
+                }
+            ) {
                 Text(
-                    text = "Go to sign up",
+                    text = "Go to sign in",
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.primary
                 )
@@ -158,14 +204,13 @@ fun SignInScreen(
                 modifier = Modifier.align(Alignment.BottomCenter)
             )
         }
-
     }
 }
 
 @Preview
 @Composable
-private fun SignInScreenPreview() {
-    SignInScreen(
+private fun SignUpScreenPreview() {
+    SignUpScreen(
         navController = rememberNavController(),
         modifier = Modifier.fillMaxSize()
     )

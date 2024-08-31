@@ -19,8 +19,8 @@ import com.example.rooms.presentation.ui.navigation.Screen
 import com.example.rooms.presentation.ui.screens.ResultsScreen
 import com.example.rooms.presentation.ui.screens.RoomScreen
 import com.example.rooms.presentation.ui.screens.RoomsScreen
-import com.example.rooms.presentation.ui.screens.SignInScreen
-import com.example.rooms.presentation.ui.screens.SignUpScreen
+import com.example.rooms.presentation.ui.screens.auth.SignInScreen
+import com.example.rooms.presentation.ui.screens.auth.SignUpScreen
 import com.example.rooms.presentation.ui.screens.SplashScreen
 import com.example.rooms.presentation.ui.viewModels.RoomViewModel
 import com.example.rooms.presentation.ui.viewModels.RoomsViewModel
