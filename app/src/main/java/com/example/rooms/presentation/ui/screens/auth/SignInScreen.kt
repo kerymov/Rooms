@@ -61,7 +61,7 @@ fun SignInScreen(
     var isLoading by rememberSaveable { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
-    val incorrectFields = remember { mutableStateListOf<Field>() }
+    val invalidFields = remember { mutableStateListOf<Field>() }
 
     LaunchedEffect(uiState) {
         when (val state = uiState) {
@@ -75,7 +75,7 @@ fun SignInScreen(
             is SignInUiState.Error -> {
                 isLoading = false
                 errorMessage = state.message
-                incorrectFields.addAll(
+                invalidFields.addAll(
                     listOf(Field.USERNAME, Field.PASSWORD)
                 )
             }
@@ -124,10 +124,10 @@ fun SignInScreen(
                 onValueChange = {
                     username = it
                     errorMessage = null
-                    incorrectFields.remove(Field.USERNAME)
+                    invalidFields.remove(Field.USERNAME)
                 },
                 placeholderText = Field.USERNAME.placeholder,
-                isError = Field.USERNAME in incorrectFields,
+                isError = Field.USERNAME in invalidFields,
                 imeAction = ImeAction.Next
             )
             Spacer(modifier = Modifier.height(16.dp))
@@ -136,12 +136,12 @@ fun SignInScreen(
                 onValueChange = {
                     password = it
                     errorMessage = null
-                    incorrectFields.remove(Field.PASSWORD)
+                    invalidFields.remove(Field.PASSWORD)
                 },
                 isValueVisible = isPasswordVisible,
                 onValueVisibilityChange = { isPasswordVisible = !isPasswordVisible },
                 placeholderText = Field.PASSWORD.placeholder,
-                isError = Field.PASSWORD in incorrectFields,
+                isError = Field.PASSWORD in invalidFields,
                 imeAction = ImeAction.Done
             )
             Spacer(modifier = Modifier.height(48.dp))
@@ -153,15 +153,15 @@ fun SignInScreen(
                     contentColor = MaterialTheme.colorScheme.onPrimary
                 ),
                 onClick = {
-                    incorrectFields.clear()
+                    invalidFields.clear()
 
                     when {
                         username.isBlank() -> {
-                            incorrectFields.add(Field.USERNAME)
+                            invalidFields.add(Field.USERNAME)
                             errorMessage = Field.USERNAME.onEmptyErrorMessage
                         }
                         password.isBlank() -> {
-                            incorrectFields.add(Field.PASSWORD)
+                            invalidFields.add(Field.PASSWORD)
                             errorMessage = Field.PASSWORD.onEmptyErrorMessage
                         }
                     }
@@ -180,7 +180,9 @@ fun SignInScreen(
             }
             Spacer(modifier = Modifier.height(12.dp))
             TextButton(onClick = {
-                navController.navigate(Screen.SIGN_UP.name)
+                navController.navigate(Screen.SIGN_UP.name) {
+                    popUpTo(0)
+                }
             }) {
                 Text(
                     text = "Go to sign up",

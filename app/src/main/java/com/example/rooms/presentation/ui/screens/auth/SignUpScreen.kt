@@ -63,7 +63,7 @@ fun SignUpScreen(
     var isLoading by rememberSaveable { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
-    val incorrectFields = remember { mutableStateListOf<Field>() }
+    val invalidFields = remember { mutableStateListOf<Field>() }
 
     LaunchedEffect(uiState) {
         when (val state = uiState) {
@@ -77,7 +77,7 @@ fun SignUpScreen(
             is SignUpUiState.Error -> {
                 isLoading = false
                 errorMessage = state.message
-                incorrectFields.addAll(
+                invalidFields.addAll(
                     listOf(Field.PASSWORD, Field.REPEAT_PASSWORD, Field.REPEAT_PASSWORD)
                 )
             }
@@ -126,10 +126,10 @@ fun SignUpScreen(
                 onValueChange = {
                     username = it
                     errorMessage = null
-                    incorrectFields.remove(Field.USERNAME)
+                    invalidFields.remove(Field.USERNAME)
                 },
                 placeholderText = Field.USERNAME.placeholder,
-                isError = Field.USERNAME in incorrectFields,
+                isError = Field.USERNAME in invalidFields,
                 imeAction = ImeAction.Next,
             )
             Spacer(modifier = Modifier.height(16.dp))
@@ -138,12 +138,12 @@ fun SignUpScreen(
                 onValueChange = {
                     password = it
                     errorMessage = null
-                    incorrectFields.remove(Field.PASSWORD)
+                    invalidFields.remove(Field.PASSWORD)
                 },
                 isValueVisible = isPasswordVisible,
                 onValueVisibilityChange = { isPasswordVisible = !isPasswordVisible },
                 placeholderText = Field.PASSWORD.placeholder,
-                isError = Field.PASSWORD in incorrectFields,
+                isError = Field.PASSWORD in invalidFields,
                 imeAction = ImeAction.Next,
             )
             Spacer(modifier = Modifier.height(16.dp))
@@ -152,12 +152,12 @@ fun SignUpScreen(
                 onValueChange = {
                     repeatedPassword = it
                     errorMessage = null
-                    incorrectFields.remove(Field.REPEAT_PASSWORD)
+                    invalidFields.remove(Field.REPEAT_PASSWORD)
                 },
                 isValueVisible = isRepeatedPasswordVisible,
                 onValueVisibilityChange = { isRepeatedPasswordVisible = !isRepeatedPasswordVisible },
                 placeholderText = Field.REPEAT_PASSWORD.placeholder,
-                isError = Field.REPEAT_PASSWORD in incorrectFields,
+                isError = Field.REPEAT_PASSWORD in invalidFields,
                 imeAction = ImeAction.Done
             )
             Spacer(modifier = Modifier.height(48.dp))
@@ -169,23 +169,23 @@ fun SignUpScreen(
                     contentColor = MaterialTheme.colorScheme.onPrimary
                 ),
                 onClick = {
-                    incorrectFields.clear()
+                    invalidFields.clear()
 
                     when {
                         username.isBlank() -> {
-                            incorrectFields.add(Field.USERNAME)
+                            invalidFields.add(Field.USERNAME)
                             errorMessage = Field.USERNAME.onEmptyErrorMessage
                         }
                         password.isBlank() -> {
-                            incorrectFields.add(Field.PASSWORD)
+                            invalidFields.add(Field.PASSWORD)
                             errorMessage = Field.PASSWORD.onEmptyErrorMessage
                         }
                         repeatedPassword.isBlank() -> {
-                            incorrectFields.add(Field.REPEAT_PASSWORD)
+                            invalidFields.add(Field.REPEAT_PASSWORD)
                             errorMessage = Field.REPEAT_PASSWORD.onEmptyErrorMessage
                         }
                         password != repeatedPassword -> {
-                            incorrectFields.addAll(listOf(Field.PASSWORD, Field.REPEAT_PASSWORD))
+                            invalidFields.addAll(listOf(Field.PASSWORD, Field.REPEAT_PASSWORD))
                             errorMessage = "Passwords do not match"
                         }
                     }
@@ -205,7 +205,9 @@ fun SignUpScreen(
             Spacer(modifier = Modifier.height(12.dp))
             TextButton(
                 onClick = {
-                    navController.navigate(Screen.SIGN_IN.name)
+                    navController.navigate(Screen.SIGN_IN.name) {
+                        popUpTo(0)
+                    }
                 }
             ) {
                 Text(

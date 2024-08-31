@@ -28,11 +28,19 @@ fun SplashScreen(
     LaunchedEffect(uiState) {
         when (uiState) {
             is SplashUiState.Success -> {
-                navController.navigate(Screen.SIGN_IN.name)
+                navController.navigate(Screen.SIGN_IN.name) {
+                    popUpTo(Screen.SPLASH.name) {
+                        inclusive = true
+                    }
+                }
             }
 
             is SplashUiState.Error -> {
-                navController.navigate(Screen.SIGN_IN.name)
+                navController.navigate(Screen.SIGN_IN.name) {
+                    popUpTo(Screen.SIGN_UP.name) {
+                        inclusive = true
+                    }
+                }
             }
 
             is SplashUiState.Loading -> { }
