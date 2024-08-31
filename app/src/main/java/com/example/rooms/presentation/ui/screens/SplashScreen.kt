@@ -28,7 +28,7 @@ fun SplashScreen(
     LaunchedEffect(uiState) {
         when (uiState) {
             is SplashUiState.Success -> {
-                navController.navigate(Screen.ROOMS.name)
+                navController.navigate(Screen.SIGN_IN.name)
             }
 
             is SplashUiState.Error -> {

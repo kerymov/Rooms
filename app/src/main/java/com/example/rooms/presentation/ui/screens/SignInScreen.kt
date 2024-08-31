@@ -1,8 +1,8 @@
 package com.example.rooms.presentation.ui.screens
 
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -24,19 +24,21 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.rooms.presentation.ui.components.BaseTextField
+import com.example.rooms.presentation.ui.components.ErrorCard
 import com.example.rooms.presentation.ui.components.LoadingScreen
 import com.example.rooms.presentation.ui.components.Logo
 import com.example.rooms.presentation.ui.components.PasswordTextField
 import com.example.rooms.presentation.ui.navigation.Screen
 import com.example.rooms.presentation.ui.viewModels.SignInUiState
 import com.example.rooms.presentation.ui.viewModels.SignInViewModel
+import kotlinx.coroutines.delay
 
 @Composable
 fun SignInScreen(
@@ -44,8 +46,6 @@ fun SignInScreen(
     modifier: Modifier = Modifier,
     signInViewModel: SignInViewModel = viewModel()
 ) {
-    val context = LocalContext.current
-
     val uiState by signInViewModel.uiState.collectAsState()
 
     var username by rememberSaveable { mutableStateOf("") }
@@ -53,43 +53,30 @@ fun SignInScreen(
     var isPasswordVisible by rememberSaveable { mutableStateOf(false) }
 
     var isLoading by rememberSaveable { mutableStateOf(false) }
-    var isError by rememberSaveable { mutableStateOf(false) }
+    var errorMessage by rememberSaveable { mutableStateOf<String?>(null) }
 
     LaunchedEffect(uiState) {
         when (val state = uiState) {
             is SignInUiState.Success -> {
                 isLoading = false
-                isError = false
-
-                val toast = Toast.makeText(
-                    context,
-                    "Success!",
-                    Toast.LENGTH_SHORT
-                )
-                toast.show()
+                errorMessage = null
 
                 navController.navigate(Screen.ROOMS.name)
             }
 
             is SignInUiState.Error -> {
                 isLoading = false
-                isError = true
-                val toast = Toast.makeText(
-                    context,
-                    state.message,
-                    Toast.LENGTH_LONG
-                )
-                toast.show()
+                errorMessage = state.message
             }
 
             is SignInUiState.Loading -> {
                 isLoading = true
-                isError = false
+                errorMessage = null
             }
 
             is SignInUiState.None -> {
                 isLoading = false
-                isError = false
+                errorMessage = null
             }
         }
     }
@@ -98,60 +85,80 @@ fun SignInScreen(
         LoadingScreen()
     }
 
-    Column(
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-            .padding(20.dp)
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
     ) {
-        Logo()
-        Spacer(modifier = Modifier.height(64.dp))
-        BaseTextField(
-            value = username,
-            onValueChange = { username = it },
-            placeholderText = "Username",
-            isError = isError,
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        PasswordTextField(
-            value = password,
-            onValueChange = { password = it },
-            isValueVisible = isPasswordVisible,
-            onValueVisibilityChange = { isPasswordVisible = !isPasswordVisible },
-            placeholderText = "Password",
-            isError = isError
-        )
-        Spacer(modifier = Modifier.height(48.dp))
-        TextButton(
-            contentPadding = PaddingValues(vertical = 12.dp, horizontal = 48.dp),
-            shape = RoundedCornerShape(16.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary
-            ),
-            onClick = {
-                signInViewModel.signIn(login = username, password = password)
-            },
-            modifier = Modifier.size(height = 48.dp, width = 184.dp)
+        Column(
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = modifier
+                .background(MaterialTheme.colorScheme.background)
+                .padding(20.dp)
         ) {
-            Text(
-                text = "Sign in",
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onPrimary
+            Logo()
+            Spacer(modifier = Modifier.height(64.dp))
+            BaseTextField(
+                value = username,
+                onValueChange = {
+                    username = it
+                    errorMessage = null
+                },
+                placeholderText = "Username",
+                isError = !errorMessage.isNullOrBlank(),
+                imeAction = ImeAction.Next
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            PasswordTextField(
+                value = password,
+                onValueChange = {
+                    password = it
+                    errorMessage = null
+                },
+                isValueVisible = isPasswordVisible,
+                onValueVisibilityChange = { isPasswordVisible = !isPasswordVisible },
+                placeholderText = "Password",
+                isError = !errorMessage.isNullOrBlank(),
+                imeAction = ImeAction.Done
+            )
+            Spacer(modifier = Modifier.height(48.dp))
+            TextButton(
+                contentPadding = PaddingValues(vertical = 12.dp, horizontal = 48.dp),
+                shape = RoundedCornerShape(16.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                ),
+                onClick = {
+                    signInViewModel.signIn(login = username, password = password)
+                },
+                modifier = Modifier.size(height = 48.dp, width = 184.dp)
+            ) {
+                Text(
+                    text = "Sign in",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
+            }
+            Spacer(modifier = Modifier.height(12.dp))
+            TextButton(onClick = {
+                navController.navigate(Screen.SIGN_UP.name)
+            }) {
+                Text(
+                    text = "Go to sign up",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+        }
+
+        if (!errorMessage.isNullOrBlank()) {
+            ErrorCard(
+                text = errorMessage ?: "Error",
+                modifier = Modifier.align(Alignment.BottomCenter)
             )
         }
-        Spacer(modifier = Modifier.height(12.dp))
-        TextButton(onClick = {
-            navController.navigate(Screen.SIGN_UP.name)
-        }) {
-            Text(
-                text = "Go to sign up",
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.primary
-            )
-        }
+
     }
 }
 

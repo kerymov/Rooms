@@ -44,10 +44,8 @@ class SignInViewModel(
                 .collect { result ->
                     _uiState.value = when (result) {
                         is BaseResult.Success -> SignInUiState.Success
-                        is BaseResult.Error ->
-                            SignInUiState.Error(result.code, result.message)
-                        is BaseResult.Exception ->
-                            SignInUiState.Error(null, result.message)
+                        is BaseResult.Error -> SignInUiState.Error(result.code, result.message)
+                        is BaseResult.Exception -> SignInUiState.Error(null, result.message)
                     }
                 }
         }

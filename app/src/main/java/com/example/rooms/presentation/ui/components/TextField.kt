@@ -15,6 +15,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -28,6 +29,7 @@ fun PasswordTextField(
     onValueVisibilityChange: () -> Unit,
     placeholderText: String,
     isError: Boolean,
+    imeAction: ImeAction = ImeAction.Default
 ) = BaseTextField(
     value = value,
     onValueChange = onValueChange,
@@ -36,7 +38,8 @@ fun PasswordTextField(
     trailingIcon = if (isValueVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
     trailingIconDescription = if (isValueVisible) "Hide password" else "Show password",
     onTrailingIconClick = onValueVisibilityChange,
-    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+    keyboardType = KeyboardType.Password,
+    imeAction = imeAction,
     visualTransformation = if (isValueVisible) VisualTransformation.None else PasswordVisualTransformation(),
 )
 
@@ -49,7 +52,8 @@ fun BaseTextField(
     trailingIcon: ImageVector? = null,
     trailingIconDescription: String? = null,
     onTrailingIconClick: () -> Unit = { },
-    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    imeAction: ImeAction = ImeAction.Default,
+    keyboardType: KeyboardType = KeyboardType.Text,
     visualTransformation: VisualTransformation = VisualTransformation.None
 ) = OutlinedTextField(
     value = value,
@@ -86,7 +90,7 @@ fun BaseTextField(
             }
         }
     },
-    keyboardOptions = keyboardOptions,
+    keyboardOptions = KeyboardOptions(keyboardType = keyboardType, imeAction = imeAction),
     visualTransformation = visualTransformation,
     singleLine = true,
     isError = isError,
