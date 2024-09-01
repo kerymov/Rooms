@@ -60,7 +60,6 @@ fun SignUpScreen(
     var isPasswordVisible by rememberSaveable { mutableStateOf(false) }
     var isRepeatedPasswordVisible by rememberSaveable { mutableStateOf(false) }
 
-    var isLoading by rememberSaveable { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
     val invalidFields = remember { mutableStateListOf<Field>() }
@@ -68,14 +67,12 @@ fun SignUpScreen(
     LaunchedEffect(uiState) {
         when (val state = uiState) {
             is SignUpUiState.Success -> {
-                isLoading = false
                 errorMessage = null
 
                 navController.navigate(Screen.ROOMS.name)
             }
 
             is SignUpUiState.Error -> {
-                isLoading = false
                 errorMessage = state.message
                 invalidFields.addAll(
                     listOf(Field.PASSWORD, Field.REPEAT_PASSWORD, Field.REPEAT_PASSWORD)
@@ -83,18 +80,16 @@ fun SignUpScreen(
             }
 
             is SignUpUiState.Loading -> {
-                isLoading = true
                 errorMessage = null
             }
 
             is SignUpUiState.None -> {
-                isLoading = false
                 errorMessage = null
             }
         }
     }
 
-    if (isLoading) {
+    if (uiState is SignUpUiState.Loading) {
         LoadingScreen()
     }
 

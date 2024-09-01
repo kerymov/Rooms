@@ -58,7 +58,6 @@ fun SignInScreen(
     var password by rememberSaveable { mutableStateOf("") }
     var isPasswordVisible by rememberSaveable { mutableStateOf(false) }
 
-    var isLoading by rememberSaveable { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
     val invalidFields = remember { mutableStateListOf<Field>() }
@@ -66,14 +65,12 @@ fun SignInScreen(
     LaunchedEffect(uiState) {
         when (val state = uiState) {
             is SignInUiState.Success -> {
-                isLoading = false
                 errorMessage = null
 
                 navController.navigate(Screen.ROOMS.name)
             }
 
             is SignInUiState.Error -> {
-                isLoading = false
                 errorMessage = state.message
                 invalidFields.addAll(
                     listOf(Field.USERNAME, Field.PASSWORD)
@@ -81,18 +78,16 @@ fun SignInScreen(
             }
 
             is SignInUiState.Loading -> {
-                isLoading = true
                 errorMessage = null
             }
 
             is SignInUiState.None -> {
-                isLoading = false
                 errorMessage = null
             }
         }
     }
 
-    if (isLoading) {
+    if (uiState is SignInUiState.Loading) {
         LoadingScreen()
     }
 
