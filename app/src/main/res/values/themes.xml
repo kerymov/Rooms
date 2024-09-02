@@ -2,4 +2,9 @@
 <resources>
 
     <style name="Theme.Rooms" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="Theme.Rooms.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/light</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/logo_splash</item>
+        <item name="postSplashScreenTheme">@style/Theme.SplashScreen</item>
+    </style>
 </resources>

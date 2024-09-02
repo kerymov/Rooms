@@ -85,7 +85,7 @@ private fun Content() {
         )
 
         Icon(
-            imageVector = ImageVector.vectorResource(R.drawable.deployed_code),
+            imageVector = ImageVector.vectorResource(R.drawable.logo),
             contentDescription = "Logo",
             tint = MaterialTheme.colorScheme.primary,
             modifier = Modifier.size(64.dp)
