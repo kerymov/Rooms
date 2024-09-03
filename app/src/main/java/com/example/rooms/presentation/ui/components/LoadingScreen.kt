@@ -2,6 +2,7 @@ package com.example.rooms.presentation.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -21,7 +22,7 @@ fun LoadingScreen() {
         onDismissRequest = { },
     ) {
         CircularProgressIndicator(
-            modifier = Modifier.width(56.dp),
+            modifier = Modifier.size(56.dp),
             color = MaterialTheme.colorScheme.background,
             trackColor = MaterialTheme.colorScheme.primary,
             strokeCap = StrokeCap.Round,

@@ -9,8 +9,9 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.rememberNavController
 import com.example.rooms.presentation.RoomsApp
-import com.example.rooms.presentation.ui.navigation.Screen
+import com.example.rooms.presentation.ui.navigation.NavSection
 import com.example.rooms.presentation.ui.theme.RoomsTheme
 import com.example.rooms.presentation.ui.viewModels.LocalUserState
 import com.example.rooms.presentation.ui.viewModels.RoomsViewModel
@@ -42,22 +43,11 @@ class MainActivity : ComponentActivity() {
                 val roomsViewModel = ViewModelProvider(this)[RoomsViewModel::class.java]
 
                 CompositionLocalProvider(LocalUserState provides userViewModel) {
-                    val userState = LocalUserState.current
-                    if (userState.uiState.isUserAuthorized) {
-                        RoomsApp(
-                            signInViewModel = signInViewModel,
-                            signUpViewModel = signUpViewModel,
-                            roomsViewModel = roomsViewModel,
-                            startDestination = Screen.ROOMS
-                        )
-                    } else {
-                        RoomsApp(
-                            signInViewModel = signInViewModel,
-                            signUpViewModel = signUpViewModel,
-                            roomsViewModel = roomsViewModel,
-                            startDestination = Screen.SIGN_IN
-                        )
-                    }
+                    ApplicationManager(
+                        signInViewModel = signInViewModel,
+                        signUpViewModel = signUpViewModel,
+                        roomsViewModel = roomsViewModel,
+                    )
                 }
             }
         }
@@ -72,19 +62,20 @@ private fun ApplicationManager(
 ) {
     val userState = LocalUserState.current
 
-    if (userState.uiState.isUserAuthorized) {
-        RoomsApp(
-            signInViewModel = signInViewModel,
-            signUpViewModel = signUpViewModel,
-            roomsViewModel = roomsViewModel,
-            startDestination = Screen.ROOMS
-        )
+    if (userState.uiState.isLoading) return
+
+    val startNavContainer = if (userState.uiState.isUserAuthorized) {
+        NavSection.Rooms
     } else {
-        RoomsApp(
-            signInViewModel = signInViewModel,
-            signUpViewModel = signUpViewModel,
-            roomsViewModel = roomsViewModel,
-            startDestination = Screen.SIGN_IN
-        )
+        NavSection.Auth
     }
+
+    val navController = rememberNavController()
+    RoomsApp(
+        navController = navController,
+        startNavSection = startNavContainer,
+        signInViewModel = signInViewModel,
+        signUpViewModel = signUpViewModel,
+        roomsViewModel = roomsViewModel,
+    )
 }

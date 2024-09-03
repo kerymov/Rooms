@@ -54,7 +54,7 @@ import com.example.rooms.presentation.ui.components.ClickableTimer
 import com.example.rooms.presentation.ui.components.ManualTypingTimer
 import com.example.rooms.presentation.ui.components.ScrambleImage
 import com.example.rooms.presentation.ui.components.TopBar
-import com.example.rooms.presentation.ui.navigation.Screen
+import com.example.rooms.presentation.ui.navigation.NavSection
 import com.example.rooms.presentation.ui.viewModels.RoomViewModel
 import com.example.rooms.presentation.ui.viewModels.SignInViewModel
 import com.example.rooms.presentation.utils.Timer
@@ -89,7 +89,7 @@ fun RoomScreen(
                 actionIcon = R.drawable.groups,
                 onNavigationButtonClick = { navController.popBackStack() },
                 onActionButtonClick = {
-                    navController.navigate(Screen.RESULTS.name + "/${roomUiState.room?.id}")
+                    navController.navigate(NavSection.Rooms.Results.name + "/${roomUiState.room?.id}")
                 }
             )
         },

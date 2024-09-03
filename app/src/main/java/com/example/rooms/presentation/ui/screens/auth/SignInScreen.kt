@@ -42,13 +42,14 @@ import com.example.rooms.presentation.ui.components.ErrorCard
 import com.example.rooms.presentation.ui.components.LoadingScreen
 import com.example.rooms.presentation.ui.components.Logo
 import com.example.rooms.presentation.ui.components.PasswordTextField
-import com.example.rooms.presentation.ui.navigation.Screen
+import com.example.rooms.presentation.ui.navigation.NavSection
 import com.example.rooms.presentation.ui.viewModels.SignInUiState
 import com.example.rooms.presentation.ui.viewModels.SignInViewModel
 
 @Composable
 fun SignInScreen(
-    navController: NavController,
+    onSignInSuccess: () -> Unit,
+    onGoToSignUpClick: () -> Unit,
     modifier: Modifier = Modifier,
     signInViewModel: SignInViewModel = viewModel()
 ) {
@@ -67,7 +68,7 @@ fun SignInScreen(
             is SignInUiState.Success -> {
                 errorMessage = null
 
-                navController.navigate(Screen.ROOMS.name)
+                onSignInSuccess()
             }
 
             is SignInUiState.Error -> {
@@ -174,11 +175,9 @@ fun SignInScreen(
                 )
             }
             Spacer(modifier = Modifier.height(12.dp))
-            TextButton(onClick = {
-                navController.navigate(Screen.SIGN_UP.name) {
-                    popUpTo(0)
-                }
-            }) {
+            TextButton(
+                onClick = onGoToSignUpClick
+            ) {
                 Text(
                     text = "Go to sign up",
                     style = MaterialTheme.typography.titleMedium,
@@ -200,7 +199,8 @@ fun SignInScreen(
 @Composable
 private fun SignInScreenPreview() {
     SignInScreen(
-        navController = rememberNavController(),
+        onSignInSuccess = { },
+        onGoToSignUpClick = { },
         modifier = Modifier.fillMaxSize()
     )
 }

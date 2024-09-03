@@ -35,20 +35,18 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.example.rooms.presentation.ui.components.BaseTextField
 import com.example.rooms.presentation.ui.components.ErrorCard
 import com.example.rooms.presentation.ui.components.LoadingScreen
 import com.example.rooms.presentation.ui.components.Logo
 import com.example.rooms.presentation.ui.components.PasswordTextField
-import com.example.rooms.presentation.ui.navigation.Screen
 import com.example.rooms.presentation.ui.viewModels.SignUpUiState
 import com.example.rooms.presentation.ui.viewModels.SignUpViewModel
 
 @Composable
 fun SignUpScreen(
-    navController: NavController,
+    onSignUpSuccess: () -> Unit,
+    onGoToSignInClick: () -> Unit,
     modifier: Modifier = Modifier,
     signUpViewModel: SignUpViewModel = viewModel()
 ) {
@@ -69,7 +67,7 @@ fun SignUpScreen(
             is SignUpUiState.Success -> {
                 errorMessage = null
 
-                navController.navigate(Screen.ROOMS.name)
+                onSignUpSuccess()
             }
 
             is SignUpUiState.Error -> {
@@ -199,11 +197,7 @@ fun SignUpScreen(
             }
             Spacer(modifier = Modifier.height(12.dp))
             TextButton(
-                onClick = {
-                    navController.navigate(Screen.SIGN_IN.name) {
-                        popUpTo(0)
-                    }
-                }
+                onClick = onGoToSignInClick
             ) {
                 Text(
                     text = "Go to sign in",
@@ -226,7 +220,8 @@ fun SignUpScreen(
 @Composable
 private fun SignUpScreenPreview() {
     SignUpScreen(
-        navController = rememberNavController(),
+        onSignUpSuccess = { },
+        onGoToSignInClick = { },
         modifier = Modifier.fillMaxSize()
     )
 }

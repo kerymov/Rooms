@@ -50,11 +50,10 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.rooms.R
-import com.example.rooms.data.model.rooms.RoomDto
 import com.example.rooms.presentation.ui.components.TopBar
 import com.example.rooms.presentation.ui.theme.ChangeSystemBarsColors
 import com.example.rooms.presentation.model.Event
-import com.example.rooms.presentation.ui.navigation.Screen
+import com.example.rooms.presentation.ui.navigation.NavSection
 import com.example.rooms.presentation.ui.viewModels.RoomsViewModel
 import kotlinx.coroutines.delay
 
@@ -124,7 +123,7 @@ fun RoomsScreen(
                         .padding(4.dp)
                         .combinedClickable(
                             onClick = {
-                                navController.navigate(Screen.ROOM.name + "/${item.id}")
+                                navController.navigate(NavSection.Rooms.Room.name + "/${item.id}")
                             },
                             onLongClick = {
                                 isDeleteRoomSheetOpen = true
