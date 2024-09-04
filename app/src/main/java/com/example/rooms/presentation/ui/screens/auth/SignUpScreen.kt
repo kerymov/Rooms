@@ -40,17 +40,17 @@ import com.example.rooms.presentation.ui.components.ErrorCard
 import com.example.rooms.presentation.ui.components.LoadingScreen
 import com.example.rooms.presentation.ui.components.Logo
 import com.example.rooms.presentation.ui.components.PasswordTextField
-import com.example.rooms.presentation.ui.viewModels.SignUpUiState
-import com.example.rooms.presentation.ui.viewModels.SignUpViewModel
+import com.example.rooms.presentation.ui.viewModels.AuthUiState
+import com.example.rooms.presentation.ui.viewModels.AuthViewModel
 
 @Composable
 fun SignUpScreen(
     onSignUpSuccess: () -> Unit,
     onGoToSignInClick: () -> Unit,
     modifier: Modifier = Modifier,
-    signUpViewModel: SignUpViewModel = viewModel()
+    authViewModel: AuthViewModel = viewModel()
 ) {
-    val uiState by signUpViewModel.uiState.collectAsState()
+    val uiState by authViewModel.uiState.collectAsState()
 
     var username by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
@@ -64,30 +64,24 @@ fun SignUpScreen(
 
     LaunchedEffect(uiState) {
         when (val state = uiState) {
-            is SignUpUiState.Success -> {
+            is AuthUiState.Success -> {
                 errorMessage = null
 
                 onSignUpSuccess()
             }
-
-            is SignUpUiState.Error -> {
+            is AuthUiState.Error -> {
                 errorMessage = state.message
                 invalidFields.addAll(
                     listOf(Field.PASSWORD, Field.REPEAT_PASSWORD, Field.REPEAT_PASSWORD)
                 )
             }
-
-            is SignUpUiState.Loading -> {
-                errorMessage = null
-            }
-
-            is SignUpUiState.None -> {
+            else -> {
                 errorMessage = null
             }
         }
     }
 
-    if (uiState is SignUpUiState.Loading) {
+    if (uiState is AuthUiState.Loading) {
         LoadingScreen()
     }
 
@@ -185,7 +179,7 @@ fun SignUpScreen(
 
                     if (!errorMessage.isNullOrBlank()) return@TextButton
 
-                    signUpViewModel.signUp(username, password, repeatedPassword)
+                    authViewModel.signUp(username, password, repeatedPassword)
                 },
                 modifier = Modifier.size(height = 48.dp, width = 184.dp)
             ) {

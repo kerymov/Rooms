@@ -17,15 +17,13 @@ import com.example.rooms.presentation.ui.screens.RoomsScreen
 import com.example.rooms.presentation.ui.screens.auth.SignInScreen
 import com.example.rooms.presentation.ui.screens.auth.SignUpScreen
 import com.example.rooms.presentation.ui.viewModels.RoomsViewModel
-import com.example.rooms.presentation.ui.viewModels.SignInViewModel
-import com.example.rooms.presentation.ui.viewModels.SignUpViewModel
+import com.example.rooms.presentation.ui.viewModels.AuthViewModel
 
 @Composable
 fun RoomsApp(
     navController: NavHostController,
-    signInViewModel: SignInViewModel = viewModel(),
-    signUpViewModel: SignUpViewModel = viewModel(),
     roomsViewModel: RoomsViewModel = viewModel(),
+    authViewModel: AuthViewModel = viewModel(),
     startNavSection: NavSection,
 ) = Scaffold { contentPadding ->
     NavHost(
@@ -49,11 +47,12 @@ fun RoomsApp(
                         }
                     },
                     onGoToSignUpClick = {
+                        authViewModel.resetUiState()
                         navController.navigate(screen = NavSection.Auth.SignUp, param = null) {
                             popUpTo(0)
                         }
                     },
-                    signInViewModel = signInViewModel
+                    authViewModel = authViewModel
                 )
             }
             composable(route = NavSection.Auth.SignUp.name) {
@@ -66,11 +65,12 @@ fun RoomsApp(
                         }
                     },
                     onGoToSignInClick = {
+                        authViewModel.resetUiState()
                         navController.navigate(screen = NavSection.Auth.SignIn, param = null) {
                             popUpTo(0)
                         }
                     },
-                    signUpViewModel = signUpViewModel
+                    authViewModel = authViewModel
                 )
             }
         }

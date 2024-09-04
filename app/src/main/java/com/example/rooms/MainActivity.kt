@@ -13,39 +13,35 @@ import androidx.navigation.compose.rememberNavController
 import com.example.rooms.presentation.RoomsApp
 import com.example.rooms.presentation.ui.navigation.NavSection
 import com.example.rooms.presentation.ui.theme.RoomsTheme
-import com.example.rooms.presentation.ui.viewModels.LocalUserState
+import com.example.rooms.presentation.ui.viewModels.LocalSplashState
 import com.example.rooms.presentation.ui.viewModels.RoomsViewModel
-import com.example.rooms.presentation.ui.viewModels.SignInViewModel
-import com.example.rooms.presentation.ui.viewModels.SignUpViewModel
-import com.example.rooms.presentation.ui.viewModels.UserViewModel
+import com.example.rooms.presentation.ui.viewModels.SplashUiState
+import com.example.rooms.presentation.ui.viewModels.SplashViewModel
+import com.example.rooms.presentation.ui.viewModels.AuthViewModel
 
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val userViewModel by viewModels<UserViewModel> {
-            UserViewModel.createFactory(context = this)
+        val splashViewModel by viewModels<SplashViewModel> {
+            SplashViewModel.createFactory(context = this)
         }
 
         installSplashScreen().setKeepOnScreenCondition {
-            userViewModel.uiState.isLoading
+            splashViewModel.uiState.value == SplashUiState.NONE
         }
 
         setContent {
             RoomsTheme {
-                val signInViewModel by viewModels<SignInViewModel> {
-                    SignInViewModel.createFactory(context = this)
-                }
-                val signUpViewModel by viewModels<SignUpViewModel> {
-                    SignUpViewModel.createFactory(this)
+                val authViewModel by viewModels<AuthViewModel> {
+                    AuthViewModel.createFactory(context = this)
                 }
                 val roomsViewModel = ViewModelProvider(this)[RoomsViewModel::class.java]
 
-                CompositionLocalProvider(LocalUserState provides userViewModel) {
+                CompositionLocalProvider(LocalSplashState provides splashViewModel) {
                     ApplicationManager(
-                        signInViewModel = signInViewModel,
-                        signUpViewModel = signUpViewModel,
+                        authViewModel = authViewModel,
                         roomsViewModel = roomsViewModel,
                     )
                 }
@@ -56,26 +52,22 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 private fun ApplicationManager(
-    signInViewModel: SignInViewModel = viewModel(),
-    signUpViewModel: SignUpViewModel = viewModel(),
-    roomsViewModel: RoomsViewModel = viewModel()
+    roomsViewModel: RoomsViewModel = viewModel(),
+    authViewModel: AuthViewModel = viewModel()
 ) {
-    val userState = LocalUserState.current
+    val splashState = LocalSplashState.current
 
-    if (userState.uiState.isLoading) return
-
-    val startNavContainer = if (userState.uiState.isUserAuthorized) {
-        NavSection.Rooms
-    } else {
-        NavSection.Auth
+    val startNavContainer = when (splashState.uiState.value) {
+        SplashUiState.AUTHORIZED -> NavSection.Rooms
+        SplashUiState.UNAUTHORIZED -> NavSection.Auth
+        else -> return
     }
 
     val navController = rememberNavController()
     RoomsApp(
         navController = navController,
         startNavSection = startNavContainer,
-        signInViewModel = signInViewModel,
-        signUpViewModel = signUpViewModel,
         roomsViewModel = roomsViewModel,
+        authViewModel = authViewModel
     )
 }

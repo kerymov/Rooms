@@ -35,25 +35,22 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.example.rooms.presentation.ui.components.BaseTextField
 import com.example.rooms.presentation.ui.components.ErrorCard
 import com.example.rooms.presentation.ui.components.LoadingScreen
 import com.example.rooms.presentation.ui.components.Logo
 import com.example.rooms.presentation.ui.components.PasswordTextField
-import com.example.rooms.presentation.ui.navigation.NavSection
-import com.example.rooms.presentation.ui.viewModels.SignInUiState
-import com.example.rooms.presentation.ui.viewModels.SignInViewModel
+import com.example.rooms.presentation.ui.viewModels.AuthUiState
+import com.example.rooms.presentation.ui.viewModels.AuthViewModel
 
 @Composable
 fun SignInScreen(
     onSignInSuccess: () -> Unit,
     onGoToSignUpClick: () -> Unit,
     modifier: Modifier = Modifier,
-    signInViewModel: SignInViewModel = viewModel()
+    authViewModel: AuthViewModel = viewModel()
 ) {
-    val uiState by signInViewModel.uiState.collectAsState()
+    val uiState by authViewModel.uiState.collectAsState()
 
     var username by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
@@ -65,30 +62,24 @@ fun SignInScreen(
 
     LaunchedEffect(uiState) {
         when (val state = uiState) {
-            is SignInUiState.Success -> {
+            is AuthUiState.Success -> {
                 errorMessage = null
 
                 onSignInSuccess()
             }
-
-            is SignInUiState.Error -> {
+            is AuthUiState.Error -> {
                 errorMessage = state.message
                 invalidFields.addAll(
                     listOf(Field.USERNAME, Field.PASSWORD)
                 )
             }
-
-            is SignInUiState.Loading -> {
-                errorMessage = null
-            }
-
-            is SignInUiState.None -> {
+            else -> {
                 errorMessage = null
             }
         }
     }
 
-    if (uiState is SignInUiState.Loading) {
+    if (uiState is AuthUiState.Loading) {
         LoadingScreen()
     }
 
@@ -164,7 +155,7 @@ fun SignInScreen(
 
                     if (!errorMessage.isNullOrBlank()) return@TextButton
 
-                    signInViewModel.signIn(login = username, password = password)
+                    authViewModel.signIn(login = username, password = password)
                 },
                 modifier = Modifier.size(height = 48.dp, width = 184.dp)
             ) {
