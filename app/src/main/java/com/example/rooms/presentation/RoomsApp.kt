@@ -11,13 +11,13 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
-import com.example.rooms.presentation.ui.navigation.NavSection
-import com.example.rooms.presentation.ui.navigation.navigate
-import com.example.rooms.presentation.ui.screens.RoomsScreen
-import com.example.rooms.presentation.ui.screens.auth.SignInScreen
-import com.example.rooms.presentation.ui.screens.auth.SignUpScreen
-import com.example.rooms.presentation.ui.viewModels.RoomsViewModel
-import com.example.rooms.presentation.ui.viewModels.AuthViewModel
+import com.example.rooms.presentation.navigation.NavSection
+import com.example.rooms.presentation.navigation.navigate
+import com.example.rooms.presentation.features.rooms.screens.RoomsScreen
+import com.example.rooms.presentation.features.auth.screens.SignInScreen
+import com.example.rooms.presentation.features.auth.screens.SignUpScreen
+import com.example.rooms.presentation.features.rooms.viewModels.RoomsViewModel
+import com.example.rooms.presentation.features.auth.viewModels.AuthViewModel
 
 @Composable
 fun RoomsApp(
