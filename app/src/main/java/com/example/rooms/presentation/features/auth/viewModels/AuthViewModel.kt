@@ -40,9 +40,8 @@ class AuthViewModel(
         passwordConfirm: String
     ) {
         viewModelScope.launch(Dispatchers.IO) {
-            _uiState.value = AuthUiState.Loading
-
             signUpUseCase.invoke(login, password, passwordConfirm)
+                .onStart { _uiState.value = AuthUiState.Loading }
                 .catch { e ->
                     _uiState.value = AuthUiState.Error(code = null, message = e.localizedMessage)
                 }
