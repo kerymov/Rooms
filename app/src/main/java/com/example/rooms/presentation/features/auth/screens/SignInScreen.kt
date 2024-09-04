@@ -40,6 +40,7 @@ import com.example.rooms.presentation.components.ErrorCard
 import com.example.rooms.presentation.components.LoadingScreen
 import com.example.rooms.presentation.components.Logo
 import com.example.rooms.presentation.components.PasswordTextField
+import com.example.rooms.presentation.features.auth.utils.TextFieldHandler
 import com.example.rooms.presentation.features.auth.viewModels.AuthUiState
 import com.example.rooms.presentation.features.auth.viewModels.AuthViewModel
 
@@ -83,6 +84,65 @@ fun SignInScreen(
         LoadingScreen()
     }
 
+    val usernameTextFieldHandler = TextFieldHandler(
+        value = username,
+        onValueChange = {
+            username = it
+            errorMessage = null
+            invalidFields.remove(Field.USERNAME)
+        }
+    )
+    val passwordTextFieldHandler = TextFieldHandler(
+        value = password,
+        onValueChange = {
+            password = it
+            errorMessage = null
+            invalidFields.remove(Field.PASSWORD)
+        },
+        isTextVisible = isPasswordVisible,
+        onVisibilityChange = { isPasswordVisible = !isPasswordVisible }
+    )
+
+    val onSignInClick = {
+        invalidFields.clear()
+
+        when {
+            username.isBlank() -> {
+                invalidFields.add(Field.USERNAME)
+                errorMessage = Field.USERNAME.onEmptyErrorMessage
+            }
+            password.isBlank() -> {
+                invalidFields.add(Field.PASSWORD)
+                errorMessage = Field.PASSWORD.onEmptyErrorMessage
+            }
+        }
+
+        if (errorMessage.isNullOrBlank()) {
+            authViewModel.signIn(login = username, password = password)
+        }
+    }
+
+    SignInView(
+        usernameTextFieldHandler = usernameTextFieldHandler,
+        passwordTextFieldHandler = passwordTextFieldHandler,
+        onSignInClick = onSignInClick,
+        onGoToSignUpClick = onGoToSignUpClick,
+        errorMessage = errorMessage,
+        invalidFields = invalidFields,
+        modifier = modifier
+    )
+}
+
+@Composable
+private fun SignInView(
+    usernameTextFieldHandler: TextFieldHandler,
+    passwordTextFieldHandler: TextFieldHandler,
+    onSignInClick: () -> Unit,
+    onGoToSignUpClick: () -> Unit,
+    errorMessage: String?,
+    invalidFields: List<Field>,
+    modifier: Modifier = Modifier,
+) {
     val focusManager = LocalFocusManager.current
 
     Box(
@@ -95,94 +155,119 @@ fun SignInScreen(
             },
         contentAlignment = Alignment.Center
     ) {
-        Column(
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally,
+        Content(
+            usernameTextFieldHandler = usernameTextFieldHandler,
+            passwordTextFieldHandler = passwordTextFieldHandler,
+            onSignInClick = onSignInClick,
+            onGoToSignUpClick = onGoToSignUpClick,
+            invalidFields = invalidFields,
             modifier = modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
-                .padding(20.dp)
-                .verticalScroll(rememberScrollState())
-        ) {
-            Logo()
-            Spacer(modifier = Modifier.height(64.dp))
-            BaseTextField(
-                value = username,
-                onValueChange = {
-                    username = it
-                    errorMessage = null
-                    invalidFields.remove(Field.USERNAME)
-                },
-                placeholderText = Field.USERNAME.placeholder,
-                isError = Field.USERNAME in invalidFields,
-                imeAction = ImeAction.Next
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            PasswordTextField(
-                value = password,
-                onValueChange = {
-                    password = it
-                    errorMessage = null
-                    invalidFields.remove(Field.PASSWORD)
-                },
-                isValueVisible = isPasswordVisible,
-                onValueVisibilityChange = { isPasswordVisible = !isPasswordVisible },
-                placeholderText = Field.PASSWORD.placeholder,
-                isError = Field.PASSWORD in invalidFields,
-                imeAction = ImeAction.Done
-            )
-            Spacer(modifier = Modifier.height(48.dp))
-            TextButton(
-                contentPadding = PaddingValues(vertical = 12.dp, horizontal = 48.dp),
-                shape = RoundedCornerShape(16.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary
-                ),
-                onClick = {
-                    invalidFields.clear()
-
-                    when {
-                        username.isBlank() -> {
-                            invalidFields.add(Field.USERNAME)
-                            errorMessage = Field.USERNAME.onEmptyErrorMessage
-                        }
-                        password.isBlank() -> {
-                            invalidFields.add(Field.PASSWORD)
-                            errorMessage = Field.PASSWORD.onEmptyErrorMessage
-                        }
-                    }
-
-                    if (!errorMessage.isNullOrBlank()) return@TextButton
-
-                    authViewModel.signIn(login = username, password = password)
-                },
-                modifier = Modifier.size(height = 48.dp, width = 184.dp)
-            ) {
-                Text(
-                    text = "Sign in",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onPrimary
-                )
-            }
-            Spacer(modifier = Modifier.height(12.dp))
-            TextButton(
-                onClick = onGoToSignUpClick
-            ) {
-                Text(
-                    text = "Go to sign up",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.primary
-                )
-            }
-        }
+        )
 
         if (!errorMessage.isNullOrBlank()) {
             ErrorCard(
-                text = errorMessage ?: "Error",
+                text = errorMessage,
                 modifier = Modifier.align(Alignment.BottomCenter)
             )
         }
+    }
+}
+
+@Composable
+private fun Content(
+    usernameTextFieldHandler: TextFieldHandler,
+    passwordTextFieldHandler: TextFieldHandler,
+    onSignInClick: () -> Unit,
+    onGoToSignUpClick: () -> Unit,
+    invalidFields: List<Field>,
+    modifier: Modifier = Modifier,
+) = Column(
+    verticalArrangement = Arrangement.Center,
+    horizontalAlignment = Alignment.CenterHorizontally,
+    modifier = modifier
+        .fillMaxSize()
+        .background(MaterialTheme.colorScheme.background)
+        .padding(20.dp)
+        .verticalScroll(rememberScrollState())
+) {
+    Logo()
+
+    Spacer(modifier = Modifier.height(64.dp))
+
+    TextFields(
+        usernameTextFieldHandler = usernameTextFieldHandler,
+        passwordTextFieldHandler = passwordTextFieldHandler,
+        invalidFields = invalidFields
+    )
+
+    Spacer(modifier = Modifier.height(48.dp))
+
+    Buttons(
+        onSignInClick = onSignInClick,
+        onGoToSignUpClick = onGoToSignUpClick
+    )
+}
+
+@Composable
+private fun TextFields(
+    usernameTextFieldHandler: TextFieldHandler,
+    passwordTextFieldHandler: TextFieldHandler,
+    invalidFields: List<Field>,
+) = Column(
+    verticalArrangement = Arrangement.spacedBy(16.dp),
+    horizontalAlignment = Alignment.CenterHorizontally,
+) {
+    BaseTextField(
+        value = usernameTextFieldHandler.value,
+        onValueChange = usernameTextFieldHandler.onValueChange,
+        placeholderText = Field.USERNAME.placeholder,
+        isError = Field.USERNAME in invalidFields,
+        imeAction = ImeAction.Next
+    )
+
+    PasswordTextField(
+        value = passwordTextFieldHandler.value,
+        onValueChange = passwordTextFieldHandler.onValueChange,
+        isValueVisible = passwordTextFieldHandler.isTextVisible,
+        onValueVisibilityChange = passwordTextFieldHandler.onVisibilityChange,
+        placeholderText = Field.PASSWORD.placeholder,
+        isError = Field.PASSWORD in invalidFields,
+        imeAction = ImeAction.Done
+    )
+}
+
+@Composable
+private fun Buttons(
+    onSignInClick: () -> Unit,
+    onGoToSignUpClick: () -> Unit,
+) = Column(
+    horizontalAlignment = Alignment.CenterHorizontally,
+) {
+    TextButton(
+        contentPadding = PaddingValues(vertical = 12.dp, horizontal = 48.dp),
+        shape = RoundedCornerShape(16.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary
+        ),
+        onClick = onSignInClick,
+        modifier = Modifier.size(height = 48.dp, width = 184.dp)
+    ) {
+        Text(
+            text = "Sign in",
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onPrimary
+        )
+    }
+    Spacer(modifier = Modifier.height(12.dp))
+    TextButton(
+        onClick = onGoToSignUpClick
+    ) {
+        Text(
+            text = "Go to sign up",
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.primary
+        )
     }
 }
 
