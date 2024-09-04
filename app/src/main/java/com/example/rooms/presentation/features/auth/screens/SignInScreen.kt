@@ -32,6 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -43,6 +44,7 @@ import com.example.rooms.presentation.components.PasswordTextField
 import com.example.rooms.presentation.features.auth.utils.TextFieldHandler
 import com.example.rooms.presentation.features.auth.viewModels.AuthUiState
 import com.example.rooms.presentation.features.auth.viewModels.AuthViewModel
+import com.example.rooms.presentation.theme.RoomsTheme
 
 @Composable
 fun SignInScreen(
@@ -271,12 +273,54 @@ private fun Buttons(
     }
 }
 
-@Preview
+@Preview(name = "Default")
 @Composable
 private fun SignInScreenPreview() {
-    SignInScreen(
-        onSignInSuccess = { },
-        onGoToSignUpClick = { },
-        modifier = Modifier.fillMaxSize()
+    val usernameTextFieldHandler = TextFieldHandler(
+        value = "",
+        onValueChange = { }
     )
+    val passwordTextFieldHandler = TextFieldHandler(
+        value = "",
+        onValueChange = { },
+        isTextVisible = false,
+        onVisibilityChange = { }
+    )
+
+    RoomsTheme {
+        SignInView(
+            usernameTextFieldHandler = usernameTextFieldHandler,
+            passwordTextFieldHandler = passwordTextFieldHandler,
+            onSignInClick = { },
+            onGoToSignUpClick = { },
+            errorMessage = null,
+            invalidFields = listOf()
+        )
+    }
+}
+
+@Preview(name = "Error")
+@Composable
+private fun SignInScreenErrorPreview() {
+    val usernameTextFieldHandler = TextFieldHandler(
+        value = "username",
+        onValueChange = { }
+    )
+    val passwordTextFieldHandler = TextFieldHandler(
+        value = "password",
+        onValueChange = { },
+        isTextVisible = false,
+        onVisibilityChange = { }
+    )
+
+    RoomsTheme {
+        SignInView(
+            usernameTextFieldHandler = usernameTextFieldHandler,
+            passwordTextFieldHandler = passwordTextFieldHandler,
+            onSignInClick = { },
+            onGoToSignUpClick = { },
+            errorMessage = "Invalid username",
+            invalidFields = listOf(Field.USERNAME, Field.PASSWORD)
+        )
+    }
 }

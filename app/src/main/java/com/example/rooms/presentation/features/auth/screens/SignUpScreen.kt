@@ -43,6 +43,7 @@ import com.example.rooms.presentation.components.PasswordTextField
 import com.example.rooms.presentation.features.auth.utils.TextFieldHandler
 import com.example.rooms.presentation.features.auth.viewModels.AuthUiState
 import com.example.rooms.presentation.features.auth.viewModels.AuthViewModel
+import com.example.rooms.presentation.theme.RoomsTheme
 
 @Composable
 fun SignUpScreen(
@@ -305,12 +306,68 @@ private fun Buttons(
     }
 }
 
-@Preview
+@Preview(name = "Default")
 @Composable
 private fun SignUpScreenPreview() {
-    SignUpScreen(
-        onSignUpSuccess = { },
-        onGoToSignInClick = { },
-        modifier = Modifier.fillMaxSize()
+    val usernameTextFieldHandler = TextFieldHandler(
+        value = "",
+        onValueChange = { }
     )
+    val passwordTextFieldHandler = TextFieldHandler(
+        value = "",
+        onValueChange = { },
+        isTextVisible = false,
+        onVisibilityChange = { }
+    )
+    val repeatedPasswordTextFieldHandler = TextFieldHandler(
+        value = "",
+        onValueChange = { },
+        isTextVisible = false,
+        onVisibilityChange = { }
+    )
+
+    RoomsTheme {
+        SignUpView(
+            usernameTextFieldHandler = usernameTextFieldHandler,
+            passwordTextFieldHandler = passwordTextFieldHandler,
+            repeatedPasswordTextFieldHandler = repeatedPasswordTextFieldHandler,
+            onSignUpClick = { },
+            onGoToSignInClick = { },
+            errorMessage = null,
+            invalidFields = listOf()
+        )
+    }
+}
+
+@Preview(name = "Error")
+@Composable
+private fun SignUpScreenErrorPreview() {
+    val usernameTextFieldHandler = TextFieldHandler(
+        value = "username",
+        onValueChange = { }
+    )
+    val passwordTextFieldHandler = TextFieldHandler(
+        value = "password",
+        onValueChange = { },
+        isTextVisible = false,
+        onVisibilityChange = { }
+    )
+    val repeatedPasswordTextFieldHandler = TextFieldHandler(
+        value = "password",
+        onValueChange = { },
+        isTextVisible = false,
+        onVisibilityChange = { }
+    )
+
+    RoomsTheme {
+        SignUpView(
+            usernameTextFieldHandler = usernameTextFieldHandler,
+            passwordTextFieldHandler = passwordTextFieldHandler,
+            repeatedPasswordTextFieldHandler = repeatedPasswordTextFieldHandler,
+            onSignUpClick = { },
+            onGoToSignInClick = { },
+            errorMessage = "Provided username already registered",
+            invalidFields = listOf(Field.USERNAME, Field.PASSWORD, Field.REPEAT_PASSWORD)
+        )
+    }
 }
