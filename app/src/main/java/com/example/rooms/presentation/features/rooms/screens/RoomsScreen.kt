@@ -39,7 +39,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
@@ -53,7 +52,7 @@ import com.example.rooms.R
 import com.example.rooms.presentation.components.TopBar
 import com.example.rooms.presentation.theme.ChangeSystemBarsColors
 import com.example.rooms.presentation.features.rooms.models.Event
-import com.example.rooms.presentation.navigation.NavSection
+import com.example.rooms.presentation.navigation.NavModule
 import com.example.rooms.presentation.features.rooms.viewModels.RoomsViewModel
 import kotlinx.coroutines.delay
 
@@ -65,10 +64,10 @@ fun RoomsScreen(
     roomsViewModel: RoomsViewModel = viewModel(),
 ) {
     ChangeSystemBarsColors(
-        systemBarColor = MaterialTheme.colorScheme.background.toArgb(),
+        systemBarColor = MaterialTheme.colorScheme.background,
         isAppearanceLightStatusBars = true,
-        navigationBarColor = MaterialTheme.colorScheme.background.toArgb(),
-        isAppearanceLightNavigationBars = true
+        navigationBarColor = MaterialTheme.colorScheme.primary,
+        isAppearanceLightNavigationBars = false
     )
 
     var isCreateRoomSheetOpen by rememberSaveable { mutableStateOf(false) }
@@ -123,7 +122,7 @@ fun RoomsScreen(
                         .padding(4.dp)
                         .combinedClickable(
                             onClick = {
-                                navController.navigate(NavSection.Rooms.Room.name + "/${item.id}")
+//                                navController.navigate(NavModule.Rooms.Room.name + "/${item.id}")
                             },
                             onLongClick = {
                                 isDeleteRoomSheetOpen = true

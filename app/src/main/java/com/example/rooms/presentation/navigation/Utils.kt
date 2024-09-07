@@ -7,22 +7,22 @@ import androidx.navigation.NavOptionsBuilder
 
 /**
  * [NavController.navigate] is an extension for [NavController]
- * to navigate between [NavSection]'s and [NavSection.Screen]'s
+ * to navigate between [NavModule]'s and [NavModule.Screen]'s
  * with [Parcelable] params or params in [Bundle]
  */
 
 fun NavController.navigate(
-    section: NavSection,
+    module: NavModule,
     param: Pair<String, Parcelable>? = null,
     builder: NavOptionsBuilder.() -> Unit = { }
 ) {
     param?.let { this.currentBackStackEntry?.arguments?.putParcelable(param.first, param.second) }
 
-    navigate(section.name, builder)
+    navigate(module.route, builder)
 }
 
 fun NavController.navigate(
-    section: NavSection,
+    module: NavModule,
     params: List<Pair<String, Parcelable>>? = null,
     builder: NavOptionsBuilder.() -> Unit = { }
 ) {
@@ -31,31 +31,31 @@ fun NavController.navigate(
         params.forEach { arguments?.putParcelable(it.first, it.second) }
     }
 
-    navigate(section.name, builder)
+    navigate(module.route, builder)
 }
 
 fun NavController.navigate(
-    section: NavSection,
+    module: NavModule,
     params: Bundle? = null,
     builder: NavOptionsBuilder.() -> Unit = { }
 ) {
     this.currentBackStackEntry?.arguments?.putAll(params)
 
-    navigate(section.name, builder)
+    navigate(module.route, builder)
 }
 
 fun NavController.navigate(
-    screen: NavSection.Screen,
+    submodule: NavModule.Submodule,
     param: Pair<String, Parcelable>? = null,
     builder: NavOptionsBuilder.() -> Unit = { }
 ) {
     param?.let { this.currentBackStackEntry?.arguments?.putParcelable(param.first, param.second) }
 
-    navigate(screen.name, builder)
+    navigate(submodule.route, builder)
 }
 
 fun NavController.navigate(
-    screen: NavSection.Screen,
+    submodule: NavModule.Submodule,
     params: List<Pair<String, Parcelable>>? = null,
     builder: NavOptionsBuilder.() -> Unit = { }
 ) {
@@ -64,15 +64,48 @@ fun NavController.navigate(
         params.forEach { arguments?.putParcelable(it.first, it.second) }
     }
 
-    navigate(screen.name, builder)
+    navigate(submodule.route, builder)
 }
 
 fun NavController.navigate(
-    screen: NavSection.Screen,
+    submodule: NavModule.Submodule,
     params: Bundle? = null,
     builder: NavOptionsBuilder.() -> Unit = { }
 ) {
     this.currentBackStackEntry?.arguments?.putAll(params)
 
-    navigate(screen.name, builder)
+    navigate(submodule.route, builder)
+}
+
+fun NavController.navigate(
+    screen: NavModule.Screen,
+    param: Pair<String, Parcelable>? = null,
+    builder: NavOptionsBuilder.() -> Unit = { }
+) {
+    param?.let { this.currentBackStackEntry?.arguments?.putParcelable(param.first, param.second) }
+
+    navigate(screen.route, builder)
+}
+
+fun NavController.navigate(
+    screen: NavModule.Screen,
+    params: List<Pair<String, Parcelable>>? = null,
+    builder: NavOptionsBuilder.() -> Unit = { }
+) {
+    params?.let {
+        val arguments = this.currentBackStackEntry?.arguments
+        params.forEach { arguments?.putParcelable(it.first, it.second) }
+    }
+
+    navigate(screen.route, builder)
+}
+
+fun NavController.navigate(
+    screen: NavModule.Screen,
+    params: Bundle? = null,
+    builder: NavOptionsBuilder.() -> Unit = { }
+) {
+    this.currentBackStackEntry?.arguments?.putAll(params)
+
+    navigate(screen.route, builder)
 }

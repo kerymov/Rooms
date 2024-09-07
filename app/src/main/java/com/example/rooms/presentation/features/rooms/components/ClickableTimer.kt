@@ -54,16 +54,16 @@ fun ClickableTimer(
 ) {
     if (isActive) {
         ChangeSystemBarsColors(
-            systemBarColor = MaterialTheme.colorScheme.primary.toArgb(),
-            navigationBarColor = MaterialTheme.colorScheme.primary.toArgb(),
+            systemBarColor = MaterialTheme.colorScheme.primary,
+            navigationBarColor = MaterialTheme.colorScheme.primary,
             isAppearanceLightStatusBars = false,
             isAppearanceLightNavigationBars = false
         )
     } else {
         ChangeSystemBarsColors(
-            systemBarColor = MaterialTheme.colorScheme.background.toArgb(),
+            systemBarColor = MaterialTheme.colorScheme.background,
             isAppearanceLightStatusBars = true,
-            navigationBarColor = MaterialTheme.colorScheme.primary.toArgb(),
+            navigationBarColor = MaterialTheme.colorScheme.primary,
             isAppearanceLightNavigationBars = false
         )
     }

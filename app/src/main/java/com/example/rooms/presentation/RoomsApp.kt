@@ -5,144 +5,48 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.navigation
-import com.example.rooms.presentation.navigation.NavSection
-import com.example.rooms.presentation.navigation.navigate
-import com.example.rooms.presentation.features.rooms.screens.RoomsScreen
-import com.example.rooms.presentation.features.auth.screens.SignInScreen
-import com.example.rooms.presentation.features.auth.screens.SignUpScreen
+import androidx.navigation.compose.rememberNavController
 import com.example.rooms.presentation.features.rooms.viewModels.RoomsViewModel
-import com.example.rooms.presentation.features.auth.viewModels.AuthViewModel
+import com.example.rooms.presentation.navigation.AuthNavModule
+import com.example.rooms.presentation.navigation.MainNavModule
+import com.example.rooms.presentation.navigation.NavModule
+import com.example.rooms.presentation.navigation.navigate
 
 @Composable
 fun RoomsApp(
-    navController: NavHostController,
+    startNavModule: NavModule,
     roomsViewModel: RoomsViewModel = viewModel(),
-    authViewModel: AuthViewModel = viewModel(),
-    startNavSection: NavSection,
-) = Scaffold { contentPadding ->
-    NavHost(
-        navController = navController,
-        startDestination = startNavSection.name,
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(contentPadding)
-    ) {
-        navigation(
-            route = NavSection.Auth.name,
-            startDestination = NavSection.Auth.SignIn.name
+) {
+    val navController = rememberNavController()
+
+    Scaffold { contentPadding ->
+        NavHost(
+            navController = navController,
+            startDestination = startNavModule.route,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(contentPadding)
         ) {
-            composable(route = NavSection.Auth.SignIn.name) {
-                SignInScreen(
-                    onSignInSuccess = {
-                        navController.navigate(section = NavSection.Rooms, param = null) {
-                            popUpTo(NavSection.Auth.name) {
-                                inclusive = true
-                            }
-                        }
-                    },
-                    onGoToSignUpClick = {
-                        authViewModel.resetUiState()
-                        navController.navigate(screen = NavSection.Auth.SignUp, param = null) {
-                            popUpTo(0)
-                        }
-                    },
-                    authViewModel = authViewModel
+            composable(route = NavModule.Auth.route) {
+                AuthNavModule(
+                    onAuthSuccess = { navController.navigateToMainModule() },
                 )
             }
-            composable(route = NavSection.Auth.SignUp.name) {
-                SignUpScreen(
-                    onSignUpSuccess = {
-                        navController.navigate(section = NavSection.Rooms, param = null) {
-                            popUpTo(NavSection.Auth.name) {
-                                inclusive = true
-                            }
-                        }
-                    },
-                    onGoToSignInClick = {
-                        authViewModel.resetUiState()
-                        navController.navigate(screen = NavSection.Auth.SignIn, param = null) {
-                            popUpTo(0)
-                        }
-                    },
-                    authViewModel = authViewModel
-                )
-            }
-        }
-        navigation(
-            route = NavSection.Rooms.name,
-            startDestination = NavSection.Rooms.Rooms.name
-        ) {
-            composable(route = NavSection.Rooms.Rooms.name) {
-                RoomsScreen(
-                    navController = navController,
-                    roomsViewModel = roomsViewModel
-                )
-            }
-            composable(route = NavSection.Rooms.Room.name) {
-
-            }
-            composable(route = NavSection.Rooms.Results.name) {
-
-            }
-        }
-        navigation(
-            route = NavSection.Profile.name,
-            startDestination = NavSection.Profile.Profile.name
-        ) {
-            composable(route = NavSection.Profile.Profile.name) {
-
+            composable(route = NavModule.Main.route) {
+                MainNavModule()
             }
         }
     }
 }
 
-@Preview
-@Composable
-private fun RoomsAppPreview() {
-//    RoomsApp(listOf())
+private fun NavHostController.navigateToMainModule() {
+    navigate(module = NavModule.Main, param = null) {
+        popUpTo(NavModule.Auth.route) {
+            inclusive = true
+        }
+    }
 }
-
-//    composable(
-//        route = Screen.ROOM.name + "/{roomId}",
-//        arguments = listOf(navArgument("roomId") { type = NavType.StringType })
-//    ) { backStackEntry ->
-//        val roomId = backStackEntry.arguments?.getString("roomId")
-//        val room = roomId?.let {
-//            roomsViewModel.getRoomById(it)
-//        } ?: return@composable
-//
-//        val roomViewModel = viewModel<RoomViewModel>(
-//            factory = object : ViewModelProvider.Factory {
-//                @Suppress("UNCHECKED_CAST")
-//                override fun <T : ViewModel> create(modelClass: Class<T>): T {
-//                    return RoomViewModel(room) as T
-//                }
-//            }
-//        )
-//        RoomScreen(
-//            navController = rememberNavController(),
-//            signInViewModel = signInViewModel,
-//            roomViewModel = roomViewModel,
-//        )
-//    }
-//    composable(
-//        route = Screen.RESULTS.name + "/{roomId}",
-//        arguments = listOf(navArgument("roomId") { type = NavType.StringType })
-//    ) { backStackEntry ->
-//        val roomId = backStackEntry.arguments?.getString("roomId")
-//        roomId?.let {
-//            roomsViewModel.getRoomById(it)
-//        } ?: return@composable
-//
-//        val room = roomsUiState.currentRoom ?: return@composable
-//        ResultsScreen(
-//            navController = navController,
-//            roomName = room.roomName,
-//        )
-//    }

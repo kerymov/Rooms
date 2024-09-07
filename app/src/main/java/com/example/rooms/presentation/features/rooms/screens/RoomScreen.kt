@@ -54,7 +54,7 @@ import com.example.rooms.presentation.features.rooms.components.ClickableTimer
 import com.example.rooms.presentation.features.rooms.components.ManualTypingTimer
 import com.example.rooms.presentation.features.rooms.components.ScrambleImage
 import com.example.rooms.presentation.components.TopBar
-import com.example.rooms.presentation.navigation.NavSection
+import com.example.rooms.presentation.navigation.NavModule
 import com.example.rooms.presentation.features.rooms.viewModels.RoomViewModel
 import com.example.rooms.presentation.features.rooms.utils.Timer
 import com.example.rooms.presentation.features.rooms.utils.TimerState
@@ -87,7 +87,7 @@ fun RoomScreen(
                 actionIcon = R.drawable.groups,
                 onNavigationButtonClick = { navController.popBackStack() },
                 onActionButtonClick = {
-                    navController.navigate(NavSection.Rooms.Results.name + "/${roomUiState.room?.id}")
+//                    navController.navigate(NavModule.Rooms.Results.name + "/${roomUiState.room?.id}")
                 }
             )
         },

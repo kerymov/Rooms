@@ -45,9 +45,9 @@ fun ResultsScreen(
     modifier: Modifier = Modifier
 ) {
     ChangeSystemBarsColors(
-        systemBarColor = MaterialTheme.colorScheme.background.toArgb(),
+        systemBarColor = MaterialTheme.colorScheme.background,
         isAppearanceLightStatusBars = true,
-        navigationBarColor = MaterialTheme.colorScheme.background.toArgb(),
+        navigationBarColor = MaterialTheme.colorScheme.background,
         isAppearanceLightNavigationBars = true
     )
 

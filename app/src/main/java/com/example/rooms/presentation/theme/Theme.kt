@@ -5,6 +5,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
@@ -56,8 +57,8 @@ fun RoomsTheme(
 
 @Composable
 fun ChangeSystemBarsColors(
-    systemBarColor: Int = LightColorScheme.background.toArgb(),
-    navigationBarColor: Int = LightColorScheme.background.toArgb(),
+    systemBarColor: Color = LightColorScheme.background,
+    navigationBarColor: Color = LightColorScheme.background,
     isAppearanceLightStatusBars: Boolean = true,
     isAppearanceLightNavigationBars: Boolean = true
 ) {
@@ -65,9 +66,9 @@ fun ChangeSystemBarsColors(
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            window.statusBarColor = systemBarColor
+            window.statusBarColor = systemBarColor.toArgb()
             WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = isAppearanceLightStatusBars
-            window.navigationBarColor = navigationBarColor
+            window.navigationBarColor = navigationBarColor.toArgb()
             WindowCompat.getInsetsController(window, view).isAppearanceLightNavigationBars = isAppearanceLightNavigationBars
         }
     }
