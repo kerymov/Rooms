@@ -36,17 +36,17 @@ private val LightColorScheme = lightColorScheme(
 fun RoomsTheme(
     content: @Composable () -> Unit
 ) {
-    val view = LocalView.current
-    if (!view.isInEditMode) {
-        SideEffect {
-            val window = (view.context as Activity).window
-            // Change to customize Status Bar and Insets Controller
-            window.statusBarColor = LightColorScheme.background.toArgb()
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = true
-            window.navigationBarColor = LightColorScheme.background.toArgb()
-            WindowCompat.getInsetsController(window, view).isAppearanceLightNavigationBars = true
-        }
-    }
+//    val view = LocalView.current
+//    if (!view.isInEditMode) {
+//        SideEffect {
+//            val window = (view.context as Activity).window
+//            // Change to customize Status Bar and Insets Controller
+//            window.statusBarColor = LightColorScheme.background.toArgb()
+//            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = true
+//            window.navigationBarColor = LightColorScheme.background.toArgb()
+//            WindowCompat.getInsetsController(window, view).isAppearanceLightNavigationBars = true
+//        }
+//    }
 
     MaterialTheme(
         colorScheme = LightColorScheme,

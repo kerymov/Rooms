@@ -1,4 +1,4 @@
-package com.example.rooms.presentation.features.rooms.components
+package com.example.rooms.presentation.features.main.rooms.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement

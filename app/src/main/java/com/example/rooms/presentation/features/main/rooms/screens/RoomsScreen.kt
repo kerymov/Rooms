@@ -1,4 +1,6 @@
-package com.example.rooms.presentation.features.rooms.screens
+@file:OptIn(ExperimentalFoundationApi::class)
+
+package com.example.rooms.presentation.features.main.rooms.screens
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -7,17 +9,20 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.calculateEndPadding
-import androidx.compose.foundation.layout.calculateStartPadding
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeContentPadding
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -27,6 +32,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.contentColorFor
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -40,36 +46,28 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
 import com.example.rooms.R
-import com.example.rooms.presentation.components.TopBar
-import com.example.rooms.presentation.theme.ChangeSystemBarsColors
-import com.example.rooms.presentation.features.rooms.models.Event
-import com.example.rooms.presentation.navigation.NavModule
-import com.example.rooms.presentation.features.rooms.viewModels.RoomsViewModel
+import com.example.rooms.presentation.components.CenterAlignedTopBar
+import com.example.rooms.presentation.features.main.rooms.models.Event
+import com.example.rooms.presentation.features.main.rooms.viewModels.RoomsUiState
+import com.example.rooms.presentation.features.main.rooms.viewModels.RoomsViewModel
+import com.example.rooms.presentation.features.utils.toInnerScaffoldPadding
+import com.example.rooms.presentation.theme.RoomsTheme
 import kotlinx.coroutines.delay
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RoomsScreen(
-    navController: NavController,
     modifier: Modifier = Modifier,
     roomsViewModel: RoomsViewModel = viewModel(),
 ) {
-    ChangeSystemBarsColors(
-        systemBarColor = MaterialTheme.colorScheme.background,
-        isAppearanceLightStatusBars = true,
-        navigationBarColor = MaterialTheme.colorScheme.primary,
-        isAppearanceLightNavigationBars = false
-    )
-
     var isCreateRoomSheetOpen by rememberSaveable { mutableStateOf(false) }
     val createRoomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
@@ -84,54 +82,35 @@ fun RoomsScreen(
         roomsViewModel.getRooms()
     }
 
+    val topAppBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+
     Scaffold(
         topBar = {
-            TopBar(
+            CenterAlignedTopBar(
                 title = "Rooms",
-                navigationIcon = null,
-                actionIcon = R.drawable.add,
-                onNavigationButtonClick = { },
-                onActionButtonClick = {
-                    isCreateRoomSheetOpen = true
-                }
+                actions = listOf(
+                    Icons.Filled.Add to { isCreateRoomSheetOpen = true }
+                ),
+                scrollBehaviour = topAppBarScrollBehavior
             )
         },
         containerColor = MaterialTheme.colorScheme.background,
         contentColor = contentColorFor(MaterialTheme.colorScheme.background),
-        modifier = modifier.fillMaxSize()
-    ) {
-        LazyVerticalGrid(
-            columns = GridCells.Adaptive(148.dp),
-            contentPadding = PaddingValues(
-                top = it.calculateTopPadding() + 8.dp,
-                bottom = it.calculateBottomPadding() + 0.dp,
-                start = it.calculateStartPadding(LayoutDirection.Ltr) + 16.dp,
-                end = it.calculateEndPadding(LayoutDirection.Ltr) + 16.dp
-            ),
-            modifier = Modifier.fillMaxSize()
-        ) {
-            items(roomsUiState.rooms) { item ->
-                val event = Event.entries.find { event -> event.id == item.puzzle }
-                    ?: Event.THREE_BY_THREE
-
-                RoomCard(
-                    name = item.roomName,
-                    event = event,
-                    isOpen = item.isOpen,
-                    modifier = Modifier
-                        .padding(4.dp)
-                        .combinedClickable(
-                            onClick = {
-//                                navController.navigate(NavModule.Rooms.Room.name + "/${item.id}")
-                            },
-                            onLongClick = {
-                                isDeleteRoomSheetOpen = true
-                                roomIdToDelete = item.id
-                            }
-                        )
-                )
+        modifier = modifier
+            .fillMaxSize()
+            .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection)
+    ) { contentPadding ->
+        Content(
+            uiState = roomsUiState,
+            contentPadding = contentPadding.toInnerScaffoldPadding(),
+            onItemClick = { itemId ->
+//                navController.navigate(NavModule.Rooms.Room.name + "/${item.id}")
+            },
+            onLongItemClick = { itemId ->
+                isDeleteRoomSheetOpen = true
+                roomIdToDelete = itemId
             }
-        }
+        )
 
         if (isCreateRoomSheetOpen) {
             RoomsCreatingBottomSheet(
@@ -141,7 +120,8 @@ fun RoomsScreen(
                     roomsViewModel.createRoom(roomCreationRequest)
                     isCreateRoomSheetOpen = false
                 },
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize(),
+                windowInsets = WindowInsets(0, 0, 0, 0)
             )
         }
 
@@ -156,7 +136,42 @@ fun RoomsScreen(
                     roomsViewModel.deleteRoom(roomIdToDelete ?: "")
                     isDeleteRoomSheetOpen = false
                     roomIdToDelete = null
-                }
+                },
+                windowInsets = WindowInsets(0, 0, 0, 0),
+            )
+        }
+    }
+}
+
+@Composable
+private fun Content(
+    uiState: RoomsUiState,
+    contentPadding: PaddingValues,
+    onItemClick: (id: String) -> Unit,
+    onLongItemClick: (id: String) -> Unit
+) = Box(
+    modifier = Modifier
+        .fillMaxSize()
+        .padding(contentPadding)
+) {
+    LazyVerticalGrid(
+        columns = GridCells.Adaptive(148.dp),
+        modifier = Modifier.fillMaxSize()
+    ) {
+        items(uiState.rooms) { item ->
+            val event = Event.entries.find { event -> event.id == item.puzzle }
+                ?: Event.THREE_BY_THREE
+
+            RoomCard(
+                name = item.roomName,
+                event = event,
+                isOpen = item.isOpen,
+                modifier = Modifier
+                    .padding(4.dp)
+                    .combinedClickable(
+                        onClick = { onItemClick(item.id) },
+                        onLongClick = { onLongItemClick(item.id) }
+                    )
             )
         }
     }
@@ -223,13 +238,15 @@ private fun DeleteRoomModalBottomSheet(
     sheetState: SheetState,
     onDismissRequest: () -> Unit,
     onDeleteClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    windowInsets: WindowInsets = BottomSheetDefaults.windowInsets
 ) = ModalBottomSheet(
     sheetState = sheetState,
     onDismissRequest = onDismissRequest,
     containerColor = MaterialTheme.colorScheme.background,
     dragHandle = { BottomSheetDefaults.DragHandle(color = MaterialTheme.colorScheme.primary) },
-    modifier = modifier
+    modifier = modifier,
+    windowInsets = windowInsets,
 ) {
     Column(
         modifier = modifier
@@ -255,19 +272,23 @@ private fun DeleteRoomModalBottomSheet(
 @Preview(name = "Open room")
 @Composable
 fun OpenRoomCardPreview() {
-    RoomCard(
-        name = "Room name",
-        event = Event.THREE_BY_THREE,
-        isOpen = true
-    )
+    RoomsTheme {
+        RoomCard(
+            name = "Room name",
+            event = Event.THREE_BY_THREE,
+            isOpen = true
+        )
+    }
 }
 
 @Preview(name = "Locked room")
 @Composable
 fun LockedRoomCardPreview() {
-    RoomCard(
-        name = "Room name",
-        event = Event.THREE_BY_THREE,
-        isOpen = false
-    )
+    RoomsTheme {
+        RoomCard(
+            name = "Room name",
+            event = Event.THREE_BY_THREE,
+            isOpen = false
+        )
+    }
 }

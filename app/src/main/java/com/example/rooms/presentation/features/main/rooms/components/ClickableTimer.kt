@@ -1,4 +1,4 @@
-package com.example.rooms.presentation.features.rooms.components
+package com.example.rooms.presentation.features.main.rooms.components
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -35,7 +35,7 @@ import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
 import com.example.rooms.R
 import com.example.rooms.presentation.components.ActionButton
-import com.example.rooms.presentation.features.rooms.utils.Penalty
+import com.example.rooms.presentation.features.main.rooms.utils.Penalty
 import com.example.rooms.presentation.theme.ChangeSystemBarsColors
 
 @OptIn(ExperimentalFoundationApi::class)

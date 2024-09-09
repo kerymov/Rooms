@@ -1,4 +1,4 @@
-package com.example.rooms.presentation.features.rooms.models
+package com.example.rooms.presentation.features.main.rooms.models
 
 import androidx.annotation.DrawableRes
 import com.example.rooms.R

@@ -1,4 +1,4 @@
-package com.example.rooms.presentation.features.rooms.viewModels
+package com.example.rooms.presentation.features.main.rooms.viewModels
 
 import android.util.Log
 import androidx.lifecycle.ViewModel

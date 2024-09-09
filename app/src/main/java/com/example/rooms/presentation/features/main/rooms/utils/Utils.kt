@@ -1,4 +1,4 @@
-package com.example.rooms.presentation.features.rooms.utils
+package com.example.rooms.presentation.features.main.rooms.utils
 
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.OffsetMapping

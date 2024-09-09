@@ -1,4 +1,4 @@
-package com.example.rooms.presentation.features.rooms.screens
+package com.example.rooms.presentation.features.main.rooms.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -22,7 +22,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
@@ -30,7 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.rooms.R
 import com.example.rooms.presentation.SolvesRepository
-import com.example.rooms.presentation.components.TopBar
+import com.example.rooms.presentation.components.CenterAlignedTopBar
 import com.example.rooms.presentation.theme.ChangeSystemBarsColors
 import java.time.Instant
 import java.time.LocalDateTime
@@ -53,13 +52,13 @@ fun ResultsScreen(
 
     Scaffold(
         topBar = {
-            TopBar(
-                title = "Results",
-                navigationIcon = R.drawable.arrow_back,
-                actionIcon = null,
-                onNavigationButtonClick = { navController.popBackStack() },
-                onActionButtonClick = {}
-            )
+//            CenterAlignedTopBar(
+//                title = "Results",
+//                navigationIcon = R.drawable.arrow_back,
+//                actionIcon = null,
+//                onNavigationButtonClick = { navController.popBackStack() },
+//                onActionButtonClick = {}
+//            )
         },
         containerColor = MaterialTheme.colorScheme.background,
         contentColor = contentColorFor(MaterialTheme.colorScheme.background),

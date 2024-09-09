@@ -1,4 +1,4 @@
-package com.example.rooms.presentation.features.rooms.screens
+package com.example.rooms.presentation.features.main.rooms.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -7,9 +7,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -27,6 +29,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.ModalBottomSheetDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.SheetState
@@ -54,7 +57,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.rooms.data.model.rooms.RoomCreationRequestDto
 import com.example.rooms.data.model.rooms.RoomSettingsDto
-import com.example.rooms.presentation.features.rooms.models.Event
+import com.example.rooms.presentation.features.main.rooms.models.Event
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -62,11 +65,14 @@ fun RoomsCreatingBottomSheet(
     sheetState: SheetState,
     onDismissRequest:() -> Unit,
     onCreateClick: (roomCreationRequest: RoomCreationRequestDto) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    windowInsets: WindowInsets = BottomSheetDefaults.windowInsets,
 ) = ModalBottomSheet(
     sheetState = sheetState,
     onDismissRequest = onDismissRequest,
-    dragHandle = { BottomSheetDefaults.DragHandle(color = MaterialTheme.colorScheme.primary) }
+    dragHandle = { BottomSheetDefaults.DragHandle(color = MaterialTheme.colorScheme.primary) },
+    windowInsets = windowInsets,
+    modifier = Modifier.safeDrawingPadding()
 ) {
     var roomName by rememberSaveable { mutableStateOf("") }
     var isRoomNameError by rememberSaveable { mutableStateOf(false) }

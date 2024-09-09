@@ -1,10 +1,10 @@
 package com.example.rooms.presentation.components
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -34,15 +34,15 @@ enum class BottomNavigationItem(
     PROFILE(
         title = "Profile",
         destination = NavModule.Main.Profile,
-        selectedIcon = Icons.Filled.Person,
-        unselectedIcon = Icons.Outlined.Person,
+        selectedIcon = Icons.Filled.AccountCircle,
+        unselectedIcon = Icons.Outlined.AccountCircle,
     ),
 }
 
 @Composable
 fun BottomNavigationBar(
     items: List<BottomNavigationItem>,
-    onNavItemClick: (BottomNavigationItem) -> Unit,
+    onNavItemClick: (item: BottomNavigationItem) -> Unit,
 ) {
     var selectedItemIndex by rememberSaveable { mutableIntStateOf(0) }
 

@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalFoundationApi::class)
 
-package com.example.rooms.presentation.features.rooms.screens
+package com.example.rooms.presentation.features.main.rooms.screens
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -49,15 +49,14 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.rooms.R
 import com.example.rooms.data.model.scramble.ImageDto
-import com.example.rooms.presentation.features.rooms.models.Event
-import com.example.rooms.presentation.features.rooms.components.ClickableTimer
-import com.example.rooms.presentation.features.rooms.components.ManualTypingTimer
-import com.example.rooms.presentation.features.rooms.components.ScrambleImage
-import com.example.rooms.presentation.components.TopBar
-import com.example.rooms.presentation.navigation.NavModule
-import com.example.rooms.presentation.features.rooms.viewModels.RoomViewModel
-import com.example.rooms.presentation.features.rooms.utils.Timer
-import com.example.rooms.presentation.features.rooms.utils.TimerState
+import com.example.rooms.presentation.features.main.rooms.models.Event
+import com.example.rooms.presentation.features.main.rooms.components.ClickableTimer
+import com.example.rooms.presentation.features.main.rooms.components.ManualTypingTimer
+import com.example.rooms.presentation.features.main.rooms.components.ScrambleImage
+import com.example.rooms.presentation.components.CenterAlignedTopBar
+import com.example.rooms.presentation.features.main.rooms.viewModels.RoomViewModel
+import com.example.rooms.presentation.features.main.rooms.utils.Timer
+import com.example.rooms.presentation.features.main.rooms.utils.TimerState
 
 private enum class Page {
     SCRAMBLE,
@@ -81,15 +80,15 @@ fun RoomScreen(
     val event = Event.entries.find { it.id == roomUiState.room?.puzzle }
     Scaffold(
         topBar = {
-            TopBar(
-                title = "${roomUiState.room?.roomName} - ${event?.shortName}",
-                navigationIcon = R.drawable.exit_to_app,
-                actionIcon = R.drawable.groups,
-                onNavigationButtonClick = { navController.popBackStack() },
-                onActionButtonClick = {
-//                    navController.navigate(NavModule.Rooms.Results.name + "/${roomUiState.room?.id}")
-                }
-            )
+//            CenterAlignedTopBar(
+//                title = "${roomUiState.room?.roomName} - ${event?.shortName}",
+//                navigationIcon = R.drawable.exit_to_app,
+//                actionIcon = R.drawable.groups,
+//                onNavigationButtonClick = { navController.popBackStack() },
+//                onActionButtonClick = {
+////                    navController.navigate(NavModule.Rooms.Results.name + "/${roomUiState.room?.id}")
+//                }
+//            )
         },
         containerColor = MaterialTheme.colorScheme.background,
         contentColor = contentColorFor(MaterialTheme.colorScheme.background),
