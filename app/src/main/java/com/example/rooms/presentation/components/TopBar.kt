@@ -1,6 +1,8 @@
 package com.example.rooms.presentation.components
 
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -12,12 +14,12 @@ import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.rooms.presentation.theme.SetSystemBarIconColors
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -28,8 +30,22 @@ fun CenterAlignedTopBar(
     actions: List<Pair<ImageVector?, () -> Unit>> = listOf(),
     scrollBehaviour: TopAppBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(),
 ) {
-    val containerColor = MaterialTheme.colorScheme.primary
+    val containerColor = MaterialTheme.colorScheme.background
+    val scrolledContainerColor = MaterialTheme.colorScheme.primary
     val contentColor = MaterialTheme.colorScheme.contentColorFor(containerColor)
+    val scrolledContentColor = MaterialTheme.colorScheme.contentColorFor(scrolledContainerColor)
+
+    if (scrollBehaviour.state.overlappedFraction == 0.0f) {
+        SetSystemBarIconColors()
+    } else {
+        SetSystemBarIconColors(false)
+    }
+    val currentContentColor = if (scrollBehaviour.state.overlappedFraction == 0.0f) {
+        contentColor
+    } else {
+        scrolledContentColor
+    }
+
 
     CenterAlignedTopAppBar(
         title = {
@@ -53,10 +69,10 @@ fun CenterAlignedTopBar(
         },
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
             containerColor = containerColor,
-            scrolledContainerColor = containerColor,
-            navigationIconContentColor = contentColor,
-            titleContentColor = contentColor,
-            actionIconContentColor = contentColor
+            scrolledContainerColor = scrolledContainerColor,
+            navigationIconContentColor = currentContentColor,
+            titleContentColor = currentContentColor,
+            actionIconContentColor = currentContentColor
         ),
         scrollBehavior = scrollBehaviour
     )
@@ -87,15 +103,14 @@ private fun TopBarIconButton(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Composable
 private fun TopBarPreview() {
-//    CenterAlignedTopBar(
-//        title = "Rooms",
-//        navigationIcon = R.drawable.arrow_back,
-//        actionIcon = R.drawable.add,
-//        onNavigationButtonClick = { },
-//        onActionButtonClick = { },
-//        modifier = Modifier.fillMaxWidth()
-//    )
+    CenterAlignedTopBar(
+        title = "Rooms",
+        navigationIcon = null,
+        onNavigationButtonClick = { },
+        actions = listOf(Icons.Filled.Add to { })
+    )
 }
