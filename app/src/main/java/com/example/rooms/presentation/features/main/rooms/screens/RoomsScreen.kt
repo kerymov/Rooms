@@ -67,11 +67,6 @@ fun RoomsScreen(
     modifier: Modifier = Modifier,
     roomsViewModel: RoomsViewModel = viewModel(),
 ) {
-    SetSystemBarIconColors(
-        isAppearanceLightStatusBars = false,
-        isAppearanceLightNavigationBars = false
-    )
-
     var isCreateRoomSheetOpen by rememberSaveable { mutableStateOf(false) }
     val createRoomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
