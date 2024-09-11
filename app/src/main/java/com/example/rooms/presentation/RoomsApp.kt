@@ -36,7 +36,7 @@ fun RoomsApp(
                 )
             }
             composable(route = NavModule.Main.route) {
-                MainNavModule()
+                MainNavModule(navController)
             }
         }
     }
