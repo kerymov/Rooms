@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -247,7 +248,7 @@ private fun Buttons(
 ) = Column(
     horizontalAlignment = Alignment.CenterHorizontally,
 ) {
-    TextButton(
+    Button(
         contentPadding = PaddingValues(vertical = 12.dp, horizontal = 48.dp),
         shape = RoundedCornerShape(16.dp),
         colors = ButtonDefaults.buttonColors(

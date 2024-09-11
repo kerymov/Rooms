@@ -12,6 +12,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navigation
 import com.example.rooms.presentation.components.BottomNavigationBar
 import com.example.rooms.presentation.components.BottomNavigationItem
+import com.example.rooms.presentation.features.main.profile.screens.ProfileScreen
 import com.example.rooms.presentation.features.main.rooms.screens.RoomsScreen
 import com.example.rooms.presentation.features.main.rooms.viewModels.RoomsViewModel
 import com.example.rooms.presentation.features.utils.sharedViewModel
@@ -65,7 +66,7 @@ fun MainNavModule() {
                 startDestination = NavModule.Main.Profile.Profile.route
             ) {
                 composable(route = NavModule.Main.Profile.Profile.route) {
-                    Text(text = "Profile")
+                    ProfileScreen()
                 }
             }
         }
