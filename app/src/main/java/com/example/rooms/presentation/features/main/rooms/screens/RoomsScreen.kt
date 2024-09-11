@@ -13,8 +13,6 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeContentPadding
-import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -60,6 +58,7 @@ import com.example.rooms.presentation.features.main.rooms.viewModels.RoomsUiStat
 import com.example.rooms.presentation.features.main.rooms.viewModels.RoomsViewModel
 import com.example.rooms.presentation.features.utils.toInnerScaffoldPadding
 import com.example.rooms.presentation.theme.RoomsTheme
+import com.example.rooms.presentation.theme.SetSystemBarIconColors
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -68,6 +67,11 @@ fun RoomsScreen(
     modifier: Modifier = Modifier,
     roomsViewModel: RoomsViewModel = viewModel(),
 ) {
+    SetSystemBarIconColors(
+        isAppearanceLightStatusBars = false,
+        isAppearanceLightNavigationBars = false
+    )
+
     var isCreateRoomSheetOpen by rememberSaveable { mutableStateOf(false) }
     val createRoomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 

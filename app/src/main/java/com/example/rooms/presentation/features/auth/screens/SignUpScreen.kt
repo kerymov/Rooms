@@ -44,6 +44,7 @@ import com.example.rooms.presentation.features.auth.utils.TextFieldHandler
 import com.example.rooms.presentation.features.auth.viewModels.AuthUiState
 import com.example.rooms.presentation.features.auth.viewModels.AuthViewModel
 import com.example.rooms.presentation.theme.RoomsTheme
+import com.example.rooms.presentation.theme.SetSystemBarIconColors
 
 @Composable
 fun SignUpScreen(
@@ -52,6 +53,8 @@ fun SignUpScreen(
     modifier: Modifier = Modifier,
     authViewModel: AuthViewModel = viewModel()
 ) {
+    SetSystemBarIconColors()
+
     val uiState by authViewModel.uiState.collectAsState()
 
     var username by rememberSaveable { mutableStateOf("") }

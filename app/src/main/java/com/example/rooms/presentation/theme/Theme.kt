@@ -56,6 +56,21 @@ fun RoomsTheme(
 }
 
 @Composable
+fun SetSystemBarIconColors(
+    isAppearanceLightStatusBars: Boolean = true,
+    isAppearanceLightNavigationBars: Boolean = true
+) {
+    val view = LocalView.current
+    if (!view.isInEditMode) {
+        SideEffect {
+            val window = (view.context as Activity).window
+            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = isAppearanceLightStatusBars
+            WindowCompat.getInsetsController(window, view).isAppearanceLightNavigationBars = isAppearanceLightNavigationBars
+        }
+    }
+}
+
+@Composable
 fun ChangeSystemBarsColors(
     systemBarColor: Color = LightColorScheme.background,
     navigationBarColor: Color = LightColorScheme.background,

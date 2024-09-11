@@ -32,7 +32,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -45,6 +44,7 @@ import com.example.rooms.presentation.features.auth.utils.TextFieldHandler
 import com.example.rooms.presentation.features.auth.viewModels.AuthUiState
 import com.example.rooms.presentation.features.auth.viewModels.AuthViewModel
 import com.example.rooms.presentation.theme.RoomsTheme
+import com.example.rooms.presentation.theme.SetSystemBarIconColors
 
 @Composable
 fun SignInScreen(
@@ -53,6 +53,8 @@ fun SignInScreen(
     modifier: Modifier = Modifier,
     authViewModel: AuthViewModel = viewModel()
 ) {
+    SetSystemBarIconColors()
+
     val uiState by authViewModel.uiState.collectAsState()
 
     var username by rememberSaveable { mutableStateOf("") }
