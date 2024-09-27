@@ -8,11 +8,12 @@ val BlueLight = Color(0xFF284C7E)
 val Yellow = Color(0xFFF4BD01)
 val RedError = Color(0xFF8F0000)
 val Light = Color(0xFFFAFAFA)
-val Light60 = Color(0x99FAFAFA)
+val Light60 = Light.copy(alpha = 0.6f)
+val LightGray = Color(0xFFEDEDED)
 val Dark = Color(0xFF262626)
-val Dark80 = Color(0xCC262626)
-val Dark60 = Color(0x99262626)
-val Dark12 = Color(0x1F262626)
+val Dark80 = Dark.copy(alpha = 0.8f)
+val Dark60 = Dark.copy(alpha = 0.6f)
+val Dark12 = Dark.copy(alpha = 0.12f)
 
 val GreenCube = Color.Green
 val BlueCube = Color.Blue

@@ -2,13 +2,25 @@
 
 package com.example.rooms.presentation.features.main.profile.screens
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.material.icons.automirrored.rounded.ArrowForward
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -20,12 +32,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.rooms.presentation.components.CenterAlignedTopBar
 import com.example.rooms.presentation.components.CustomAlertDialog
 import com.example.rooms.presentation.components.CustomAlertDialogDefaults
+import com.example.rooms.presentation.components.Divider
 import com.example.rooms.presentation.features.main.profile.viewModels.ProfileUiState
 import com.example.rooms.presentation.features.main.profile.viewModels.ProfileViewModel
 import com.example.rooms.presentation.features.utils.toInnerScaffoldPadding
@@ -46,11 +63,6 @@ fun ProfileScreen(
         topBar = {
             CenterAlignedTopBar(
                 title = "Profile",
-                actions = listOf(
-                    Icons.AutoMirrored.Filled.Logout to {
-                        shouldShowLogOutDialog = true
-                    }
-                ),
                 scrollBehaviour = topAppBarScrollBehavior
             )
         },
@@ -62,6 +74,9 @@ fun ProfileScreen(
     ) { contentPadding ->
         Content(
             uiState = uiState,
+            onRecordsClick = { },
+            onAllResultsClick = { },
+            onSignOutClick = { shouldShowLogOutDialog = true },
             contentPadding = contentPadding.toInnerScaffoldPadding(),
         )
 
@@ -88,11 +103,126 @@ fun ProfileScreen(
 @Composable
 private fun Content(
     uiState: ProfileUiState,
+    onRecordsClick: () -> Unit,
+    onAllResultsClick: () -> Unit,
+    onSignOutClick: () -> Unit,
     contentPadding: PaddingValues
 ) = Box(
     modifier = Modifier
         .fillMaxSize()
         .padding(contentPadding)
 ) {
-    Text(text = uiState.username ?: "Username")
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(24.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+            .padding(20.dp)
+            .verticalScroll(rememberScrollState())
+    ) {
+        UserInfo(uiState.username ?: "user")
+        Section(
+            title = "Results",
+            buttons = listOf(
+                ProfileButton("Records") { onRecordsClick() },
+                ProfileButton("All results") { onAllResultsClick() }
+            )
+        )
+        Section(
+            title = "Account",
+            buttons = listOf(
+                ProfileButton("Sign out") { onSignOutClick() }
+            ),
+            containerColor = MaterialTheme.colorScheme.error,
+            contentColor = MaterialTheme.colorScheme.onError
+        )
+    }
 }
+
+@Composable
+private fun UserInfo(
+    username: String
+) = Card(
+    shape = RoundedCornerShape(16.dp),
+    colors = CardDefaults.cardColors(
+        containerColor = MaterialTheme.colorScheme.primary
+    ),
+    modifier = Modifier.fillMaxWidth()
+) {
+    Text(
+        text = "Hello, $username",
+        style = MaterialTheme.typography.headlineMedium,
+        modifier = Modifier.padding(24.dp)
+    )
+}
+
+@Composable
+private fun Section(
+    title: String,
+    buttons: List<ProfileButton>,
+    containerColor: Color = MaterialTheme.colorScheme.surface,
+    contentColor: Color = MaterialTheme.colorScheme.onSurface
+) = Column(
+    verticalArrangement = Arrangement.spacedBy(16.dp)
+) {
+    Text(
+        text = title,
+        style = MaterialTheme.typography.titleLarge,
+        color = MaterialTheme.colorScheme.onBackground
+    )
+
+    Column(
+        modifier = Modifier
+            .clip(RoundedCornerShape(16.dp))
+            .background(containerColor)
+            .fillMaxWidth()
+    ) {
+        buttons.forEachIndexed { index, button ->
+            ProfileButton(
+                button,
+                contentColor
+            )
+
+            if (index != buttons.lastIndex) {
+                Divider(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 24.dp)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun ProfileButton(
+    button: ProfileButton,
+    contentColor: Color = MaterialTheme.colorScheme.onBackground
+) {
+    Row(
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { button.onClick() }
+            .padding(vertical = 8.dp, horizontal = 24.dp)
+    ) {
+        Text(
+            text = button.title,
+            color = contentColor,
+            style = MaterialTheme.typography.bodyLarge
+        )
+
+        Icon(
+            imageVector = Icons.AutoMirrored.Rounded.ArrowForward,
+            contentDescription = "Go to ${button.title}",
+            tint = contentColor
+        )
+    }
+}
+
+data class ProfileButton(
+    val title: String,
+    val onClick: () -> Unit
+)

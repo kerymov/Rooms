@@ -40,7 +40,7 @@ class ProfileViewModel(
         getUser()
     }
 
-    fun getUser() {
+    private fun getUser() {
         viewModelScope.launch(Dispatchers.IO) {
             getUserUseCase.invoke()
                 .onStart { _uiState.value = ProfileUiState.Loading }
