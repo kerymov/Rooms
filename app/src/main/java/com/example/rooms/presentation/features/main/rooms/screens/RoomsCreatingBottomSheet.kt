@@ -10,9 +10,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -23,13 +26,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.BottomSheetDefaults
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.ModalBottomSheetDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.SheetState
@@ -57,6 +58,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.rooms.data.model.rooms.RoomCreationRequestDto
 import com.example.rooms.data.model.rooms.RoomSettingsDto
+import com.example.rooms.presentation.components.Divider
 import com.example.rooms.presentation.features.main.rooms.models.Event
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -71,8 +73,9 @@ fun RoomsCreatingBottomSheet(
     sheetState = sheetState,
     onDismissRequest = onDismissRequest,
     dragHandle = { BottomSheetDefaults.DragHandle(color = MaterialTheme.colorScheme.primary) },
+    containerColor = MaterialTheme.colorScheme.background,
     windowInsets = windowInsets,
-    modifier = Modifier.safeDrawingPadding()
+    modifier = Modifier.statusBarsPadding()
 ) {
     var roomName by rememberSaveable { mutableStateOf("") }
     var isRoomNameError by rememberSaveable { mutableStateOf(false) }
@@ -167,12 +170,9 @@ fun RoomsCreatingBottomSheet(
         )
 
         Divider(
-            thickness = 1.dp,
-            color = MaterialTheme.colorScheme.outline,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 16.dp)
-                .clip(RoundedCornerShape(100))
         )
 
         Row(
@@ -212,12 +212,9 @@ fun RoomsCreatingBottomSheet(
         }
 
         Divider(
-            thickness = 1.dp,
-            color = MaterialTheme.colorScheme.outline,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 16.dp, bottom = 12.dp)
-                .clip(RoundedCornerShape(100))
         )
 
         Row(
