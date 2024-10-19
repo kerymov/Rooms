@@ -1,23 +1,21 @@
 package com.example.rooms.data.repository
 
-import com.example.rooms.data.dataSource.LocalAccountDataSource
-import com.example.rooms.data.dataSource.RemoteAccountDataSource
+import com.example.rooms.data.dataSource.account.RemoteAccountDataSource
 import com.example.rooms.data.model.account.auth.UserDto
 import com.example.rooms.data.model.account.auth.UserSignInRequestDto
 import com.example.rooms.data.model.account.auth.UserSignUpRequestDto
-import com.example.rooms.data.network.NetworkResult
+import com.example.rooms.data.utils.AppSharedPreferences
 import com.example.rooms.domain.model.BaseResult
 import com.example.rooms.domain.model.User
 import com.example.rooms.domain.repository.AccountRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
 import retrofit2.HttpException
 
 class AccountRepositoryImpl(
-    private val localDataSource: LocalAccountDataSource,
     private val remoteDataSource: RemoteAccountDataSource
 ) : AccountRepository {
+
     override suspend fun signIn(username: String, password: String): Flow<BaseResult<User>> {
         val userSignInRequestDto = UserSignInRequestDto(username, password)
         return flow {
@@ -27,7 +25,8 @@ class AccountRepositoryImpl(
                 if (response.isSuccessful && body != null) {
                     if (body.errorMessage == null) {
                         with(body) {
-                            saveUser(username, token, expiresIn)
+                            val user = User(username, token, expiresIn)
+                            saveUser(user)
                         }
 
                         val user = with(body) {
@@ -68,7 +67,8 @@ class AccountRepositoryImpl(
                 if (response.isSuccessful && body != null) {
                     if (body.errorMessage == null) {
                         with(body) {
-                            saveUser(username, token, expiresIn)
+                            val user = User(username, token, expiresIn)
+                            saveUser(user)
                         }
 
                         val user = with(body) {
@@ -96,20 +96,41 @@ class AccountRepositoryImpl(
     }
 
     override suspend fun signOut() {
-        localDataSource.removeUser()
+        AppSharedPreferences.userName = null
+        AppSharedPreferences.authToken = null
+        AppSharedPreferences.authTokenExpiresIn = null
+
+//        dataStorePreferences.removeString(key = USER_KEY)
     }
 
-    override suspend fun saveUser(username: String, token: String, expiresIn: Int) {
-        val user = UserDto(username, token, expiresIn)
-        localDataSource.saveUser(user)
+    override suspend fun saveUser(user: User) {
+//        val user = UserDto(user.username, user.token, user.expiresIn)
+//
+//        dataStorePreferences.putString(
+//            key = USER_KEY,
+//            value = user.toJson()
+//        )
+
+        AppSharedPreferences.userName = user.username
+        AppSharedPreferences.authToken = user.token
+        AppSharedPreferences.authTokenExpiresIn = user.expiresIn
     }
 
-    override suspend fun getUser(): Flow<BaseResult<User>> {
-        return localDataSource.getUser().map { userDto ->
-            userDto?.let {
-                BaseResult.Success(it.toUser())
-            } ?: BaseResult.Error(null, "User not found")
-        }
+    override suspend fun getUser(): User? {
+//        val userJson = dataStorePreferences.getString(key = USER_KEY)
+//        val userDto = userJson?.let { UserDto.fromJson(it) }
+//
+//        return userDto?.toUser()
+        val userName = AppSharedPreferences.userName
+        val authToken = AppSharedPreferences.authToken
+        val authTokenExpiresIn = AppSharedPreferences.authTokenExpiresIn
+
+        if(userName == null || authToken == null || authTokenExpiresIn == null) return null
+        return User(userName, authToken , authTokenExpiresIn)
+    }
+
+    private companion object {
+        const val USER_KEY = "user"
     }
 }
 

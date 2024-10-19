@@ -9,43 +9,41 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-
 object RetrofitInstance {
 
     private val httpLoggingInterceptor = HttpLoggingInterceptor().apply {
         this.level = HttpLoggingInterceptor.Level.BODY
     }
 
-//    private var token = AppPreferences.accessToken
-    private val token: String? = null
-
-    private val httpClient = OkHttpClient.Builder()
+    private fun provideHttpClient(authInterceptor: AuthInterceptor) = OkHttpClient.Builder()
         .addInterceptor { chain ->
             val requestBuilder: Request.Builder = chain.request().newBuilder()
             requestBuilder
                 .addHeader("Content-Type", "application/json")
                 .addHeader("accept", "*/*")
-                .addHeader("Authorization", "Bearer $token")
             chain.proceed(requestBuilder.build())
         }
+        .addInterceptor(authInterceptor)
         .addInterceptor(httpLoggingInterceptor)
         .build()
 
-    private val retrofit = Retrofit.Builder()
-        .baseUrl("https://team-cubing.azurewebsites.net/api/")
-        .client(httpClient)
-        .addConverterFactory(GsonConverterFactory.create())
-        .build()
+    private fun provideRetrofit(token: String?): Retrofit {
+        val authInterceptor = AuthInterceptor(token)
+        val httpClient = provideHttpClient(authInterceptor)
 
-    val roomsApi: RoomsApi by lazy {
-        retrofit.create(RoomsApi::class.java)
+        return Retrofit.Builder()
+            .baseUrl("https://team-cubing.azurewebsites.net/api/")
+            .client(httpClient)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
     }
 
-    val accountApi: AccountApi by lazy {
-        retrofit.create(AccountApi::class.java)
-    }
+    fun provideAccountApi(): AccountApi =
+        provideRetrofit(null).create(AccountApi::class.java)
 
-    val scrambleApi: ScrambleApi by lazy {
-        retrofit.create(ScrambleApi::class.java)
-    }
+    fun provideRoomsApi(token: String?): RoomsApi =
+        provideRetrofit(token).create(RoomsApi::class.java)
+
+    fun provideScrambleApi(token: String?): ScrambleApi =
+        provideRetrofit(token).create(ScrambleApi::class.java)
 }

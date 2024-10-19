@@ -1,19 +1,21 @@
 package com.example.rooms.presentation
 
-import android.graphics.Color
 import android.os.Bundle
 import androidx.activity.ComponentActivity
-import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import com.example.rooms.common.RoomsApp
+import com.example.rooms.domain.repository.AccountRepository
+import com.example.rooms.domain.repository.RoomsRepository
 import com.example.rooms.presentation.features.auth.viewModels.LocalSplashState
 import com.example.rooms.presentation.features.auth.viewModels.SplashUiState
 import com.example.rooms.presentation.features.auth.viewModels.SplashViewModel
 import com.example.rooms.presentation.navigation.NavModule
+import com.example.rooms.presentation.navigation.navContainers.RootNavContainer
 import com.example.rooms.presentation.theme.RoomsTheme
 
 class MainActivity : ComponentActivity() {
@@ -22,18 +24,24 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
 
+        val accountRepository = (application as RoomsApp).accountRepository
+        val roomsRepository = (application as RoomsApp).roomsRepository
+
         val splashViewModel by viewModels<SplashViewModel> {
-            SplashViewModel.createFactory(context = this)
+            SplashViewModel.createFactory(accountRepository)
         }
 
         installSplashScreen().setKeepOnScreenCondition {
-            splashViewModel.uiState.value == SplashUiState.NONE
+            splashViewModel.uiState.value == SplashUiState.None
         }
 
         setContent {
             RoomsTheme {
                 CompositionLocalProvider(LocalSplashState provides splashViewModel) {
-                    ApplicationManager()
+                    ApplicationManager(
+                        accountRepository = accountRepository,
+                        roomsRepository = roomsRepository
+                    )
                 }
             }
         }
@@ -41,16 +49,21 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-private fun ApplicationManager() {
+private fun ApplicationManager(
+    accountRepository: AccountRepository,
+    roomsRepository: RoomsRepository
+) {
     val splashState = LocalSplashState.current
 
     val startNavModule = when (splashState.uiState.value) {
-        SplashUiState.AUTHORIZED -> NavModule.Main
-        SplashUiState.UNAUTHORIZED -> NavModule.Auth
+        is SplashUiState.Authorized -> NavModule.Main
+        is SplashUiState.Unauthorized -> NavModule.Auth
         else -> return
     }
 
-    RoomsApp(
+    RootNavContainer(
         startNavModule = startNavModule,
+        accountRepository = accountRepository,
+        roomsRepository = roomsRepository
     )
 }

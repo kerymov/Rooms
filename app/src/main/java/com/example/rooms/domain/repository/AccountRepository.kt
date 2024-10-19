@@ -12,7 +12,7 @@ interface AccountRepository {
 
     suspend fun signOut()
 
-    suspend fun saveUser(username: String, token: String, expiresIn: Int)
+    suspend fun saveUser(user: User)
 
-    suspend fun getUser(): Flow<BaseResult<User>>
+    suspend fun getUser(): User?
 }

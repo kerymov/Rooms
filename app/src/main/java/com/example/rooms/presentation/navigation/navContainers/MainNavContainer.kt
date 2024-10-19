@@ -1,28 +1,33 @@
-package com.example.rooms.presentation.navigation
+package com.example.rooms.presentation.navigation.navContainers
 
+import com.example.rooms.domain.repository.AccountRepository
+import com.example.rooms.presentation.components.BottomNavigationBar
+import com.example.rooms.presentation.components.BottomNavigationItem
+import com.example.rooms.presentation.features.main.profile.screens.ProfileScreen
+import com.example.rooms.presentation.features.main.profile.viewModels.ProfileViewModel
+import com.example.rooms.presentation.features.utils.sharedViewModel
+import com.example.rooms.presentation.features.utils.toOuterScaffoldPadding
+import com.example.rooms.presentation.navigation.NavModule
+import com.example.rooms.presentation.navigation.navigate
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navigation
-import com.example.rooms.presentation.components.BottomNavigationBar
-import com.example.rooms.presentation.components.BottomNavigationItem
-import com.example.rooms.presentation.features.main.profile.screens.ProfileScreen
-import com.example.rooms.presentation.features.main.profile.viewModels.ProfileViewModel
+import com.example.rooms.domain.repository.RoomsRepository
 import com.example.rooms.presentation.features.main.rooms.screens.RoomsScreen
 import com.example.rooms.presentation.features.main.rooms.viewModels.RoomsViewModel
-import com.example.rooms.presentation.features.utils.sharedViewModel
-import com.example.rooms.presentation.features.utils.toOuterScaffoldPadding
 
 @Composable
-fun MainNavModule(
-    parentNavController: NavHostController
+fun MainNavContainer(
+    parentNavController: NavHostController,
+    accountRepository: AccountRepository,
+    roomsRepository: RoomsRepository,
 ) {
     val navController = rememberNavController()
     val startDestination = NavModule.Main.Rooms
@@ -51,7 +56,7 @@ fun MainNavModule(
                 composable(route = NavModule.Main.Rooms.Rooms.route) { backStackEntry ->
                     val viewModel = backStackEntry.sharedViewModel<RoomsViewModel>(
                         navController = navController,
-                        factory = null
+                        factory = RoomsViewModel.createFactory(roomsRepository)
                     )
 
                     RoomsScreen(
@@ -72,7 +77,7 @@ fun MainNavModule(
                 composable(route = NavModule.Main.Profile.Profile.route) { backStackEntry ->
                     val viewModel = backStackEntry.sharedViewModel<ProfileViewModel>(
                         navController = navController,
-                        factory = ProfileViewModel.createFactory(LocalContext.current)
+                        factory = ProfileViewModel.createFactory(accountRepository)
                     )
 
                     ProfileScreen(

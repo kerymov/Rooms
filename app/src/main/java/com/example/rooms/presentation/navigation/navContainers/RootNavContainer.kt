@@ -1,4 +1,4 @@
-package com.example.rooms.presentation
+package com.example.rooms.presentation.navigation.navContainers
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
@@ -8,14 +8,16 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.rooms.presentation.navigation.AuthNavModule
-import com.example.rooms.presentation.navigation.MainNavModule
+import com.example.rooms.domain.repository.AccountRepository
+import com.example.rooms.domain.repository.RoomsRepository
 import com.example.rooms.presentation.navigation.NavModule
 import com.example.rooms.presentation.navigation.navigate
 
 @Composable
-fun RoomsApp(
-    startNavModule: NavModule
+fun RootNavContainer(
+    startNavModule: NavModule,
+    accountRepository: AccountRepository,
+    roomsRepository: RoomsRepository,
 ) {
     val navController = rememberNavController()
 
@@ -26,12 +28,17 @@ fun RoomsApp(
             modifier = Modifier.fillMaxSize()
         ) {
             composable(route = NavModule.Auth.route) {
-                AuthNavModule(
+                AuthNavContainer(
                     onAuthSuccess = { navController.navigateToMainModule() },
+                    accountRepository = accountRepository
                 )
             }
             composable(route = NavModule.Main.route) {
-                MainNavModule(navController)
+                MainNavContainer(
+                    parentNavController = navController,
+                    accountRepository = accountRepository,
+                    roomsRepository = roomsRepository
+                )
             }
         }
     }

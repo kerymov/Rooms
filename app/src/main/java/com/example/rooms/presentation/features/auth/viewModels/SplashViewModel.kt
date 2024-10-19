@@ -1,32 +1,28 @@
 package com.example.rooms.presentation.features.auth.viewModels
 
-import android.content.Context
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import com.example.rooms.data.dataSource.LocalAccountDataSource
-import com.example.rooms.data.dataSource.RemoteAccountDataSource
-import com.example.rooms.data.repository.AccountRepositoryImpl
-import com.example.rooms.domain.model.BaseResult
+import com.example.rooms.domain.repository.AccountRepository
 import com.example.rooms.domain.useCases.auth.GetUserUseCase
+import com.example.rooms.presentation.features.auth.models.UserUiModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
-enum class SplashUiState {
-    AUTHORIZED,
-    UNAUTHORIZED,
-    NONE,
+sealed class SplashUiState {
+    data class Authorized(val user: UserUiModel) : SplashUiState()
+    object Unauthorized : SplashUiState()
+    object None : SplashUiState()
 }
 
 class SplashViewModel(
     private val getUserUseCase: GetUserUseCase
 ) : ViewModel() {
-    var uiState = mutableStateOf(SplashUiState.NONE)
+    var uiState = mutableStateOf<SplashUiState>(SplashUiState.None)
         private set
 
     init {
@@ -35,26 +31,25 @@ class SplashViewModel(
 
     private fun getUser() {
         viewModelScope.launch {
-            val result = viewModelScope.async(Dispatchers.IO) {
-                getUserUseCase.invoke().first()
+            val user = viewModelScope.async(Dispatchers.IO) {
+                getUserUseCase.invoke()
             }
 
-            uiState.value = when (result.await()) {
-                is BaseResult.Success -> SplashUiState.AUTHORIZED
-                else -> SplashUiState.UNAUTHORIZED
-            }
+            uiState.value = user.await()?.let {
+                val userUiModel = UserUiModel(
+                    name = it.username,
+                    token = it.token,
+                    expiresIn = it.expiresIn
+                )
+                SplashUiState.Authorized(userUiModel)
+            } ?: SplashUiState.Unauthorized
         }
     }
 
     companion object {
 
-        fun createFactory(context: Context) = viewModelFactory {
+        fun createFactory(repository: AccountRepository) = viewModelFactory {
             initializer {
-                val repository = AccountRepositoryImpl(
-                    LocalAccountDataSource(context = context),
-                    RemoteAccountDataSource(),
-                )
-
                 SplashViewModel(
                     GetUserUseCase(repository),
                 )
@@ -63,4 +58,5 @@ class SplashViewModel(
     }
 }
 
-val LocalSplashState = compositionLocalOf<SplashViewModel> { error("User State Context Not Found!") }
+val LocalSplashState =
+    compositionLocalOf<SplashViewModel> { error("User State Context Not Found!") }

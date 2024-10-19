@@ -38,6 +38,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -49,11 +50,15 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.rooms.R
 import com.example.rooms.presentation.components.CenterAlignedTopBar
+import com.example.rooms.presentation.features.auth.screens.Field
+import com.example.rooms.presentation.features.auth.viewModels.AuthUiState
 import com.example.rooms.presentation.features.main.rooms.models.Event
+import com.example.rooms.presentation.features.main.rooms.models.RoomUiModel
 import com.example.rooms.presentation.features.main.rooms.viewModels.RoomsUiState
 import com.example.rooms.presentation.features.main.rooms.viewModels.RoomsViewModel
 import com.example.rooms.presentation.features.utils.toInnerScaffoldPadding
@@ -65,7 +70,7 @@ import kotlinx.coroutines.delay
 @Composable
 fun RoomsScreen(
     modifier: Modifier = Modifier,
-    roomsViewModel: RoomsViewModel = viewModel(),
+    roomsViewModel: RoomsViewModel,
 ) {
     var isCreateRoomSheetOpen by rememberSaveable { mutableStateOf(false) }
     val createRoomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -76,9 +81,17 @@ fun RoomsScreen(
 
     val roomsUiState by roomsViewModel.uiState.collectAsState()
 
-    LaunchedEffect(key1 = true, key2 = isCreateRoomSheetOpen, key3 = isDeleteRoomSheetOpen) {
-        delay(2000)
-        roomsViewModel.getRooms()
+    LaunchedEffect(roomsUiState) {
+        when (val state = roomsUiState) {
+            is RoomsUiState.Success -> {
+            }
+            is RoomsUiState.Error -> {
+
+            }
+            else -> {
+
+            }
+        }
     }
 
     val topAppBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
@@ -99,9 +112,16 @@ fun RoomsScreen(
             .fillMaxSize()
             .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection)
     ) { contentPadding ->
+        val padding = contentPadding.toInnerScaffoldPadding()
+
         Content(
-            uiState = roomsUiState,
-            contentPadding = contentPadding.toInnerScaffoldPadding(),
+            rooms = roomsUiState.rooms ?: listOf(),
+            contentPadding = PaddingValues(
+                start = 20.dp,
+                end = 20.dp,
+                top = padding.calculateTopPadding() + 12.dp,
+                bottom = padding.calculateBottomPadding() + 12.dp
+            ),
             onItemClick = { itemId ->
 //                navController.navigate(NavModule.Rooms.Room.name + "/${item.id}")
             },
@@ -116,7 +136,7 @@ fun RoomsScreen(
                 sheetState = createRoomSheetState,
                 onDismissRequest = { isCreateRoomSheetOpen = false },
                 onCreateClick = { roomCreationRequest ->
-                    roomsViewModel.createRoom(roomCreationRequest)
+//                    roomsViewModel.createRoom(roomCreationRequest)
                     isCreateRoomSheetOpen = false
                 },
                 modifier = Modifier.fillMaxSize(),
@@ -132,7 +152,7 @@ fun RoomsScreen(
                     roomIdToDelete = null
                 },
                 onDeleteClick = {
-                    roomsViewModel.deleteRoom(roomIdToDelete ?: "")
+//                    roomsViewModel.deleteRoom(roomIdToDelete ?: "")
                     isDeleteRoomSheetOpen = false
                     roomIdToDelete = null
                 },
@@ -144,7 +164,7 @@ fun RoomsScreen(
 
 @Composable
 private fun Content(
-    uiState: RoomsUiState,
+    rooms: List<RoomUiModel>,
     contentPadding: PaddingValues,
     onItemClick: (id: String) -> Unit,
     onLongItemClick: (id: String) -> Unit
@@ -157,12 +177,12 @@ private fun Content(
         columns = GridCells.Adaptive(148.dp),
         modifier = Modifier.fillMaxSize()
     ) {
-        items(uiState.rooms) { item ->
-            val event = Event.entries.find { event -> event.id == item.puzzle }
+        items(rooms) { item ->
+            val event = Event.entries.find { event -> event.id == item.event.id }
                 ?: Event.THREE_BY_THREE
 
             RoomCard(
-                name = item.roomName,
+                name = item.name,
                 event = event,
                 isOpen = item.isOpen,
                 modifier = Modifier

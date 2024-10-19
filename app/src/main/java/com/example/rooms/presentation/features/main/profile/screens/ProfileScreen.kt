@@ -73,7 +73,7 @@ fun ProfileScreen(
             .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection)
     ) { contentPadding ->
         Content(
-            uiState = uiState,
+            username = uiState.user?.name ?: "user",
             onRecordsClick = { },
             onAllResultsClick = { },
             onSignOutClick = { shouldShowLogOutDialog = true },
@@ -102,7 +102,7 @@ fun ProfileScreen(
 
 @Composable
 private fun Content(
-    uiState: ProfileUiState,
+    username: String,
     onRecordsClick: () -> Unit,
     onAllResultsClick: () -> Unit,
     onSignOutClick: () -> Unit,
@@ -121,7 +121,7 @@ private fun Content(
             .padding(20.dp)
             .verticalScroll(rememberScrollState())
     ) {
-        UserInfo(uiState.username ?: "user")
+        UserInfo(username)
         Section(
             title = "Results",
             buttons = listOf(

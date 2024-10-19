@@ -1,16 +1,13 @@
 package com.example.rooms.presentation.features.auth.viewModels
 
-import android.content.Context
+import com.example.rooms.domain.model.BaseResult
+import com.example.rooms.domain.repository.AccountRepository
+import com.example.rooms.domain.useCases.auth.SignInUseCase
+import com.example.rooms.domain.useCases.auth.SignUpUseCase
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import com.example.rooms.data.dataSource.LocalAccountDataSource
-import com.example.rooms.data.dataSource.RemoteAccountDataSource
-import com.example.rooms.data.repository.AccountRepositoryImpl
-import com.example.rooms.domain.model.BaseResult
-import com.example.rooms.domain.useCases.auth.SignInUseCase
-import com.example.rooms.domain.useCases.auth.SignUpUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -95,13 +92,8 @@ class AuthViewModel(
 
     companion object {
 
-        fun createFactory(context: Context) = viewModelFactory {
+        fun createFactory(repository: AccountRepository) = viewModelFactory {
             initializer {
-                val repository = AccountRepositoryImpl(
-                    LocalAccountDataSource(context = context),
-                    RemoteAccountDataSource(),
-                )
-
                 AuthViewModel(
                     SignInUseCase(repository),
                     SignUpUseCase(repository),

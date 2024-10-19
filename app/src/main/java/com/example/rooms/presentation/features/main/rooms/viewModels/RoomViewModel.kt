@@ -3,7 +3,6 @@ package com.example.rooms.presentation.features.main.rooms.viewModels
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.rooms.data.network.RetrofitInstance
 import com.example.rooms.data.model.rooms.RoomDto
 import com.example.rooms.data.model.scramble.ScrambleDto
 import kotlinx.coroutines.Dispatchers
@@ -30,10 +29,10 @@ class RoomViewModel(room: RoomDto) : ViewModel() {
     fun getScramble() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val puzzle = uiState.value.room?.puzzle ?: 3
-                val response = RetrofitInstance.scrambleApi.getScramble(puzzle = puzzle)
-                val scramble = response.body()
-                _uiState.value = _uiState.value.copy(scramble = scramble)
+//                val puzzle = uiState.value.room?.puzzle ?: 3
+//                val response = RetrofitInstance.scrambleApi.getScramble(puzzle = puzzle)
+//                val scramble = response.body()
+//                _uiState.value = _uiState.value.copy(scramble = scramble)
             } catch (e: Exception) {
                 Log.e("TAG", "Exception during request -> ${e.localizedMessage}")
             }
