@@ -38,7 +38,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -52,19 +51,14 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.rooms.R
 import com.example.rooms.presentation.components.CenterAlignedTopBar
-import com.example.rooms.presentation.features.auth.screens.Field
-import com.example.rooms.presentation.features.auth.viewModels.AuthUiState
 import com.example.rooms.presentation.features.main.rooms.models.Event
 import com.example.rooms.presentation.features.main.rooms.models.RoomUiModel
 import com.example.rooms.presentation.features.main.rooms.viewModels.RoomsUiState
 import com.example.rooms.presentation.features.main.rooms.viewModels.RoomsViewModel
 import com.example.rooms.presentation.features.utils.toInnerScaffoldPadding
 import com.example.rooms.presentation.theme.RoomsTheme
-import com.example.rooms.presentation.theme.SetSystemBarIconColors
-import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -84,6 +78,7 @@ fun RoomsScreen(
     LaunchedEffect(roomsUiState) {
         when (val state = roomsUiState) {
             is RoomsUiState.Success -> {
+                
             }
             is RoomsUiState.Error -> {
 
@@ -112,16 +107,9 @@ fun RoomsScreen(
             .fillMaxSize()
             .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection)
     ) { contentPadding ->
-        val padding = contentPadding.toInnerScaffoldPadding()
-
         Content(
             rooms = roomsUiState.rooms ?: listOf(),
-            contentPadding = PaddingValues(
-                start = 20.dp,
-                end = 20.dp,
-                top = padding.calculateTopPadding() + 12.dp,
-                bottom = padding.calculateBottomPadding() + 12.dp
-            ),
+            contentPadding = contentPadding.toInnerScaffoldPadding(),
             onItemClick = { itemId ->
 //                navController.navigate(NavModule.Rooms.Room.name + "/${item.id}")
             },
@@ -173,26 +161,39 @@ private fun Content(
         .fillMaxSize()
         .padding(contentPadding)
 ) {
-    LazyVerticalGrid(
-        columns = GridCells.Adaptive(148.dp),
-        modifier = Modifier.fillMaxSize()
-    ) {
-        items(rooms) { item ->
-            val event = Event.entries.find { event -> event.id == item.event.id }
-                ?: Event.THREE_BY_THREE
+    if (rooms.isEmpty()) {
+        RoomsGrid(
+            rooms = rooms,
+            onItemClick = onItemClick,
+            onLongItemClick = onLongItemClick
+        )
+    } else {
+        NoRoomsView()
+    }
+}
 
-            RoomCard(
-                name = item.name,
-                event = event,
-                isOpen = item.isOpen,
-                modifier = Modifier
-                    .padding(4.dp)
-                    .combinedClickable(
-                        onClick = { onItemClick(item.id) },
-                        onLongClick = { onLongItemClick(item.id) }
-                    )
-            )
-        }
+@Composable
+private fun RoomsGrid(
+    rooms: List<RoomUiModel>,
+    onItemClick: (id: String) -> Unit,
+    onLongItemClick: (id: String) -> Unit
+) = LazyVerticalGrid(
+    columns = GridCells.Adaptive(148.dp),
+    contentPadding = PaddingValues(horizontal = 20.dp, vertical = 12.dp),
+    modifier = Modifier.fillMaxSize()
+) {
+    items(rooms) { item ->
+        val event = Event.entries.find { event -> event.id == item.event.id }
+            ?: Event.THREE_BY_THREE
+
+        RoomCard(
+            name = item.name,
+            event = event,
+            isOpen = item.isOpen,
+            onClick = { onItemClick(item.id) },
+            onLongClick = { onLongItemClick(item.id) },
+            modifier = Modifier.padding(4.dp)
+        )
     }
 }
 
@@ -201,6 +202,8 @@ private fun RoomCard(
     name: String,
     event: Event,
     isOpen: Boolean,
+    onClick: () -> Unit,
+    onLongClick: () -> Unit,
     modifier: Modifier = Modifier
 ) = Column(
     horizontalAlignment = Alignment.CenterHorizontally,
@@ -213,6 +216,10 @@ private fun RoomCard(
             shape = RoundedCornerShape(16.dp)
         )
         .width(148.dp)
+        .combinedClickable(
+            onClick = onClick,
+            onLongClick = onLongClick
+        )
 ) {
     Box(modifier = Modifier.fillMaxWidth()) {
         Icon(
@@ -249,6 +256,11 @@ private fun RoomCard(
             .background(MaterialTheme.colorScheme.primary)
             .padding(vertical = 8.dp, horizontal = 12.dp)
     )
+}
+
+@Composable
+private fun NoRoomsView() {
+
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -295,7 +307,9 @@ fun OpenRoomCardPreview() {
         RoomCard(
             name = "Room name",
             event = Event.THREE_BY_THREE,
-            isOpen = true
+            isOpen = true,
+            onClick = { },
+            onLongClick = { }
         )
     }
 }
@@ -307,7 +321,9 @@ fun LockedRoomCardPreview() {
         RoomCard(
             name = "Room name",
             event = Event.THREE_BY_THREE,
-            isOpen = false
+            isOpen = false,
+            onClick = { },
+            onLongClick = { }
         )
     }
 }
