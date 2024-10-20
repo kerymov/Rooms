@@ -9,6 +9,7 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.rooms.domain.repository.AccountRepository
 import com.example.rooms.domain.useCases.auth.GetUserUseCase
 import com.example.rooms.presentation.features.auth.models.UserUiModel
+import com.example.rooms.presentation.mappers.mapToUiModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
@@ -36,11 +37,7 @@ class SplashViewModel(
             }
 
             uiState.value = user.await()?.let {
-                val userUiModel = UserUiModel(
-                    name = it.username,
-                    token = it.token,
-                    expiresIn = it.expiresIn
-                )
+                val userUiModel = it.mapToUiModel()
                 SplashUiState.Authorized(userUiModel)
             } ?: SplashUiState.Unauthorized
         }

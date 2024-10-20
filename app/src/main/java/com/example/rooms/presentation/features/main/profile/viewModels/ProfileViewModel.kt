@@ -8,6 +8,7 @@ import com.example.rooms.domain.repository.AccountRepository
 import com.example.rooms.domain.useCases.auth.GetUserUseCase
 import com.example.rooms.domain.useCases.auth.SignOutUseCase
 import com.example.rooms.presentation.features.auth.models.UserUiModel
+import com.example.rooms.presentation.mappers.mapToUiModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -36,11 +37,8 @@ class ProfileViewModel(
     private fun getUser() {
         viewModelScope.launch(Dispatchers.IO) {
             _uiState.value = getUserUseCase.invoke()?.let { user ->
-                val userUiModel = UserUiModel(
-                    name = user.username,
-                    token = user.token,
-                    expiresIn = user.expiresIn
-                )
+                val userUiModel = user.mapToUiModel()
+
                 ProfileUiState.Success(userUiModel)
             } ?: ProfileUiState.Error(_uiState.value.user, null, "User not authorized")
         }
