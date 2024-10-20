@@ -7,14 +7,13 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.rooms.domain.model.BaseResult
 import com.example.rooms.domain.repository.RoomsRepository
 import com.example.rooms.domain.useCases.rooms.GetRoomsUseCase
-import com.example.rooms.presentation.features.main.rooms.models.Event
 import com.example.rooms.presentation.features.main.rooms.models.RoomUiModel
+import com.example.rooms.presentation.mappers.mapToUiModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 
@@ -53,14 +52,7 @@ class RoomsViewModel(
                 .collect { result ->
                     _uiState.value = when (result) {
                         is BaseResult.Success -> RoomsUiState.Success(
-                            rooms = result.data.map { room ->
-                                RoomUiModel(
-                                    id = room.id,
-                                    name = room.roomName,
-                                    event = Event.entries.find { it.id == room.puzzle } ?: Event.THREE_BY_THREE,
-                                    isOpen = room.isOpen
-                                )
-                            }
+                            rooms = result.data.map { it.mapToUiModel() }
                         )
                         is BaseResult.Error -> RoomsUiState.Error(
                             rooms = uiState.value.rooms ?: listOf(),
