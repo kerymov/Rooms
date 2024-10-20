@@ -1,6 +1,7 @@
 package com.example.rooms.data.repository
 
 import com.example.rooms.data.dataSource.rooms.RemoteRoomsDataSource
+import com.example.rooms.data.model.rooms.mappers.mapToDomainModel
 import com.example.rooms.data.network.NetworkResult
 import com.example.rooms.data.network.handleApi
 import com.example.rooms.domain.model.BaseResult
@@ -20,15 +21,7 @@ class RoomsRepositoryImpl(
             when(result) {
                 is NetworkResult.Success -> {
                     val rooms = result.data.map { roomDto ->
-                        Room(
-                            id = roomDto.id,
-                            roomName = roomDto.roomName,
-                            puzzle = roomDto.puzzle,
-                            administratorName = roomDto.administratorName,
-                            isOpen = roomDto.isOpen,
-                            connectedUsersCount = roomDto.connectedUsersCount,
-                            maxUsersCount = roomDto.maxUsersCount
-                        )
+                        roomDto.mapToDomainModel()
                     }
 
                     emit(BaseResult.Success(rooms))

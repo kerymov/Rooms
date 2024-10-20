@@ -1,6 +1,6 @@
 package com.example.rooms.data.model.account.auth.network
 
-data class UserSignInRequestDto(
+data class UserSignInRequest(
     val login: String,
     val password: String
 )

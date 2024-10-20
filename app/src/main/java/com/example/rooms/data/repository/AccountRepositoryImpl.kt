@@ -1,10 +1,9 @@
 package com.example.rooms.data.repository
 
 import com.example.rooms.data.dataSource.account.RemoteAccountDataSource
-import com.example.rooms.data.model.account.auth.local.UserDto
 import com.example.rooms.data.model.account.auth.mappers.mapToDomainModel
-import com.example.rooms.data.model.account.auth.network.UserSignInRequestDto
-import com.example.rooms.data.model.account.auth.network.UserSignUpRequestDto
+import com.example.rooms.data.model.account.auth.network.UserSignInRequest
+import com.example.rooms.data.model.account.auth.network.UserSignUpRequest
 import com.example.rooms.data.utils.AppSharedPreferences
 import com.example.rooms.domain.model.BaseResult
 import com.example.rooms.domain.model.User
@@ -18,11 +17,11 @@ class AccountRepositoryImpl(
 ) : AccountRepository {
 
     override suspend fun signIn(username: String, password: String): Flow<BaseResult<User>> {
-        val userSignInRequestDto = UserSignInRequestDto(username, password)
+        val userSignInRequest = UserSignInRequest(username, password)
 
         return flow {
             try {
-                val response = remoteDataSource.signIn(userSignInRequestDto)
+                val response = remoteDataSource.signIn(userSignInRequest)
                 val body = response.body()
                 if (response.isSuccessful && body != null) {
                     if (body.errorMessage == null) {
@@ -49,10 +48,10 @@ class AccountRepositoryImpl(
         password: String,
         passwordConfirm: String
     ): Flow<BaseResult<User>> {
-        val userSignUpRequestDto = UserSignUpRequestDto(username, password, passwordConfirm)
+        val userSignUpRequest = UserSignUpRequest(username, password, passwordConfirm)
         return flow {
             try {
-                val response = remoteDataSource.signUp(userSignUpRequestDto)
+                val response = remoteDataSource.signUp(userSignUpRequest)
                 val body = response.body()
 
                 if (response.isSuccessful && body != null) {

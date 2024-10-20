@@ -1,6 +1,6 @@
 package com.example.rooms.data.model.account.auth.network
 
-data class UserAuthResponseDto(
+data class UserAuthResponse(
     val errorMessage: String?,
     val expiresIn: Int,
     val isSuccess: Boolean,

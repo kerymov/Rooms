@@ -10,10 +10,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeContentPadding
-import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -56,7 +53,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.rooms.data.model.rooms.RoomCreationRequestDto
+import com.example.rooms.data.model.rooms.RoomCreationRequest
 import com.example.rooms.data.model.rooms.RoomSettingsDto
 import com.example.rooms.presentation.components.Divider
 import com.example.rooms.presentation.features.main.rooms.models.Event
@@ -66,7 +63,7 @@ import com.example.rooms.presentation.features.main.rooms.models.Event
 fun RoomsCreatingBottomSheet(
     sheetState: SheetState,
     onDismissRequest:() -> Unit,
-    onCreateClick: (roomCreationRequest: RoomCreationRequestDto) -> Unit,
+    onCreateClick: (roomCreationRequest: RoomCreationRequest) -> Unit,
     modifier: Modifier = Modifier,
     windowInsets: WindowInsets = BottomSheetDefaults.windowInsets,
 ) = ModalBottomSheet(
@@ -111,7 +108,7 @@ fun RoomsCreatingBottomSheet(
                     if (isRoomNameError || isPasswordError) return@TextButton
 
                     onCreateClick(
-                        RoomCreationRequestDto(
+                        RoomCreationRequest(
                             roomName = roomName,
                             roomPassword = if (isRoomLocked) password else "",
                             settings = RoomSettingsDto(

@@ -1,7 +1,7 @@
 package com.example.rooms.data.model.account.auth.mappers
 
 import com.example.rooms.data.model.account.auth.local.UserDto
-import com.example.rooms.data.model.account.auth.network.UserAuthResponseDto
+import com.example.rooms.data.model.account.auth.network.UserAuthResponse
 import com.example.rooms.domain.model.User
 
 internal fun UserDto.mapToDomainModel(): User {
@@ -12,7 +12,7 @@ internal fun UserDto.mapToDomainModel(): User {
     )
 }
 
-internal fun UserAuthResponseDto.mapToDomainModel(): User {
+internal fun UserAuthResponse.mapToDomainModel(): User {
     return User(
         username = this.username,
         token = this.token,
