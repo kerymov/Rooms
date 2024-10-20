@@ -1,6 +1,6 @@
 package com.example.rooms.data.utils
 
-import com.example.rooms.data.model.account.auth.UserDto
+import com.example.rooms.data.model.account.auth.local.UserDto
 import com.example.rooms.domain.model.User
 
 class SessionManager(

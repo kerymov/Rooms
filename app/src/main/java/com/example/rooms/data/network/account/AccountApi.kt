@@ -1,8 +1,8 @@
 package com.example.rooms.data.network.account
 
-import com.example.rooms.data.model.account.auth.UserSignInRequestDto
-import com.example.rooms.data.model.account.auth.UserAuthResponseDto
-import com.example.rooms.data.model.account.auth.UserSignUpRequestDto
+import com.example.rooms.data.model.account.auth.network.UserSignInRequestDto
+import com.example.rooms.data.model.account.auth.network.UserAuthResponseDto
+import com.example.rooms.data.model.account.auth.network.UserSignUpRequestDto
 import com.example.rooms.data.model.account.results.UserResults
 import retrofit2.Response
 import retrofit2.http.Body

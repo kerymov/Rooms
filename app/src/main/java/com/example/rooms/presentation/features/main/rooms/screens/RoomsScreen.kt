@@ -162,13 +162,13 @@ private fun Content(
         .padding(contentPadding)
 ) {
     if (rooms.isEmpty()) {
+        NoRoomsView()
+    } else {
         RoomsGrid(
             rooms = rooms,
             onItemClick = onItemClick,
             onLongItemClick = onLongItemClick
         )
-    } else {
-        NoRoomsView()
     }
 }
 

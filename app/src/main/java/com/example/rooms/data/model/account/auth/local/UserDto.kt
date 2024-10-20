@@ -1,4 +1,4 @@
-package com.example.rooms.data.model.account.auth
+package com.example.rooms.data.model.account.auth.local
 
 import com.google.gson.Gson
 
