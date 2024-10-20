@@ -10,6 +10,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.rooms.domain.repository.AccountRepository
 import com.example.rooms.domain.repository.RoomsRepository
+import com.example.rooms.presentation.features.main.profile.viewModels.ProfileViewModel
+import com.example.rooms.presentation.features.main.rooms.viewModels.RoomsViewModel
+import com.example.rooms.presentation.features.utils.sharedViewModel
 import com.example.rooms.presentation.navigation.NavModule
 import com.example.rooms.presentation.navigation.navigate
 
@@ -33,11 +36,20 @@ fun RootNavContainer(
                     accountRepository = accountRepository
                 )
             }
-            composable(route = NavModule.Main.route) {
+            composable(route = NavModule.Main.route) { backStackEntry ->
+                val roomsViewModel = backStackEntry.sharedViewModel<RoomsViewModel>(
+                    navController = navController,
+                    factory = RoomsViewModel.createFactory(roomsRepository)
+                )
+                val profileViewModel = backStackEntry.sharedViewModel<ProfileViewModel>(
+                    navController = navController,
+                    factory = ProfileViewModel.createFactory(accountRepository)
+                )
+
                 MainNavContainer(
                     parentNavController = navController,
-                    accountRepository = accountRepository,
-                    roomsRepository = roomsRepository
+                    roomsViewModel = roomsViewModel,
+                    profileViewModel = profileViewModel
                 )
             }
         }
