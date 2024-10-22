@@ -6,15 +6,19 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -22,6 +26,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -53,6 +59,8 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.example.rooms.R
 import com.example.rooms.presentation.components.CenterAlignedTopBar
+import com.example.rooms.presentation.components.LoadingScreen
+import com.example.rooms.presentation.features.auth.viewModels.AuthUiState
 import com.example.rooms.presentation.features.main.rooms.models.Event
 import com.example.rooms.presentation.features.main.rooms.models.RoomUiModel
 import com.example.rooms.presentation.features.main.rooms.viewModels.RoomsUiState
@@ -64,6 +72,7 @@ import com.example.rooms.presentation.theme.RoomsTheme
 @Composable
 fun RoomsScreen(
     modifier: Modifier = Modifier,
+    onRoomItemClick: (id: String) -> Unit,
     roomsViewModel: RoomsViewModel,
 ) {
     var isCreateRoomSheetOpen by rememberSaveable { mutableStateOf(false) }
@@ -74,20 +83,6 @@ fun RoomsScreen(
     val deleteRoomSheetState = rememberModalBottomSheetState()
 
     val roomsUiState by roomsViewModel.uiState.collectAsState()
-
-    LaunchedEffect(roomsUiState) {
-        when (val state = roomsUiState) {
-            is RoomsUiState.Success -> {
-                
-            }
-            is RoomsUiState.Error -> {
-
-            }
-            else -> {
-
-            }
-        }
-    }
 
     val topAppBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
@@ -107,17 +102,24 @@ fun RoomsScreen(
             .fillMaxSize()
             .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection)
     ) { contentPadding ->
-        Content(
-            rooms = roomsUiState.rooms ?: listOf(),
-            contentPadding = contentPadding.toInnerScaffoldPadding(),
-            onItemClick = { itemId ->
-//                navController.navigate(NavModule.Rooms.Room.name + "/${item.id}")
-            },
-            onLongItemClick = { itemId ->
-                isDeleteRoomSheetOpen = true
-                roomIdToDelete = itemId
-            }
-        )
+        when (val state = roomsUiState) {
+            is RoomsUiState.Success -> Content(
+                rooms = state.rooms,
+                contentPadding = contentPadding.toInnerScaffoldPadding(),
+                onItemClick = { itemId -> onRoomItemClick(itemId) },
+                onLongItemClick = { itemId ->
+                    isDeleteRoomSheetOpen = true
+                    roomIdToDelete = itemId
+                },
+                onCreateNewRoomClick = { isCreateRoomSheetOpen = true }
+            )
+
+            is RoomsUiState.Error -> ErrorView(
+                errorMessage = "${state.code}: " + state.message,
+                onTryAgainClick = { roomsViewModel.getRooms() }
+            )
+            else -> LoadingScreen()
+        }
 
         if (isCreateRoomSheetOpen) {
             RoomsCreatingBottomSheet(
@@ -155,14 +157,17 @@ private fun Content(
     rooms: List<RoomUiModel>,
     contentPadding: PaddingValues,
     onItemClick: (id: String) -> Unit,
-    onLongItemClick: (id: String) -> Unit
+    onLongItemClick: (id: String) -> Unit,
+    onCreateNewRoomClick: () -> Unit
 ) = Box(
     modifier = Modifier
         .fillMaxSize()
         .padding(contentPadding)
 ) {
     if (rooms.isEmpty()) {
-        NoRoomsView()
+        NoRoomsView(
+            onCreateNewRoomClick = onCreateNewRoomClick
+        )
     } else {
         RoomsGrid(
             rooms = rooms,
@@ -259,8 +264,82 @@ private fun RoomCard(
 }
 
 @Composable
-private fun NoRoomsView() {
+private fun NoRoomsView(
+    onCreateNewRoomClick: () -> Unit
+) = Column(
+    horizontalAlignment = Alignment.CenterHorizontally,
+    verticalArrangement = Arrangement.Center,
+    modifier = Modifier
+        .fillMaxSize()
+        .padding(horizontal = 20.dp, vertical = 12.dp)
+) {
+    Text(
+        text = "No rooms, create a new one",
+        style = MaterialTheme.typography.titleLarge,
+        color = MaterialTheme.colorScheme.onBackground
+    )
+    Spacer(Modifier.size(36.dp))
+    Button(
+        contentPadding = PaddingValues(vertical = 12.dp, horizontal = 48.dp),
+        shape = RoundedCornerShape(16.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary
+        ),
+        onClick = onCreateNewRoomClick,
+        modifier = Modifier
+            .widthIn(184.dp)
+            .heightIn(min = 48.dp)
+    ) {
+        Text(
+            text = "Create room",
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onPrimary
+        )
+    }
+}
 
+@Composable
+fun ErrorView(
+    errorMessage: String,
+    onTryAgainClick: () -> Unit
+) = Column(
+    horizontalAlignment = Alignment.CenterHorizontally,
+    verticalArrangement = Arrangement.Center,
+    modifier = Modifier
+        .fillMaxSize()
+        .padding(horizontal = 20.dp, vertical = 12.dp)
+) {
+    Text(
+        text = "Error",
+        style = MaterialTheme.typography.titleLarge,
+        color = MaterialTheme.colorScheme.error
+    )
+    Spacer(Modifier.size(16.dp))
+    Text(
+        text = errorMessage,
+        style = MaterialTheme.typography.bodyLarge,
+        color = MaterialTheme.colorScheme.error
+    )
+    Spacer(Modifier.size(36.dp))
+    Button(
+        contentPadding = PaddingValues(vertical = 12.dp, horizontal = 48.dp),
+        shape = RoundedCornerShape(16.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary
+        ),
+        onClick = onTryAgainClick,
+        modifier = Modifier
+            .widthIn(184.dp)
+            .heightIn(min = 48.dp)
+    ) {
+        Text(
+            text = "Try again",
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onPrimary
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

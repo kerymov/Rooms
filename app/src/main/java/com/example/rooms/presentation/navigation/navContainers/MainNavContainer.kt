@@ -52,6 +52,9 @@ fun MainNavContainer(
             ) {
                 composable(route = NavModule.Main.Rooms.Rooms.route) { backStackEntry ->
                     RoomsScreen(
+                        onRoomItemClick = { id ->
+                            navController.navigate(NavModule.Main.Rooms.Room.route + "/$id")
+                        },
                         roomsViewModel = roomsViewModel
                     )
                 }

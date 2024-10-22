@@ -1,5 +1,6 @@
 package com.example.rooms.presentation.features.main.rooms.viewModels
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
@@ -38,10 +39,9 @@ class RoomsViewModel(
 
     fun getRooms() {
         viewModelScope.launch(Dispatchers.IO) {
+            _uiState.value = RoomsUiState.Loading(rooms = uiState.value.rooms ?: listOf())
+
             getRoomsUseCase.invoke()
-                .onStart {
-                    _uiState.value = RoomsUiState.Loading(rooms = uiState.value.rooms ?: listOf())
-                }
                 .catch { e ->
                     _uiState.value = RoomsUiState.Error(
                         rooms = uiState.value.rooms ?: listOf(),
@@ -69,12 +69,6 @@ class RoomsViewModel(
         }
     }
 
-//    fun getRoomById(id: String): RoomDto? {
-//        val room = _uiState.value.rooms.find { it.id == id }
-//        _uiState.value = _uiState.value.copy(currentRoom = room)
-//        return room
-//    }
-
 //    fun createRoom(roomCreationRequest: RoomCreationRequestDto) {
 //        viewModelScope.launch(Dispatchers.IO) {
 //            try {
@@ -83,6 +77,12 @@ class RoomsViewModel(
 //                Log.e("TAG", "Exception during request -> ${e.localizedMessage}")
 //            }
 //        }
+//    }
+
+//    fun getRoomById(id: String): RoomDto? {
+//        val room = _uiState.value.rooms.find { it.id == id }
+//        _uiState.value = _uiState.value.copy(currentRoom = room)
+//        return room
 //    }
 
 //    fun deleteRoom(id: String) {

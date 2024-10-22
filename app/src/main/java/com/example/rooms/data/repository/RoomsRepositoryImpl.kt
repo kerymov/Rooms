@@ -15,7 +15,7 @@ class RoomsRepositoryImpl(
 ) : RoomsRepository {
 
     override suspend fun getRooms(): Flow<BaseResult<List<Room>>> {
-        val result = handleApi { remoteDataSource.getRooms() }
+        val result = remoteDataSource.getRooms()
 
         return flow {
             when(result) {
