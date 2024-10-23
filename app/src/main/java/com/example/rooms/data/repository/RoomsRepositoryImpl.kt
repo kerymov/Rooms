@@ -3,9 +3,8 @@ package com.example.rooms.data.repository
 import com.example.rooms.data.dataSource.rooms.RemoteRoomsDataSource
 import com.example.rooms.data.model.rooms.mappers.mapToDomainModel
 import com.example.rooms.data.network.NetworkResult
-import com.example.rooms.data.network.handleApi
 import com.example.rooms.domain.model.BaseResult
-import com.example.rooms.domain.model.Room
+import com.example.rooms.domain.model.rooms.Room
 import com.example.rooms.domain.repository.RoomsRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow

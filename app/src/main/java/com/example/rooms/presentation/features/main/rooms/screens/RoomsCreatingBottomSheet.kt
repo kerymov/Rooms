@@ -53,7 +53,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.rooms.data.model.rooms.RoomCreationRequest
+import com.example.rooms.data.model.rooms.CreateRoomRequest
 import com.example.rooms.data.model.rooms.RoomSettingsDto
 import com.example.rooms.presentation.components.Divider
 import com.example.rooms.presentation.features.main.rooms.models.Event
@@ -63,7 +63,7 @@ import com.example.rooms.presentation.features.main.rooms.models.Event
 fun RoomsCreatingBottomSheet(
     sheetState: SheetState,
     onDismissRequest:() -> Unit,
-    onCreateClick: (roomCreationRequest: RoomCreationRequest) -> Unit,
+    onCreateClick: (createRoomRequest: CreateRoomRequest) -> Unit,
     modifier: Modifier = Modifier,
     windowInsets: WindowInsets = BottomSheetDefaults.windowInsets,
 ) = ModalBottomSheet(
@@ -108,7 +108,7 @@ fun RoomsCreatingBottomSheet(
                     if (isRoomNameError || isPasswordError) return@TextButton
 
                     onCreateClick(
-                        RoomCreationRequest(
+                        CreateRoomRequest(
                             roomName = roomName,
                             roomPassword = if (isRoomLocked) password else "",
                             settings = RoomSettingsDto(

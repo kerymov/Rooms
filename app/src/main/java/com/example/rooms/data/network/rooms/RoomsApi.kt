@@ -1,7 +1,7 @@
 package com.example.rooms.data.network.rooms
 
 import com.example.rooms.data.model.rooms.RoomDto
-import com.example.rooms.data.model.rooms.RoomCreationRequest
+import com.example.rooms.data.model.rooms.CreateRoomRequest
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -15,7 +15,7 @@ interface RoomsApi {
     suspend fun getRooms(): Response<List<RoomDto>>
 
     @POST("rooms")
-    suspend fun createRoom(@Body roomCreationRequest: RoomCreationRequest)
+    suspend fun createRoom(@Body createRoomRequest: CreateRoomRequest)
 
     @DELETE("rooms/{roomId}")
     suspend fun deleteRoom(@Path("roomId") id: String)

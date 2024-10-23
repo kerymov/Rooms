@@ -7,6 +7,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.rooms.domain.model.BaseResult
 import com.example.rooms.domain.repository.RoomsRepository
+import com.example.rooms.domain.useCases.rooms.CreateRoomUseCase
 import com.example.rooms.domain.useCases.rooms.GetRoomsUseCase
 import com.example.rooms.presentation.features.main.rooms.models.RoomUiModel
 import com.example.rooms.presentation.mappers.mapToUiModel
@@ -27,7 +28,8 @@ sealed class RoomsUiState(open val rooms: List<RoomUiModel>?) {
 }
 
 class RoomsViewModel(
-    private val getRoomsUseCase: GetRoomsUseCase
+    private val getRoomsUseCase: GetRoomsUseCase,
+    private val createRoomUseCase: CreateRoomUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<RoomsUiState>(RoomsUiState.None)
@@ -69,15 +71,15 @@ class RoomsViewModel(
         }
     }
 
-//    fun createRoom(roomCreationRequest: RoomCreationRequestDto) {
-//        viewModelScope.launch(Dispatchers.IO) {
-//            try {
+    fun createRoom() {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
 //                RetrofitInstance.roomsApi.createRoom(roomCreationRequest)
-//            } catch (e: Exception) {
-//                Log.e("TAG", "Exception during request -> ${e.localizedMessage}")
-//            }
-//        }
-//    }
+            } catch (e: Exception) {
+                Log.e("TAG", "Exception during request -> ${e.localizedMessage}")
+            }
+        }
+    }
 
 //    fun getRoomById(id: String): RoomDto? {
 //        val room = _uiState.value.rooms.find { it.id == id }
