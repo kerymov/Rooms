@@ -40,7 +40,6 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.contentColorFor
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -55,14 +54,12 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.example.rooms.R
 import com.example.rooms.presentation.components.CenterAlignedTopBar
 import com.example.rooms.presentation.components.LoadingScreen
-import com.example.rooms.presentation.features.auth.viewModels.AuthUiState
-import com.example.rooms.presentation.features.main.rooms.models.Event
-import com.example.rooms.presentation.features.main.rooms.models.RoomUiModel
+import com.example.rooms.presentation.features.main.rooms.models.EventUi
+import com.example.rooms.presentation.features.main.rooms.models.RoomUi
 import com.example.rooms.presentation.features.main.rooms.viewModels.RoomsUiState
 import com.example.rooms.presentation.features.main.rooms.viewModels.RoomsViewModel
 import com.example.rooms.presentation.features.utils.toInnerScaffoldPadding
@@ -126,7 +123,7 @@ fun RoomsScreen(
                 sheetState = createRoomSheetState,
                 onDismissRequest = { isCreateRoomSheetOpen = false },
                 onCreateClick = { roomCreationRequest ->
-//                    roomsViewModel.createRoom(roomCreationRequest)
+                    roomsViewModel.createRoom(roomCreationRequest)
                     isCreateRoomSheetOpen = false
                 },
                 modifier = Modifier.fillMaxSize(),
@@ -154,7 +151,7 @@ fun RoomsScreen(
 
 @Composable
 private fun Content(
-    rooms: List<RoomUiModel>,
+    rooms: List<RoomUi>,
     contentPadding: PaddingValues,
     onItemClick: (id: String) -> Unit,
     onLongItemClick: (id: String) -> Unit,
@@ -179,7 +176,7 @@ private fun Content(
 
 @Composable
 private fun RoomsGrid(
-    rooms: List<RoomUiModel>,
+    rooms: List<RoomUi>,
     onItemClick: (id: String) -> Unit,
     onLongItemClick: (id: String) -> Unit
 ) = LazyVerticalGrid(
@@ -188,8 +185,8 @@ private fun RoomsGrid(
     modifier = Modifier.fillMaxSize()
 ) {
     items(rooms) { item ->
-        val event = Event.entries.find { event -> event.id == item.event.id }
-            ?: Event.THREE_BY_THREE
+        val event = EventUi.entries.find { event -> event.id == item.event.id }
+            ?: EventUi.THREE_BY_THREE
 
         RoomCard(
             name = item.name,
@@ -205,7 +202,7 @@ private fun RoomsGrid(
 @Composable
 private fun RoomCard(
     name: String,
-    event: Event,
+    event: EventUi,
     isOpen: Boolean,
     onClick: () -> Unit,
     onLongClick: () -> Unit,
@@ -385,7 +382,7 @@ fun OpenRoomCardPreview() {
     RoomsTheme {
         RoomCard(
             name = "Room name",
-            event = Event.THREE_BY_THREE,
+            event = EventUi.THREE_BY_THREE,
             isOpen = true,
             onClick = { },
             onLongClick = { }
@@ -399,7 +396,7 @@ fun LockedRoomCardPreview() {
     RoomsTheme {
         RoomCard(
             name = "Room name",
-            event = Event.THREE_BY_THREE,
+            event = EventUi.THREE_BY_THREE,
             isOpen = false,
             onClick = { },
             onLongClick = { }

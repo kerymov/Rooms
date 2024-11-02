@@ -1,6 +1,6 @@
-package com.example.rooms.domain.model.rooms
+package com.example.rooms.presentation.features.main.rooms.models
 
-data class RoomDetails(
+data class RoomDetailsUi(
     val id: String,
     val name: String,
     val administratorName: String,
@@ -8,6 +8,6 @@ data class RoomDetails(
     val connectedUserNames: List<String>,
     val wasOnceConnectedUserNames: List<String>,
     val password: String,
-    val solves: List<Solve>,
-    val settings: RoomSettings,
+    val solves: List<SolveUi>,
+    val settings: SettingsUi,
 )

@@ -49,11 +49,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.rooms.R
 import com.example.rooms.data.model.scramble.ImageDto
-import com.example.rooms.presentation.features.main.rooms.models.Event
+import com.example.rooms.presentation.features.main.rooms.models.EventUi
 import com.example.rooms.presentation.features.main.rooms.components.ClickableTimer
 import com.example.rooms.presentation.features.main.rooms.components.ManualTypingTimer
 import com.example.rooms.presentation.features.main.rooms.components.ScrambleImage
-import com.example.rooms.presentation.components.CenterAlignedTopBar
 import com.example.rooms.presentation.features.main.rooms.viewModels.RoomViewModel
 import com.example.rooms.presentation.features.main.rooms.utils.Timer
 import com.example.rooms.presentation.features.main.rooms.utils.TimerState
@@ -77,7 +76,7 @@ fun RoomScreen(
 ) {
     val roomUiState by roomViewModel.uiState.collectAsState()
 
-    val event = Event.entries.find { it.id == roomUiState.room?.puzzle }
+    val event = EventUi.entries.find { it.id == roomUiState.room?.puzzle }
     Scaffold(
         topBar = {
 //            CenterAlignedTopBar(

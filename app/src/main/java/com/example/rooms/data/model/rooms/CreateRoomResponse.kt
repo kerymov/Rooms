@@ -1,8 +1,12 @@
 package com.example.rooms.data.model.rooms
 
+import com.google.gson.annotations.SerializedName
+
 data class CreateRoomResponse(
-    val errorMessage: String?,
     val isSuccess: Boolean,
-    val model: Model,
-    val statusCode: Int
+    val statusCode: Int,
+    val errorMessage: String?,
+
+    @SerializedName("model")
+    val roomDetails: RoomDetailsDto,
 )

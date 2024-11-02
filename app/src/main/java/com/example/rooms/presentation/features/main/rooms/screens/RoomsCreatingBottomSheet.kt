@@ -56,14 +56,15 @@ import androidx.compose.ui.unit.dp
 import com.example.rooms.data.model.rooms.CreateRoomRequest
 import com.example.rooms.data.model.rooms.RoomSettingsDto
 import com.example.rooms.presentation.components.Divider
-import com.example.rooms.presentation.features.main.rooms.models.Event
+import com.example.rooms.presentation.features.main.rooms.models.EventUi
+import com.example.rooms.presentation.features.main.rooms.models.SettingsUi
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RoomsCreatingBottomSheet(
     sheetState: SheetState,
     onDismissRequest:() -> Unit,
-    onCreateClick: (createRoomRequest: CreateRoomRequest) -> Unit,
+    onCreateClick: (name: String, password: String?, settings: SettingsUi) -> Unit,
     modifier: Modifier = Modifier,
     windowInsets: WindowInsets = BottomSheetDefaults.windowInsets,
 ) = ModalBottomSheet(
@@ -76,7 +77,7 @@ fun RoomsCreatingBottomSheet(
 ) {
     var roomName by rememberSaveable { mutableStateOf("") }
     var isRoomNameError by rememberSaveable { mutableStateOf(false) }
-    var event by rememberSaveable { mutableStateOf(Event.THREE_BY_THREE) }
+    var event by rememberSaveable { mutableStateOf(EventUi.THREE_BY_THREE) }
     var isRoomLocked by rememberSaveable { mutableStateOf(false) }
     var password by rememberSaveable { mutableStateOf("") }
     var isPasswordError by rememberSaveable { mutableStateOf(false) }
@@ -107,16 +108,12 @@ fun RoomsCreatingBottomSheet(
                     if (isRoomLocked && password.isBlank()) isPasswordError = true
                     if (isRoomNameError || isPasswordError) return@TextButton
 
-                    onCreateClick(
-                        CreateRoomRequest(
-                            roomName = roomName,
-                            roomPassword = if (isRoomLocked) password else "",
-                            settings = RoomSettingsDto(
-                                puzzle = event.id,
-                                isOpen = !isRoomLocked
-                            )
-                        )
+                    val password = if (isRoomLocked) password else null
+                    val settings = SettingsUi(
+                        event = event,
+                        isOpen = !isRoomLocked
                     )
+                    onCreateClick(roomName, password, settings)
                 }
             ) {
                 Text(
@@ -198,7 +195,7 @@ fun RoomsCreatingBottomSheet(
             verticalArrangement = Arrangement.spacedBy(12.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
-            items(Event.entries) {
+            items(EventUi.entries) {
                 EventButton(
                     event = it,
                     onClick = { event = it },
@@ -294,7 +291,7 @@ fun RoomsCreatingBottomSheet(
 
 @Composable
 private fun EventButton(
-    event: Event,
+    event: EventUi,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     isSelected: Boolean = false
@@ -327,7 +324,7 @@ private fun EventButton(
 @Composable
 private fun EventButtonPreview() {
     EventButton(
-        event = Event.THREE_BY_THREE,
+        event = EventUi.THREE_BY_THREE,
         onClick = { },
         modifier = Modifier.size(56.dp)
     )
@@ -341,7 +338,7 @@ private fun EventButtonsGridPreview() {
         horizontalArrangement = Arrangement.SpaceBetween,
         modifier = Modifier.fillMaxWidth()
     ) {
-        itemsIndexed(Event.entries) { index, event ->
+        itemsIndexed(EventUi.entries) { index, event ->
             EventButton(
                 event = event, onClick = { }, isSelected = index == 0,
                 modifier = Modifier.size(56.dp)
@@ -357,7 +354,7 @@ private fun RoomCreatingSheetPreview() {
     RoomsCreatingBottomSheet(
         sheetState = rememberModalBottomSheetState(),
         onDismissRequest = { },
-        onCreateClick = { room -> /* TODO */ },
+        onCreateClick = { _, _, _ ->},
         modifier = Modifier.fillMaxSize()
     )
 }

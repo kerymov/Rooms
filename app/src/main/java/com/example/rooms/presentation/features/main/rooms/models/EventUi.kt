@@ -3,7 +3,7 @@ package com.example.rooms.presentation.features.main.rooms.models
 import androidx.annotation.DrawableRes
 import com.example.rooms.R
 
-enum class Event(val id: Int, val shortName: String, @DrawableRes val icon: Int) {
+enum class EventUi(val id: Int, val shortName: String, @DrawableRes val icon: Int) {
     THREE_BY_THREE(3, "3x3", R.drawable.three),
     TWO_BY_TWO(2, "2x2", R.drawable.two),
     FOUR_BY_FOUR(4, "4x4", R.drawable.four),
