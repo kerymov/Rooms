@@ -1,6 +1,8 @@
 package com.example.rooms.presentation
 
 import android.os.Bundle
+import android.view.Window
+import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -21,8 +23,9 @@ import com.example.rooms.presentation.theme.RoomsTheme
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+
+        enableEdgeToEdge()
 
         val accountRepository = (application as RoomsApp).accountRepository
         val roomsRepository = (application as RoomsApp).roomsRepository

@@ -122,8 +122,8 @@ fun RoomsScreen(
             RoomsCreatingBottomSheet(
                 sheetState = createRoomSheetState,
                 onDismissRequest = { isCreateRoomSheetOpen = false },
-                onCreateClick = { roomCreationRequest ->
-                    roomsViewModel.createRoom(roomCreationRequest)
+                onCreateClick = { roomName, roomPassword, roomSettings ->
+                    roomsViewModel.createRoom(roomName, roomPassword, roomSettings)
                     isCreateRoomSheetOpen = false
                 },
                 modifier = Modifier.fillMaxSize(),

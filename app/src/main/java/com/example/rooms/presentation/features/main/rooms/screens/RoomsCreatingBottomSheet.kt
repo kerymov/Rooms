@@ -53,8 +53,6 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.rooms.data.model.rooms.CreateRoomRequest
-import com.example.rooms.data.model.rooms.RoomSettingsDto
 import com.example.rooms.presentation.components.Divider
 import com.example.rooms.presentation.features.main.rooms.models.EventUi
 import com.example.rooms.presentation.features.main.rooms.models.SettingsUi
@@ -79,7 +77,7 @@ fun RoomsCreatingBottomSheet(
     var isRoomNameError by rememberSaveable { mutableStateOf(false) }
     var event by rememberSaveable { mutableStateOf(EventUi.THREE_BY_THREE) }
     var isRoomLocked by rememberSaveable { mutableStateOf(false) }
-    var password by rememberSaveable { mutableStateOf("") }
+    var roomPassword by rememberSaveable { mutableStateOf("") }
     var isPasswordError by rememberSaveable { mutableStateOf(false) }
     var isPasswordVisible by rememberSaveable { mutableStateOf(false) }
 
@@ -105,10 +103,10 @@ fun RoomsCreatingBottomSheet(
             TextButton(
                 onClick = {
                     if (roomName.isBlank()) isRoomNameError = true
-                    if (isRoomLocked && password.isBlank()) isPasswordError = true
+                    if (isRoomLocked && roomPassword.isBlank()) isPasswordError = true
                     if (isRoomNameError || isPasswordError) return@TextButton
 
-                    val password = if (isRoomLocked) password else null
+                    val password = if (isRoomLocked) roomPassword else null
                     val settings = SettingsUi(
                         event = event,
                         isOpen = !isRoomLocked
@@ -241,9 +239,9 @@ fun RoomsCreatingBottomSheet(
 
         if (isRoomLocked) {
             OutlinedTextField(
-                value = password,
+                value = roomPassword,
                 onValueChange = {
-                    password = it
+                    roomPassword = it
                     isPasswordError = false
                 },
                 textStyle = MaterialTheme.typography.bodyLarge,
