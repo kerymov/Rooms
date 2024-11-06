@@ -9,24 +9,31 @@ import com.example.rooms.domain.model.rooms.RoomDetails
 import com.example.rooms.domain.repository.RoomsRepository
 import com.example.rooms.domain.useCases.rooms.CreateRoomUseCase
 import com.example.rooms.domain.useCases.rooms.GetRoomsUseCase
+import com.example.rooms.presentation.features.main.rooms.models.RoomDetailsUi
 import com.example.rooms.presentation.features.main.rooms.models.RoomUi
 import com.example.rooms.presentation.features.main.rooms.models.SettingsUi
 import com.example.rooms.presentation.mappers.mapToDomainModel
-import com.example.rooms.presentation.mappers.mapToRoomUiModel
 import com.example.rooms.presentation.mappers.mapToUiModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 
-sealed class RoomsUiState(open val rooms: List<RoomUi>?) {
+sealed class RoomsUiState(
+    open val rooms: List<RoomUi> = emptyList(),
+    open val currentRoom: RoomDetailsUi? = null
+) {
 
-    class Success(override val rooms: List<RoomUi>) : RoomsUiState(rooms)
-    data class Error(val code: Int?, val message: String?) : RoomsUiState(rooms = null)
-    data object Loading : RoomsUiState(rooms = null)
-    data object None : RoomsUiState(rooms = null)
+    class Success(
+        override val rooms: List<RoomUi> = emptyList(),
+        override val currentRoom: RoomDetailsUi? = null
+    ) : RoomsUiState(rooms = rooms, currentRoom = currentRoom)
+    data class Error(val code: Int?, val message: String?) : RoomsUiState(rooms = emptyList(), currentRoom = null)
+    data object Loading : RoomsUiState(rooms = emptyList(), currentRoom = null)
+    data object None : RoomsUiState(rooms = emptyList(), currentRoom = null)
 }
 
 class RoomsViewModel(
@@ -55,7 +62,7 @@ class RoomsViewModel(
                 .collect { result ->
                     _uiState.value = when (result) {
                         is BaseResult.Success -> RoomsUiState.Success(
-                            rooms = result.data.map { it.mapToUiModel() }
+                            rooms = result.data.map { it.mapToUiModel() },
                         )
                         is BaseResult.Error -> RoomsUiState.Error(
                             code = result.code,
@@ -78,30 +85,24 @@ class RoomsViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             _uiState.value = RoomsUiState.Loading
 
-            createRoomUseCase.invoke(name, password, settings.mapToDomainModel())
-                .catch { e ->
-                    _uiState.value = RoomsUiState.Error(
-                        code = null,
-                        message = e.message
-                    )
-                }
-                .collect { result ->
-                    _uiState.value = when (result) {
-                        is BaseResult.Success -> RoomsUiState.Success(
-                            rooms = (_uiState.value.rooms ?: listOf()) + result.data.mapToRoomUiModel()
-                        )
+            val roomDetailsResult = async {createRoomUseCase.invoke(name, password, settings.mapToDomainModel()) }
 
-                        is BaseResult.Error -> RoomsUiState.Error(
-                            code = result.code,
-                            message = result.message
-                        )
+            _uiState.value = when (val result = roomDetailsResult.await()) {
+                is BaseResult.Success -> RoomsUiState.Success(
+                    rooms = _uiState.value.rooms,
+                    currentRoom = result.data.mapToUiModel()
+                )
 
-                        is BaseResult.Exception -> RoomsUiState.Error(
-                            code = null,
-                            message = result.message
-                        )
-                    }
-                }
+                is BaseResult.Error -> RoomsUiState.Error(
+                    code = result.code,
+                    message = result.message
+                )
+
+                is BaseResult.Exception -> RoomsUiState.Error(
+                    code = null,
+                    message = result.message
+                )
+            }
         }
     }
 

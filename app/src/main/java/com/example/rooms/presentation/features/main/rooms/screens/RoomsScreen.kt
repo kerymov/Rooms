@@ -40,6 +40,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.contentColorFor
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -59,6 +60,7 @@ import com.example.rooms.R
 import com.example.rooms.presentation.components.CenterAlignedTopBar
 import com.example.rooms.presentation.components.LoadingScreen
 import com.example.rooms.presentation.features.main.rooms.models.EventUi
+import com.example.rooms.presentation.features.main.rooms.models.RoomDetailsUi
 import com.example.rooms.presentation.features.main.rooms.models.RoomUi
 import com.example.rooms.presentation.features.main.rooms.viewModels.RoomsUiState
 import com.example.rooms.presentation.features.main.rooms.viewModels.RoomsViewModel
@@ -70,6 +72,7 @@ import com.example.rooms.presentation.theme.RoomsTheme
 fun RoomsScreen(
     modifier: Modifier = Modifier,
     onRoomItemClick: (id: String) -> Unit,
+    onRoomLogin: (roomDetails: RoomDetailsUi) -> Unit,
     roomsViewModel: RoomsViewModel,
 ) {
     var isCreateRoomSheetOpen by rememberSaveable { mutableStateOf(false) }
@@ -82,6 +85,11 @@ fun RoomsScreen(
     val roomsUiState by roomsViewModel.uiState.collectAsState()
 
     val topAppBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+
+    LaunchedEffect(key1 = roomsUiState.currentRoom) {
+        val room = roomsUiState.currentRoom
+        if (room != null) { onRoomLogin(room) }
+    }
 
     Scaffold(
         topBar = {

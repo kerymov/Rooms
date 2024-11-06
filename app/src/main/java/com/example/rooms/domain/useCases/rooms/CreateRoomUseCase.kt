@@ -14,7 +14,7 @@ class CreateRoomUseCase(
         name: String,
         password: String? = null,
         settings: RoomSettings
-    ): Flow<BaseResult<RoomDetails>> {
+    ): BaseResult<RoomDetails> {
         return repository.createRoom(name = name, password = password, settings = settings)
     }
 }

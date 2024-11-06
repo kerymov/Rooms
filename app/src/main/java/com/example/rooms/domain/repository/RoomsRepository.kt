@@ -8,11 +8,11 @@ import kotlinx.coroutines.flow.Flow
 
 interface RoomsRepository {
 
-    suspend fun getRooms(): Flow<BaseResult<List<Room>>>
+    val allRooms: Flow<BaseResult<List<Room>>>
 
     suspend fun createRoom(
         name: String,
         password: String?,
         settings: RoomSettings
-    ): Flow<BaseResult<RoomDetails>>
+    ): BaseResult<RoomDetails>
 }

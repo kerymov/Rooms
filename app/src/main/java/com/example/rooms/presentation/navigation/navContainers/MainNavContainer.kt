@@ -5,17 +5,22 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navigation
+import com.example.rooms.domain.repository.RoomsRepository
 import com.example.rooms.presentation.components.BottomNavigationBar
 import com.example.rooms.presentation.components.BottomNavigationItem
+import com.example.rooms.presentation.features.auth.viewModels.AuthViewModel
 import com.example.rooms.presentation.features.main.profile.screens.ProfileScreen
 import com.example.rooms.presentation.features.main.profile.viewModels.ProfileViewModel
+import com.example.rooms.presentation.features.main.rooms.screens.RoomScreen
 import com.example.rooms.presentation.features.main.rooms.screens.RoomsScreen
 import com.example.rooms.presentation.features.main.rooms.viewModels.RoomsViewModel
+import com.example.rooms.presentation.features.utils.sharedViewModel
 import com.example.rooms.presentation.features.utils.toOuterScaffoldPadding
 import com.example.rooms.presentation.navigation.NavModule
 import com.example.rooms.presentation.navigation.navigate
@@ -24,7 +29,7 @@ import com.example.rooms.presentation.navigation.navigate
 fun MainNavContainer(
     parentNavController: NavHostController,
     roomsViewModel: RoomsViewModel,
-    profileViewModel: ProfileViewModel
+    profileViewModel: ProfileViewModel,
 ) {
     val navController = rememberNavController()
     val startDestination = NavModule.Main.Rooms
@@ -55,11 +60,16 @@ fun MainNavContainer(
                         onRoomItemClick = { id ->
                             navController.navigate(NavModule.Main.Rooms.Room.route + "/$id")
                         },
+                        onRoomLogin = {
+                            navController.navigate(NavModule.Main.Rooms.Room.route)
+                        },
                         roomsViewModel = roomsViewModel
                     )
                 }
                 composable(route = NavModule.Main.Rooms.Room.route) {
-
+                    RoomScreen(
+                        navController = navController
+                    )
                 }
                 composable(route = NavModule.Main.Rooms.Results.route) {
 

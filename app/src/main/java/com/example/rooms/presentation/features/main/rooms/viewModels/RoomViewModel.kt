@@ -16,13 +16,13 @@ data class RoomUiState(
     val scramble: ScrambleDto? = null
 )
 
-class RoomViewModel(room: RoomDto) : ViewModel() {
+class RoomViewModel : ViewModel() {
 
     private val _uiState = MutableStateFlow(RoomUiState())
     val uiState: StateFlow<RoomUiState> = _uiState.asStateFlow()
 
     init {
-        _uiState.value = _uiState.value.copy(room = room)
+//        _uiState.value = _uiState.value.copy(room = room)
         getScramble()
     }
 

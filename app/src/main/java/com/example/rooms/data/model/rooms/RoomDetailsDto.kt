@@ -7,7 +7,7 @@ data class RoomDetailsDto(
     val cachedScrambles: List<String>,
     val connectedUserNames: List<String>,
     val wasOnceConnectedUserNames: List<String>,
-    val password: String,
+    val password: String?,
     val solves: List<SolveDto>,
     val settings: RoomSettingsDto,
 )

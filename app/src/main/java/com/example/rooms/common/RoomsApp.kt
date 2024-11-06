@@ -3,6 +3,7 @@ package com.example.rooms.common
 import android.app.Application
 import com.example.rooms.data.dataSource.account.RemoteAccountDataSource
 import com.example.rooms.data.dataSource.rooms.RemoteRoomsDataSource
+import com.example.rooms.data.network.RetrofitInstance
 import com.example.rooms.data.repository.AccountRepositoryImpl
 import com.example.rooms.data.repository.RoomsRepositoryImpl
 import com.example.rooms.data.utils.AppSharedPreferences
@@ -20,8 +21,12 @@ class RoomsApp : Application() {
         super.onCreate()
 
         AppSharedPreferences.init(context = this)
-        remoteAccountDataSource = RemoteAccountDataSource()
-        remoteRoomsDataSource = RemoteRoomsDataSource(AppSharedPreferences.authToken)
+
+        val accountApi = RetrofitInstance.provideAccountApi()
+        remoteAccountDataSource = RemoteAccountDataSource(accountApi)
+
+        val roomsApi = RetrofitInstance.provideRoomsApi(AppSharedPreferences.authToken)
+        remoteRoomsDataSource = RemoteRoomsDataSource(roomsApi)
 
         accountRepository = AccountRepositoryImpl(remoteAccountDataSource)
         roomsRepository = RoomsRepositoryImpl(remoteRoomsDataSource)

@@ -2,6 +2,9 @@ package com.example.rooms.data.repository
 
 import com.example.rooms.data.dataSource.rooms.RemoteRoomsDataSource
 import com.example.rooms.data.model.rooms.CreateRoomRequest
+import com.example.rooms.data.model.rooms.CreateRoomResponse
+import com.example.rooms.data.model.rooms.RoomDetailsDto
+import com.example.rooms.data.model.rooms.RoomDto
 import com.example.rooms.data.model.rooms.mappers.mapToDomainModel
 import com.example.rooms.data.model.rooms.mappers.mapToDto
 import com.example.rooms.data.network.NetworkResult
@@ -11,53 +14,56 @@ import com.example.rooms.domain.model.rooms.RoomDetails
 import com.example.rooms.domain.model.rooms.RoomSettings
 import com.example.rooms.domain.repository.RoomsRepository
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import kotlin.collections.map
 
 class RoomsRepositoryImpl(
     private val remoteDataSource: RemoteRoomsDataSource
 ) : RoomsRepository {
 
-    override suspend fun getRooms(): Flow<BaseResult<List<Room>>> {
-        val result = remoteDataSource.getRooms()
+    override val allRooms: Flow<BaseResult<List<Room>>> = remoteDataSource.allRooms
+        .map { it.mapToRoom() }
 
-        return flow {
-            when(result) {
-                is NetworkResult.Success -> {
-                    val rooms = result.data.map { roomDto ->
-                        roomDto.mapToDomainModel()
-                    }
+    override suspend fun createRoom(
+        name: String,
+        password: String?,
+        settings: RoomSettings
+    ): BaseResult<RoomDetails> {
+        val createRoomRequest = CreateRoomRequest(
+            roomName = name,
+            roomPassword = password,
+            settings = settings.mapToDto()
+        )
 
-                    emit(BaseResult.Success(rooms))
-                }
-                is NetworkResult.Error -> {
-                    emit(BaseResult.Error(result.code, result.message))
-                }
-                is NetworkResult.Exception -> {
-                    emit(BaseResult.Exception(result.e.message))
-                }
-            }
-        }
+        return remoteDataSource.createRoom(createRoomRequest).mapToRoomDetails()
     }
+}
 
-    override suspend fun createRoom(name: String, password: String?, settings: RoomSettings): Flow<BaseResult<RoomDetails>> {
-        val createRoomRequest = CreateRoomRequest(roomName = name, roomPassword = password, settings = settings.mapToDto())
-        val result = remoteDataSource.createRoom(createRoomRequest)
+fun NetworkResult<List<RoomDto>>.mapToRoom(): BaseResult<List<Room>> {
+    return when (this) {
+        is NetworkResult.Success -> {
+            val rooms = data.map { roomDto -> roomDto.mapToDomainModel() }
 
-        return flow {
-            when(result) {
-                is NetworkResult.Success -> {
-                    val roomDetails = result.data.mapToDomainModel()
+            BaseResult.Success(rooms)
+        }
 
-                    emit(BaseResult.Success(roomDetails))
-                }
-                is NetworkResult.Error -> {
-                    emit(BaseResult.Error(result.code, result.message))
-                }
-                is NetworkResult.Exception -> {
-                    emit(BaseResult.Exception(result.e.message))
-                }
+        is NetworkResult.Error -> BaseResult.Error(code, message)
+        is NetworkResult.Exception -> BaseResult.Exception(e.message)
+    }
+}
+
+fun NetworkResult<CreateRoomResponse>.mapToRoomDetails(): BaseResult<RoomDetails> {
+    return when (this) {
+        is NetworkResult.Success -> {
+            if (data.isSuccess) {
+                val roomDetails = data.roomDetails.mapToDomainModel()
+
+                BaseResult.Success(roomDetails)
+            } else {
+                BaseResult.Error(code = data.statusCode, message = data.errorMessage)
             }
         }
+        is NetworkResult.Error -> BaseResult.Error(code, message)
+        is NetworkResult.Exception -> BaseResult.Exception(e.message)
     }
 }

@@ -9,7 +9,5 @@ class GetRoomsUseCase(
     private val repository: RoomsRepository
 ) {
 
-    suspend fun invoke(): Flow<BaseResult<List<Room>>> {
-        return repository.getRooms()
-    }
+    fun invoke(): Flow<BaseResult<List<Room>>> = repository.allRooms
 }
