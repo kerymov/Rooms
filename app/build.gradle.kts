@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
+    alias(libs.plugins.kotlinSerialization)
 }
 
 android {
@@ -74,6 +75,7 @@ dependencies {
     implementation(libs.squareup.okhttp3.okhttp)
     implementation(libs.squareup.okhttp3.logging.interceptor)
     implementation(libs.androidx.datastore.preferences)
+    implementation(libs.kotlinx.serialization.json)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

@@ -21,4 +21,3 @@ dependencyResolutionManagement {
 
 rootProject.name = "Rooms"
 include(":app")
-include(":rooms-api")
