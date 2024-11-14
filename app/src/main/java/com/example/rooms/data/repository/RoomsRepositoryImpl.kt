@@ -2,8 +2,8 @@ package com.example.rooms.data.repository
 
 import com.example.rooms.data.dataSource.rooms.RemoteRoomsDataSource
 import com.example.rooms.data.model.rooms.CreateRoomRequest
-import com.example.rooms.data.model.rooms.CreateRoomResponse
-import com.example.rooms.data.model.rooms.RoomDetailsDto
+import com.example.rooms.data.model.rooms.LoginOrCreateRoomResponse
+import com.example.rooms.data.model.rooms.LoginRoomRequest
 import com.example.rooms.data.model.rooms.RoomDto
 import com.example.rooms.data.model.rooms.mappers.mapToDomainModel
 import com.example.rooms.data.model.rooms.mappers.mapToDto
@@ -37,6 +37,17 @@ class RoomsRepositoryImpl(
 
         return remoteDataSource.createRoom(createRoomRequest).mapToRoomDetails()
     }
+
+    override suspend fun loginRoom(
+        name: String, password: String?
+    ): BaseResult<RoomDetails> {
+        val loginRoomRequest = LoginRoomRequest(
+            roomName = name,
+            roomPassword = password
+        )
+
+        return remoteDataSource.loginRoom(loginRoomRequest).mapToRoomDetails()
+    }
 }
 
 fun NetworkResult<List<RoomDto>>.mapToRoom(): BaseResult<List<Room>> {
@@ -52,7 +63,7 @@ fun NetworkResult<List<RoomDto>>.mapToRoom(): BaseResult<List<Room>> {
     }
 }
 
-fun NetworkResult<CreateRoomResponse>.mapToRoomDetails(): BaseResult<RoomDetails> {
+fun NetworkResult<LoginOrCreateRoomResponse>.mapToRoomDetails(): BaseResult<RoomDetails> {
     return when (this) {
         is NetworkResult.Success -> {
             if (data.isSuccess) {

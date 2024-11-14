@@ -2,7 +2,7 @@ package com.example.rooms.data.model.rooms
 
 import com.google.gson.annotations.SerializedName
 
-data class CreateRoomResponse(
+data class LoginOrCreateRoomResponse(
     val isSuccess: Boolean,
     val statusCode: Int,
     val errorMessage: String?,

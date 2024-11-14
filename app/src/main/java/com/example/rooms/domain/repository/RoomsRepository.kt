@@ -15,4 +15,11 @@ interface RoomsRepository {
         password: String?,
         settings: RoomSettings
     ): BaseResult<RoomDetails>
+
+    suspend fun loginRoom(
+        name: String,
+        password: String?
+    ): BaseResult<RoomDetails>
+//
+//    suspend fun deleteRoom(id: String): BaseResult<Boolean>
 }
