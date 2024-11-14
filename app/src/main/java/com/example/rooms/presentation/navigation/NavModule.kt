@@ -1,25 +1,36 @@
 package com.example.rooms.presentation.navigation
 
-sealed class NavModule(val route: String) {
+import com.example.rooms.presentation.features.main.rooms.models.RoomDetailsUi
+import kotlinx.serialization.Serializable
 
-    sealed class Submodule(val route: String)
-    sealed class Screen(val route: String)
+@Serializable
+sealed interface NavModule
 
-    data object Auth : NavModule("module_auth") {
-        data object SignIn : Screen("screen_sign_in")
-        data object SignUp : Screen("screen_sign_up")
-    }
+@Serializable
+sealed interface Screen
 
-    data object Main : NavModule("module_main") {
+@Serializable
+data object Auth : NavModule {
+    @Serializable
+    data object SignIn : Screen
+    @Serializable
+    data object SignUp : Screen
+}
 
-        data object Rooms : Submodule("submodule_rooms") {
-            data object Rooms : Screen("screen_rooms")
-            data object Room : Screen("screen_room")
-            data object Results : Screen("screen_results")
-        }
+@Serializable
+data object Main : NavModule {
 
-        data object Profile : Submodule("submodule_profile") {
-            data object Profile : Screen("screen_profile")
-        }
-    }
+    @Serializable
+    data object Rooms : Screen
+    @Serializable
+    data object Profile : Screen
+}
+
+@Serializable
+data object Room : NavModule {
+
+    @Serializable
+    data class RoomMain(val details: String? = null) : Screen
+    @Serializable
+    data object Results : Screen
 }

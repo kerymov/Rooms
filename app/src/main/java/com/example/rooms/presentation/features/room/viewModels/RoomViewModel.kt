@@ -3,8 +3,13 @@ package com.example.rooms.presentation.features.main.rooms.viewModels
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.rooms.data.model.rooms.RoomDto
 import com.example.rooms.data.model.scramble.ScrambleDto
+import com.example.rooms.domain.repository.RoomsRepository
+import com.example.rooms.domain.useCases.rooms.CreateRoomUseCase
+import com.example.rooms.domain.useCases.rooms.GetRoomsUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -35,6 +40,19 @@ class RoomViewModel : ViewModel() {
 //                _uiState.value = _uiState.value.copy(scramble = scramble)
             } catch (e: Exception) {
                 Log.e("TAG", "Exception during request -> ${e.localizedMessage}")
+            }
+        }
+    }
+
+    companion object {
+        fun createFactory(
+
+            repository: RoomsRepository
+        ) = viewModelFactory {
+            initializer {
+                RoomViewModel(
+
+                )
             }
         }
     }

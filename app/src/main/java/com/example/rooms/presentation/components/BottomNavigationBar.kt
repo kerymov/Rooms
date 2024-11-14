@@ -17,23 +17,24 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.vector.ImageVector
-import com.example.rooms.presentation.navigation.NavModule
+import com.example.rooms.presentation.navigation.Main
+import com.example.rooms.presentation.navigation.Screen
 
 enum class BottomNavigationItem(
     val title: String,
-    val destination: NavModule.Submodule,
+    val destination: Screen,
     val selectedIcon: ImageVector,
     val unselectedIcon: ImageVector,
 ) {
     ROOMS(
         title = "Rooms",
-        destination = NavModule.Main.Rooms,
+        destination = Main.Rooms,
         selectedIcon = Icons.Filled.Home,
         unselectedIcon = Icons.Outlined.Home,
     ),
     PROFILE(
         title = "Profile",
-        destination = NavModule.Main.Profile,
+        destination = Main.Profile,
         selectedIcon = Icons.Filled.AccountCircle,
         unselectedIcon = Icons.Outlined.AccountCircle,
     ),

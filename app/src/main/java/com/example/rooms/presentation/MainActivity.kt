@@ -1,8 +1,6 @@
 package com.example.rooms.presentation
 
 import android.os.Bundle
-import android.view.Window
-import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -16,8 +14,9 @@ import com.example.rooms.domain.repository.RoomsRepository
 import com.example.rooms.presentation.features.auth.viewModels.LocalSplashState
 import com.example.rooms.presentation.features.auth.viewModels.SplashUiState
 import com.example.rooms.presentation.features.auth.viewModels.SplashViewModel
-import com.example.rooms.presentation.navigation.NavModule
-import com.example.rooms.presentation.navigation.navContainers.RootNavContainer
+import com.example.rooms.presentation.navigation.Auth
+import com.example.rooms.presentation.navigation.Main
+import com.example.rooms.presentation.navigation.RootNavContainer
 import com.example.rooms.presentation.theme.RoomsTheme
 
 class MainActivity : ComponentActivity() {
@@ -59,8 +58,8 @@ private fun ApplicationManager(
     val splashState = LocalSplashState.current
 
     val startNavModule = when (splashState.uiState.value) {
-        is SplashUiState.Authorized -> NavModule.Main
-        is SplashUiState.Unauthorized -> NavModule.Auth
+        is SplashUiState.Authorized -> Main
+        is SplashUiState.Unauthorized -> Auth
         else -> return
     }
 

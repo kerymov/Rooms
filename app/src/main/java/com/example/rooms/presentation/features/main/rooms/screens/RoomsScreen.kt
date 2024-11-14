@@ -71,7 +71,7 @@ import com.example.rooms.presentation.theme.RoomsTheme
 @Composable
 fun RoomsScreen(
     modifier: Modifier = Modifier,
-    onRoomItemClick: (id: String) -> Unit,
+    onRoomItemClick: (roomDetails: RoomDetailsUi) -> Unit,
     onRoomLogin: (roomDetails: RoomDetailsUi) -> Unit,
     roomsViewModel: RoomsViewModel,
 ) {
@@ -111,7 +111,7 @@ fun RoomsScreen(
             is RoomsUiState.Success -> Content(
                 rooms = state.rooms,
                 contentPadding = contentPadding.toInnerScaffoldPadding(),
-                onItemClick = { itemId -> onRoomItemClick(itemId) },
+                onItemClick = { details -> onRoomItemClick(details) },
                 onLongItemClick = { itemId ->
                     isDeleteRoomSheetOpen = true
                     roomIdToDelete = itemId
@@ -161,7 +161,7 @@ fun RoomsScreen(
 private fun Content(
     rooms: List<RoomUi>,
     contentPadding: PaddingValues,
-    onItemClick: (id: String) -> Unit,
+    onItemClick: (details: RoomDetailsUi) -> Unit,
     onLongItemClick: (id: String) -> Unit,
     onCreateNewRoomClick: () -> Unit
 ) = Box(
@@ -185,7 +185,7 @@ private fun Content(
 @Composable
 private fun RoomsGrid(
     rooms: List<RoomUi>,
-    onItemClick: (id: String) -> Unit,
+    onItemClick: (details: RoomDetailsUi) -> Unit,
     onLongItemClick: (id: String) -> Unit
 ) = LazyVerticalGrid(
     columns = GridCells.Adaptive(148.dp),
@@ -200,7 +200,9 @@ private fun RoomsGrid(
             name = item.name,
             event = event,
             isOpen = item.isOpen,
-            onClick = { onItemClick(item.id) },
+            onClick = {
+//                onItemClick(item)
+            },
             onLongClick = { onLongItemClick(item.id) },
             modifier = Modifier.padding(4.dp)
         )

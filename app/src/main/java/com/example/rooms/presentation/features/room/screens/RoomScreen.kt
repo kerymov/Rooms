@@ -53,6 +53,7 @@ import com.example.rooms.presentation.features.main.rooms.models.EventUi
 import com.example.rooms.presentation.features.main.rooms.components.ClickableTimer
 import com.example.rooms.presentation.features.main.rooms.components.ManualTypingTimer
 import com.example.rooms.presentation.features.main.rooms.components.ScrambleImage
+import com.example.rooms.presentation.features.main.rooms.models.RoomDetailsUi
 import com.example.rooms.presentation.features.main.rooms.viewModels.RoomViewModel
 import com.example.rooms.presentation.features.main.rooms.utils.Timer
 import com.example.rooms.presentation.features.main.rooms.utils.TimerState
@@ -70,7 +71,6 @@ private enum class TimerMode(val label: String) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RoomScreen(
-    navController: NavController,
     modifier: Modifier = Modifier,
     roomViewModel: RoomViewModel = viewModel(),
 ) {

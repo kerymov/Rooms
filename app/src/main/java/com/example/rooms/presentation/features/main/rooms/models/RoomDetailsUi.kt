@@ -1,5 +1,8 @@
 package com.example.rooms.presentation.features.main.rooms.models
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class RoomDetailsUi(
     val id: String,
     val name: String,
