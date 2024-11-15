@@ -121,7 +121,7 @@ fun RoomsScreen(
     ) { contentPadding ->
         when (val state = roomsUiState) {
             is RoomsUiState.Success -> Content(
-                rooms = state.rooms,
+                rooms = state.rooms.reversed(),
                 contentPadding = contentPadding.toInnerScaffoldPadding(),
                 onItemClick = { name, isOpen ->
                     if (isOpen) {
