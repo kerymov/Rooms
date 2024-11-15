@@ -1,6 +1,6 @@
 package com.example.rooms.data.model.rooms
 
-data class RoomDetailsDto(
+data class CreateRoomDetailsDto(
     val id: String,
     val name: String,
     val administratorName: String,

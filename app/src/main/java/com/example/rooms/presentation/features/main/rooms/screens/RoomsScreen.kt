@@ -59,6 +59,7 @@ import androidx.compose.ui.unit.dp
 import com.example.rooms.R
 import com.example.rooms.presentation.components.CenterAlignedTopBar
 import com.example.rooms.presentation.components.LoadingScreen
+import com.example.rooms.presentation.components.LoginDialog
 import com.example.rooms.presentation.features.main.rooms.models.EventUi
 import com.example.rooms.presentation.features.main.rooms.models.RoomDetailsUi
 import com.example.rooms.presentation.features.main.rooms.models.RoomUi
@@ -66,17 +67,22 @@ import com.example.rooms.presentation.features.main.rooms.viewModels.RoomsUiStat
 import com.example.rooms.presentation.features.main.rooms.viewModels.RoomsViewModel
 import com.example.rooms.presentation.features.utils.toInnerScaffoldPadding
 import com.example.rooms.presentation.theme.RoomsTheme
+import kotlinx.serialization.json.Json
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RoomsScreen(
     modifier: Modifier = Modifier,
-    onRoomItemClick: (roomDetails: RoomDetailsUi) -> Unit,
-    onRoomLogin: (roomDetails: RoomDetailsUi) -> Unit,
+    onRoomLogin: (roomDetails: String) -> Unit,
     roomsViewModel: RoomsViewModel,
 ) {
     var isCreateRoomSheetOpen by rememberSaveable { mutableStateOf(false) }
     val createRoomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
+    var roomNameToLogin by rememberSaveable { mutableStateOf("") }
+    var roomPasswordToLogin by rememberSaveable { mutableStateOf("") }
+    var isLoginError by rememberSaveable { mutableStateOf(false) }
+    var shouldShowLoginDialog by rememberSaveable { mutableStateOf(false) }
 
     var roomIdToDelete by rememberSaveable { mutableStateOf<String?>(null) }
     var isDeleteRoomSheetOpen by rememberSaveable { mutableStateOf(false) }
@@ -86,9 +92,15 @@ fun RoomsScreen(
 
     val topAppBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
-    LaunchedEffect(key1 = roomsUiState.currentRoom) {
-        val room = roomsUiState.currentRoom
-        if (room != null) { onRoomLogin(room) }
+    LaunchedEffect(key1 = roomsUiState.currentRoomDetails) {
+        val roomDetails = roomsUiState.currentRoomDetails
+        if (roomDetails != null) {
+            val roomDetailsJson = Json.encodeToString(
+                serializer = RoomDetailsUi.serializer(),
+                value = roomDetails
+            )
+            onRoomLogin(roomDetailsJson)
+        }
     }
 
     Scaffold(
@@ -111,7 +123,14 @@ fun RoomsScreen(
             is RoomsUiState.Success -> Content(
                 rooms = state.rooms,
                 contentPadding = contentPadding.toInnerScaffoldPadding(),
-                onItemClick = { details -> onRoomItemClick(details) },
+                onItemClick = { name, isOpen ->
+                    if (isOpen) {
+                        roomsViewModel.loginRoom(name, null)
+                    } else {
+                        roomNameToLogin = name
+                        shouldShowLoginDialog = true
+                    }
+                },
                 onLongItemClick = { itemId ->
                     isDeleteRoomSheetOpen = true
                     roomIdToDelete = itemId
@@ -139,6 +158,25 @@ fun RoomsScreen(
             )
         }
 
+        if (shouldShowLoginDialog) {
+            LoginDialog(
+                title = roomNameToLogin,
+                password = roomPasswordToLogin,
+                onPasswordChange = { roomPasswordToLogin = it },
+                isError = isLoginError,
+                onCancelClick = {
+                    roomNameToLogin = ""
+                    roomPasswordToLogin = ""
+                    isLoginError = false
+                    shouldShowLoginDialog = false
+                },
+                onLoginClick = {
+                    shouldShowLoginDialog = false
+                    roomsViewModel.loginRoom(name = roomNameToLogin, password = roomPasswordToLogin)
+                }
+            )
+        }
+
         if (isDeleteRoomSheetOpen && roomIdToDelete != null) {
             DeleteRoomModalBottomSheet(
                 sheetState = deleteRoomSheetState,
@@ -161,7 +199,7 @@ fun RoomsScreen(
 private fun Content(
     rooms: List<RoomUi>,
     contentPadding: PaddingValues,
-    onItemClick: (details: RoomDetailsUi) -> Unit,
+    onItemClick: (name: String, isOpen: Boolean) -> Unit,
     onLongItemClick: (id: String) -> Unit,
     onCreateNewRoomClick: () -> Unit
 ) = Box(
@@ -185,7 +223,7 @@ private fun Content(
 @Composable
 private fun RoomsGrid(
     rooms: List<RoomUi>,
-    onItemClick: (details: RoomDetailsUi) -> Unit,
+    onItemClick: (name: String, isOpen: Boolean) -> Unit,
     onLongItemClick: (id: String) -> Unit
 ) = LazyVerticalGrid(
     columns = GridCells.Adaptive(148.dp),
@@ -201,7 +239,7 @@ private fun RoomsGrid(
             event = event,
             isOpen = item.isOpen,
             onClick = {
-//                onItemClick(item)
+                onItemClick(item.name, item.isOpen)
             },
             onLongClick = { onLongItemClick(item.id) },
             modifier = Modifier.padding(4.dp)

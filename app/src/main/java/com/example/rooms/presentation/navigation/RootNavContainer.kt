@@ -24,13 +24,16 @@ import com.example.rooms.presentation.features.auth.screens.SignUpScreen
 import com.example.rooms.presentation.features.auth.viewModels.AuthViewModel
 import com.example.rooms.presentation.features.main.profile.screens.ProfileScreen
 import com.example.rooms.presentation.features.main.profile.viewModels.ProfileViewModel
+import com.example.rooms.presentation.features.main.rooms.models.RoomDetailsUi
 import com.example.rooms.presentation.features.main.rooms.screens.ResultsScreen
-import com.example.rooms.presentation.features.main.rooms.screens.RoomScreen
+import com.example.rooms.presentation.features.room.screens.RoomScreen
 import com.example.rooms.presentation.features.main.rooms.screens.RoomsScreen
-import com.example.rooms.presentation.features.main.rooms.viewModels.RoomViewModel
+import com.example.rooms.presentation.features.room.viewModels.RoomViewModel
 import com.example.rooms.presentation.features.main.rooms.viewModels.RoomsViewModel
 import com.example.rooms.presentation.features.utils.sharedViewModel
+import com.example.rooms.presentation.features.utils.toOuterScaffoldPadding
 import com.example.rooms.presentation.navigation.Main.Rooms
+import kotlinx.serialization.json.Json
 
 @Composable
 fun RootNavContainer(
@@ -58,7 +61,7 @@ fun RootNavContainer(
             startDestination = startNavModule,
             modifier = Modifier
                 .fillMaxSize()
-                .padding(contentPadding)
+                .padding(contentPadding.toOuterScaffoldPadding())
         ) {
             navigation<Auth>(
                 startDestination = Auth.SignIn
@@ -109,14 +112,9 @@ fun RootNavContainer(
                     )
 
                     RoomsScreen(
-                        onRoomItemClick = { details ->
+                        onRoomLogin = { detailsJson ->
                             navController.navigate(
-                                route = Room.RoomMain("a")
-                            )
-                        },
-                        onRoomLogin = { details ->
-                            navController.navigate(
-                                route = Room.RoomMain("a")
+                                route = Room.RoomMain(detailsJson)
                             )
                         },
                         roomsViewModel = roomsViewModel
@@ -146,13 +144,14 @@ fun RootNavContainer(
                     currentNavModule = Room
 
                     val room: Room.RoomMain = backStackEntry.toRoute()
+                    val roomDetails = room.details?.let { Json.decodeFromString<RoomDetailsUi>(it) }
 
-                    val viewModel = backStackEntry.sharedViewModel<RoomViewModel>(
-                        navController = navController,
-                        factory = RoomViewModel.createFactory(roomsRepository)
-                    )
-                    room.details?.let {
-                        RoomScreen()
+                    roomDetails?.let { details ->
+                        val viewModel = backStackEntry.sharedViewModel<RoomViewModel>(
+                            navController = navController,
+                            factory = RoomViewModel.createFactory(details, roomsRepository)
+                        )
+                        RoomScreen(roomViewModel = viewModel)
                     }
                 }
                 composable<Room.Results> {

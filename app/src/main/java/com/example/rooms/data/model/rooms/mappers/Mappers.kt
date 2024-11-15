@@ -1,7 +1,8 @@
 package com.example.rooms.data.model.rooms.mappers
 
 import com.example.rooms.data.model.rooms.ResultDto
-import com.example.rooms.data.model.rooms.RoomDetailsDto
+import com.example.rooms.data.model.rooms.CreateRoomDetailsDto
+import com.example.rooms.data.model.rooms.LoginRoomDetailsDto
 import com.example.rooms.data.model.rooms.RoomDto
 import com.example.rooms.data.model.rooms.RoomSettingsDto
 import com.example.rooms.data.model.rooms.ScrambleDto
@@ -27,7 +28,7 @@ internal fun RoomDto.mapToDomainModel(): Room {
     )
 }
 
-internal fun RoomDetailsDto.mapToDomainModel(): RoomDetails {
+internal fun CreateRoomDetailsDto.mapToDomainModel(): RoomDetails {
     return RoomDetails(
         id = this.id,
         name = this.name,
@@ -36,6 +37,20 @@ internal fun RoomDetailsDto.mapToDomainModel(): RoomDetails {
         connectedUserNames = this.connectedUserNames,
         wasOnceConnectedUserNames = this.wasOnceConnectedUserNames,
         password = this.password,
+        solves = this.solves.map { it.mapToDomainModel() },
+        settings = this.settings.mapToDomainModel()
+    )
+}
+
+internal fun LoginRoomDetailsDto.mapToDomainModel(): RoomDetails {
+    return RoomDetails(
+        id = this.id,
+        name = this.name,
+        administratorName = this.administratorName,
+        cachedScrambles = listOf(),
+        connectedUserNames = this.connectedUserNames,
+        wasOnceConnectedUserNames = this.wasOnceConnectedUserNames,
+        password = null,
         solves = this.solves.map { it.mapToDomainModel() },
         settings = this.settings.mapToDomainModel()
     )
@@ -62,34 +77,45 @@ internal fun RoomSettingsDto.mapToDomainModel(): RoomSettings {
 internal fun SolveDto.mapToDomainModel(): Solve {
     return Solve(
         solveNumber = this.solveNumber,
-        scramble = this.scramble.mapToDomainModel(),
+        scramble = Scramble(
+            scramble = this.scramble,
+            image = this.scrambledPuzzleImage?.mapToDomainModel()
+        ),
         results = this.results.map { it.mapToDomainModel() }
     )
 }
 
-internal fun Solve.mapToDto(): SolveDto {
-    return SolveDto(
-        solveNumber = this.solveNumber,
-        scramble = this.scramble.mapToDto(),
-        results = this.results.map { it.mapToDto() }
-    )
-}
+//internal fun Solve.mapToDto(): SolveDto {
+//    return SolveDto(
+//        solveNumber = this.solveNumber,
+//        scramble = this.scramble.mapToDto(),
+//        results = this.results.map { it.mapToDto() }
+//    )
+//}
 
 internal fun ScrambleDto.mapToDomainModel(): Scramble {
     return Scramble(
         scramble = this.scramble,
-        image =  Scramble.Image(
-            faces = this.image.faces.map { Scramble.Face(it.colors) }
-        )
+        image = this.image?.mapToDomainModel()
     )
 }
 
 internal fun Scramble.mapToDto(): ScrambleDto {
     return ScrambleDto(
         scramble = this.scramble,
-        image =  ScrambleDto.Image(
-            faces = this.image.faces.map { ScrambleDto.Face(it.colors) }
-        )
+        image = this.image?.mapToDto()
+    )
+}
+
+internal fun Scramble.Image.mapToDto(): ScrambleDto.Image {
+    return ScrambleDto.Image(
+        faces = this.faces.map { ScrambleDto.Face(it.colors) }
+    )
+}
+
+internal fun ScrambleDto.Image.mapToDomainModel(): Scramble.Image {
+    return Scramble.Image(
+        faces = this.faces.map { Scramble.Face(it.colors) }
     )
 }
 

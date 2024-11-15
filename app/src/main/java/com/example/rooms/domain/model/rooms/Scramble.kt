@@ -2,7 +2,7 @@ package com.example.rooms.domain.model.rooms
 
 data class Scramble(
     val scramble: String,
-    val image: Image,
+    val image: Image?,
 ) {
     @JvmInline
     value class Image(val faces: List<Face>)

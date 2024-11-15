@@ -1,4 +1,4 @@
-package com.example.rooms.presentation.features.main.rooms.components
+package com.example.rooms.presentation.features.room.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -17,8 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.rooms.data.model.scramble.FaceDto
-import com.example.rooms.data.model.scramble.ImageDto
+import com.example.rooms.presentation.features.main.rooms.models.ScrambleUi
 import com.example.rooms.presentation.theme.BlueCube
 import com.example.rooms.presentation.theme.GreenCube
 import com.example.rooms.presentation.theme.OrangeCube
@@ -37,7 +36,7 @@ private enum class CubeColor(val id: Int, val value: Color) {
 
 @Composable
 fun ScrambleImage(
-    image: ImageDto,
+    image: ScrambleUi.Image,
     modifier: Modifier = Modifier
 ) {
     val redFace = image.faces.getOrNull(CubeColor.RED.id)
@@ -121,44 +120,44 @@ private fun ColorItem(
 @Composable
 private fun ScrambleImagePreview() {
     ScrambleImage(
-        image = ImageDto(
+        image = ScrambleUi.Image(
             faces = listOf(
-                FaceDto(
+                ScrambleUi.Face(
                     colors = listOf(
                         listOf(2, 4, 5),
                         listOf(3, 0, 4),
                         listOf(0, 4, 4)
                     )
                 ),
-                FaceDto(
+                ScrambleUi.Face(
                     colors = listOf(
                         listOf(0, 5, 1),
                         listOf(0, 1, 0),
                         listOf(3, 2, 0)
                     )
                 ),
-                FaceDto(
+                ScrambleUi.Face(
                     colors = listOf(
                         listOf(4, 1, 1),
                         listOf(2, 2, 5),
                         listOf(2, 4, 5)
                     )
                 ),
-                FaceDto(
+                ScrambleUi.Face(
                     colors = listOf(
                         listOf(5, 2, 5),
                         listOf(3, 3, 3),
                         listOf(4, 0, 1)
                     )
                 ),
-                FaceDto(
+                ScrambleUi.Face(
                     colors = listOf(
                         listOf(3, 3, 1),
                         listOf(1, 4, 5),
                         listOf(2, 1, 2)
                     )
                 ),
-                FaceDto(
+                ScrambleUi.Face(
                     colors = listOf(
                         listOf(3, 0, 4),
                         listOf(2, 5, 1),

@@ -1,9 +1,10 @@
 package com.example.rooms.data.network.rooms
 
 import com.example.rooms.data.model.rooms.RoomDto
-import com.example.rooms.data.model.rooms.CreateRoomRequest
-import com.example.rooms.data.model.rooms.LoginOrCreateRoomResponse
-import com.example.rooms.data.model.rooms.LoginRoomRequest
+import com.example.rooms.data.model.rooms.requests.CreateRoomRequest
+import com.example.rooms.data.model.rooms.responses.CreateRoomResponse
+import com.example.rooms.data.model.rooms.requests.LoginRoomRequest
+import com.example.rooms.data.model.rooms.responses.LoginRoomResponse
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -17,10 +18,10 @@ interface RoomsApi {
     suspend fun getRooms(): Response<List<RoomDto>>
 
     @POST("rooms")
-    suspend fun createRoom(@Body createRoomRequest: CreateRoomRequest): Response<LoginOrCreateRoomResponse>
+    suspend fun createRoom(@Body createRoomRequest: CreateRoomRequest): Response<CreateRoomResponse>
 
     @POST("rooms/login")
-    suspend fun loginRoom(@Body loginRoomRequest: LoginRoomRequest): Response<LoginOrCreateRoomResponse>
+    suspend fun loginRoom(@Body loginRoomRequest: LoginRoomRequest): Response<LoginRoomResponse>
 
     @DELETE("rooms/{roomId}")
     suspend fun deleteRoom(@Path("roomId") id: String)

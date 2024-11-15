@@ -1,5 +1,7 @@
 package com.example.rooms.presentation.mappers
 
+import com.example.rooms.data.model.rooms.ScrambleDto
+import com.example.rooms.data.model.rooms.mappers.mapToDto
 import com.example.rooms.domain.model.rooms.Room
 import com.example.rooms.domain.model.User
 import com.example.rooms.domain.model.rooms.Event
@@ -94,9 +96,13 @@ internal fun Solve.mapToUiModel(): SolveUi {
 internal fun Scramble.mapToUiModel(): ScrambleUi {
     return ScrambleUi(
         scramble = this.scramble,
-        image =  ScrambleUi.Image(
-            faces = this.image.faces.map { ScrambleUi.Face(it.colors) }
-        )
+        image =  this.image?.mapToUiModel()
+    )
+}
+
+internal fun Scramble.Image.mapToUiModel(): ScrambleUi.Image {
+    return ScrambleUi.Image(
+        faces = this.faces.map { ScrambleUi.Face(it.colors) }
     )
 }
 

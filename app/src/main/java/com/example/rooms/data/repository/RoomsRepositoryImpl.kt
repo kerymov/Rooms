@@ -1,12 +1,13 @@
 package com.example.rooms.data.repository
 
 import com.example.rooms.data.dataSource.rooms.RemoteRoomsDataSource
-import com.example.rooms.data.model.rooms.CreateRoomRequest
-import com.example.rooms.data.model.rooms.LoginOrCreateRoomResponse
-import com.example.rooms.data.model.rooms.LoginRoomRequest
+import com.example.rooms.data.model.rooms.requests.CreateRoomRequest
+import com.example.rooms.data.model.rooms.responses.CreateRoomResponse
+import com.example.rooms.data.model.rooms.requests.LoginRoomRequest
 import com.example.rooms.data.model.rooms.RoomDto
 import com.example.rooms.data.model.rooms.mappers.mapToDomainModel
 import com.example.rooms.data.model.rooms.mappers.mapToDto
+import com.example.rooms.data.model.rooms.responses.LoginRoomResponse
 import com.example.rooms.data.network.NetworkResult
 import com.example.rooms.domain.model.BaseResult
 import com.example.rooms.domain.model.rooms.Room
@@ -35,7 +36,7 @@ class RoomsRepositoryImpl(
             settings = settings.mapToDto()
         )
 
-        return remoteDataSource.createRoom(createRoomRequest).mapToRoomDetails()
+        return remoteDataSource.createRoom(createRoomRequest).mapToCreateRoomDetails()
     }
 
     override suspend fun loginRoom(
@@ -46,7 +47,7 @@ class RoomsRepositoryImpl(
             roomPassword = password
         )
 
-        return remoteDataSource.loginRoom(loginRoomRequest).mapToRoomDetails()
+        return remoteDataSource.loginRoom(loginRoomRequest).mapToLoginRoomDetails()
     }
 }
 
@@ -63,7 +64,23 @@ fun NetworkResult<List<RoomDto>>.mapToRoom(): BaseResult<List<Room>> {
     }
 }
 
-fun NetworkResult<LoginOrCreateRoomResponse>.mapToRoomDetails(): BaseResult<RoomDetails> {
+fun NetworkResult<CreateRoomResponse>.mapToCreateRoomDetails(): BaseResult<RoomDetails> {
+    return when (this) {
+        is NetworkResult.Success -> {
+            if (data.isSuccess) {
+                val roomDetails = data.roomDetails.mapToDomainModel()
+
+                BaseResult.Success(roomDetails)
+            } else {
+                BaseResult.Error(code = data.statusCode, message = data.errorMessage)
+            }
+        }
+        is NetworkResult.Error -> BaseResult.Error(code, message)
+        is NetworkResult.Exception -> BaseResult.Exception(e.message)
+    }
+}
+
+fun NetworkResult<LoginRoomResponse>.mapToLoginRoomDetails(): BaseResult<RoomDetails> {
     return when (this) {
         is NetworkResult.Success -> {
             if (data.isSuccess) {

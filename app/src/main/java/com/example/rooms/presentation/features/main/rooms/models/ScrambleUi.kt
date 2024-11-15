@@ -5,13 +5,11 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class ScrambleUi(
     val scramble: String,
-    val image: Image,
+    val image: Image?,
 ) {
     @Serializable
-    @JvmInline
-    value class Image(val faces: List<Face>)
+    data class Image(val faces: List<Face>)
 
     @Serializable
-    @JvmInline
-    value class Face(val colors: List<List<Int>>)
+    data class Face(val colors: List<List<Int>>)
 }

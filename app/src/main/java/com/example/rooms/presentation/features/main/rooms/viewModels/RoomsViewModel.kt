@@ -5,10 +5,10 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.rooms.domain.model.BaseResult
-import com.example.rooms.domain.model.rooms.RoomDetails
 import com.example.rooms.domain.repository.RoomsRepository
 import com.example.rooms.domain.useCases.rooms.CreateRoomUseCase
 import com.example.rooms.domain.useCases.rooms.GetRoomsUseCase
+import com.example.rooms.domain.useCases.rooms.LoginRoomUseCase
 import com.example.rooms.presentation.features.main.rooms.models.RoomDetailsUi
 import com.example.rooms.presentation.features.main.rooms.models.RoomUi
 import com.example.rooms.presentation.features.main.rooms.models.SettingsUi
@@ -24,21 +24,22 @@ import kotlinx.coroutines.launch
 
 sealed class RoomsUiState(
     open val rooms: List<RoomUi> = emptyList(),
-    open val currentRoom: RoomDetailsUi? = null
+    open val currentRoomDetails: RoomDetailsUi? = null
 ) {
 
     class Success(
         override val rooms: List<RoomUi> = emptyList(),
-        override val currentRoom: RoomDetailsUi? = null
-    ) : RoomsUiState(rooms = rooms, currentRoom = currentRoom)
-    data class Error(val code: Int?, val message: String?) : RoomsUiState(rooms = emptyList(), currentRoom = null)
-    data object Loading : RoomsUiState(rooms = emptyList(), currentRoom = null)
-    data object None : RoomsUiState(rooms = emptyList(), currentRoom = null)
+        override val currentRoomDetails: RoomDetailsUi? = null
+    ) : RoomsUiState(rooms = rooms, currentRoomDetails = currentRoomDetails)
+    data class Error(val code: Int?, val message: String?) : RoomsUiState(rooms = emptyList(), currentRoomDetails = null)
+    data object Loading : RoomsUiState(rooms = emptyList(), currentRoomDetails = null)
+    data object None : RoomsUiState(rooms = emptyList(), currentRoomDetails = null)
 }
 
 class RoomsViewModel(
     private val getRoomsUseCase: GetRoomsUseCase,
-    private val createRoomUseCase: CreateRoomUseCase
+    private val createRoomUseCase: CreateRoomUseCase,
+    private val loginRoomUseCase: LoginRoomUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<RoomsUiState>(RoomsUiState.None)
@@ -90,7 +91,7 @@ class RoomsViewModel(
             _uiState.value = when (val result = roomDetailsResult.await()) {
                 is BaseResult.Success -> RoomsUiState.Success(
                     rooms = _uiState.value.rooms,
-                    currentRoom = result.data.mapToUiModel()
+                    currentRoomDetails = result.data.mapToUiModel()
                 )
 
                 is BaseResult.Error -> RoomsUiState.Error(
@@ -106,8 +107,29 @@ class RoomsViewModel(
         }
     }
 
-    private fun launchNewRoom(roomDetails: RoomDetails) {
+    fun loginRoom(name: String, password: String?) {
+        viewModelScope.launch(Dispatchers.IO) {
+            _uiState.value = RoomsUiState.Loading
 
+            val roomDetailsResult = async {loginRoomUseCase.invoke(name, password) }
+
+            _uiState.value = when (val result = roomDetailsResult.await()) {
+                is BaseResult.Success -> RoomsUiState.Success(
+                    rooms = _uiState.value.rooms,
+                    currentRoomDetails = result.data.mapToUiModel()
+                )
+
+                is BaseResult.Error -> RoomsUiState.Error(
+                    code = result.code,
+                    message = result.message
+                )
+
+                is BaseResult.Exception -> RoomsUiState.Error(
+                    code = null,
+                    message = result.message
+                )
+            }
+        }
     }
 
 //    fun getRoomById(id: String): RoomDto? {
@@ -132,7 +154,8 @@ class RoomsViewModel(
             initializer {
                 RoomsViewModel(
                     GetRoomsUseCase(repository),
-                    CreateRoomUseCase(repository)
+                    CreateRoomUseCase(repository),
+                    LoginRoomUseCase(repository)
                 )
             }
         }
