@@ -58,8 +58,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.rooms.R
 import com.example.rooms.presentation.components.CenterAlignedTopBar
-import com.example.rooms.presentation.components.LoadingScreen
-import com.example.rooms.presentation.components.LoginDialog
+import com.example.rooms.presentation.components.CircularLoadingIndicator
+import com.example.rooms.presentation.components.RoomLoginDialog
 import com.example.rooms.presentation.features.main.rooms.models.EventUi
 import com.example.rooms.presentation.features.main.rooms.models.RoomDetailsUi
 import com.example.rooms.presentation.features.main.rooms.models.RoomUi
@@ -119,9 +119,9 @@ fun RoomsScreen(
             .fillMaxSize()
             .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection)
     ) { contentPadding ->
-        when (val state = roomsUiState) {
-            is RoomsUiState.Success -> Content(
-                rooms = state.rooms.reversed(),
+        roomsUiState.rooms?.let { rooms ->
+            Content(
+                rooms = rooms.reversed(),
                 contentPadding = contentPadding.toInnerScaffoldPadding(),
                 onItemClick = { name, isOpen ->
                     if (isOpen) {
@@ -137,12 +137,23 @@ fun RoomsScreen(
                 },
                 onCreateNewRoomClick = { isCreateRoomSheetOpen = true }
             )
+        }
 
-            is RoomsUiState.Error -> ErrorView(
-                errorMessage = "${state.code}: " + state.message,
-                onTryAgainClick = { roomsViewModel.getRooms() }
-            )
-            else -> LoadingScreen()
+//        when (val state = roomsUiState) {
+//            is RoomsUiState.Success -> Content()
+//            is RoomsUiState.Error -> ErrorView(
+//                errorMessage = "${state.code}: " + state.message,
+//                onTryAgainClick = { roomsViewModel.getRooms() }
+//            )
+//            is RoomsUiState.Loading -> {
+//                Content()
+//                CircularLoadingIndicator()
+//            }
+//            is RoomsUiState.None -> CircularLoadingIndicator()
+//        }
+
+        if (roomsUiState is RoomsUiState.Loading) {
+            CircularLoadingIndicator()
         }
 
         if (isCreateRoomSheetOpen) {
@@ -159,11 +170,11 @@ fun RoomsScreen(
         }
 
         if (shouldShowLoginDialog) {
-            LoginDialog(
+            RoomLoginDialog(
                 title = roomNameToLogin,
                 password = roomPasswordToLogin,
                 onPasswordChange = { roomPasswordToLogin = it },
-                isError = isLoginError,
+                isError = roomsUiState is RoomsUiState.Error.RoomLoginError,
                 onCancelClick = {
                     roomNameToLogin = ""
                     roomPasswordToLogin = ""

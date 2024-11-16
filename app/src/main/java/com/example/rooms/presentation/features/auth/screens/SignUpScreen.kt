@@ -38,7 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.rooms.presentation.components.BaseTextField
 import com.example.rooms.presentation.components.ErrorCard
-import com.example.rooms.presentation.components.LoadingScreen
+import com.example.rooms.presentation.components.CircularLoadingIndicator
 import com.example.rooms.presentation.components.Logo
 import com.example.rooms.presentation.components.PasswordTextField
 import com.example.rooms.presentation.features.auth.utils.TextFieldHandler
@@ -88,7 +88,7 @@ fun SignUpScreen(
     }
 
     if (uiState is AuthUiState.Loading) {
-        LoadingScreen()
+        CircularLoadingIndicator()
     }
 
     val usernameTextFieldHandler = TextFieldHandler(
