@@ -151,7 +151,12 @@ fun RootNavContainer(
                             navController = navController,
                             factory = RoomViewModel.createFactory(details, roomsRepository)
                         )
-                        RoomScreen(roomViewModel = viewModel)
+                        RoomScreen(
+                            onNavigateBack = { navController.navigate(Rooms) {
+                                popUpTo(0)
+                            } },
+                            roomViewModel = viewModel
+                        )
                     }
                 }
                 composable<Room.Results> {

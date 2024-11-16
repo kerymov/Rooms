@@ -72,6 +72,7 @@ private enum class TimerMode(val label: String) {
 @Composable
 fun RoomScreen(
     modifier: Modifier = Modifier,
+    onNavigateBack: () -> Unit,
     roomViewModel: RoomViewModel = viewModel(),
 ) {
     val roomUiState by roomViewModel.uiState.collectAsState()
@@ -85,7 +86,7 @@ fun RoomScreen(
                 actions = listOf(
                     Icons.Filled.Groups to {  }
                 ),
-                onNavigationButtonClick = { },
+                onNavigationButtonClick = onNavigateBack,
             )
         },
         containerColor = MaterialTheme.colorScheme.background,
