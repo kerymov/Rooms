@@ -59,6 +59,7 @@ import androidx.compose.ui.unit.dp
 import com.example.rooms.R
 import com.example.rooms.presentation.components.CenterAlignedTopBar
 import com.example.rooms.presentation.components.CircularLoadingIndicator
+import com.example.rooms.presentation.components.ErrorCard
 import com.example.rooms.presentation.components.RoomLoginDialog
 import com.example.rooms.presentation.features.main.rooms.models.EventUi
 import com.example.rooms.presentation.features.main.rooms.models.RoomDetailsUi
@@ -119,38 +120,48 @@ fun RoomsScreen(
             .fillMaxSize()
             .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection)
     ) { contentPadding ->
-        roomsUiState.rooms?.let { rooms ->
-            Content(
-                rooms = rooms.reversed(),
-                contentPadding = contentPadding.toInnerScaffoldPadding(),
-                onItemClick = { name, isOpen ->
-                    if (isOpen) {
-                        roomsViewModel.loginRoom(name, null)
-                    } else {
-                        roomNameToLogin = name
-                        shouldShowLoginDialog = true
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(contentPadding.toInnerScaffoldPadding())
+        ) {
+            when (val state = roomsUiState) {
+                is RoomsUiState.Error.RoomsFetchingError -> ErrorView(
+                    errorMessage = "${state.code}: " + state.message,
+                    onTryAgainClick = { roomsViewModel.getRooms() }
+                )
+                else -> {
+                    roomsUiState.rooms?.let { rooms ->
+                        Content(
+                            rooms = rooms.reversed(),
+                            onItemClick = { name, isOpen ->
+                                if (isOpen) {
+                                    roomsViewModel.loginRoom(name, null)
+                                } else {
+                                    roomNameToLogin = name
+                                    shouldShowLoginDialog = true
+                                }
+                            },
+                            onLongItemClick = { itemId ->
+                                isDeleteRoomSheetOpen = true
+                                roomIdToDelete = itemId
+                            },
+                            onCreateNewRoomClick = { isCreateRoomSheetOpen = true }
+                        )
                     }
-                },
-                onLongItemClick = { itemId ->
-                    isDeleteRoomSheetOpen = true
-                    roomIdToDelete = itemId
-                },
-                onCreateNewRoomClick = { isCreateRoomSheetOpen = true }
-            )
-        }
+                }
+            }
 
-//        when (val state = roomsUiState) {
-//            is RoomsUiState.Success -> Content()
-//            is RoomsUiState.Error -> ErrorView(
-//                errorMessage = "${state.code}: " + state.message,
-//                onTryAgainClick = { roomsViewModel.getRooms() }
-//            )
-//            is RoomsUiState.Loading -> {
-//                Content()
-//                CircularLoadingIndicator()
-//            }
-//            is RoomsUiState.None -> CircularLoadingIndicator()
-//        }
+            if (roomsUiState is RoomsUiState.Error.RoomLoginError
+                || roomsUiState is RoomsUiState.Error.RoomCreationError
+            ) {
+                val state = roomsUiState as RoomsUiState.Error
+                ErrorCard(
+                    text = state.message.toString(),
+                    modifier = Modifier.align(Alignment.BottomCenter)
+                )
+            }
+        }
 
         if (roomsUiState is RoomsUiState.Loading) {
             CircularLoadingIndicator()
@@ -174,7 +185,6 @@ fun RoomsScreen(
                 title = roomNameToLogin,
                 password = roomPasswordToLogin,
                 onPasswordChange = { roomPasswordToLogin = it },
-                isError = roomsUiState is RoomsUiState.Error.RoomLoginError,
                 onCancelClick = {
                     roomNameToLogin = ""
                     roomPasswordToLogin = ""
@@ -209,14 +219,11 @@ fun RoomsScreen(
 @Composable
 private fun Content(
     rooms: List<RoomUi>,
-    contentPadding: PaddingValues,
     onItemClick: (name: String, isOpen: Boolean) -> Unit,
     onLongItemClick: (id: String) -> Unit,
     onCreateNewRoomClick: () -> Unit
 ) = Box(
-    modifier = Modifier
-        .fillMaxSize()
-        .padding(contentPadding)
+    modifier = Modifier.fillMaxSize()
 ) {
     if (rooms.isEmpty()) {
         NoRoomsView(

@@ -38,9 +38,9 @@ fun RoomLoginDialog(
     title: String,
     password: String,
     onPasswordChange: (String) -> Unit,
-    isError: Boolean,
     onCancelClick: () -> Unit,
     onLoginClick: (password: String) -> Unit,
+    isError: Boolean = false
 ) {
     var isPasswordVisible by rememberSaveable { mutableStateOf(false) }
 

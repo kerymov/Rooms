@@ -23,7 +23,7 @@ fun ErrorCard(
     modifier: Modifier = Modifier,
 ) = Card(
     colors = CardDefaults.cardColors(
-        containerColor = MaterialTheme.colorScheme.error.copy(alpha = 0.8f)
+        containerColor = MaterialTheme.colorScheme.error
     ),
     modifier = modifier
         .fillMaxWidth()

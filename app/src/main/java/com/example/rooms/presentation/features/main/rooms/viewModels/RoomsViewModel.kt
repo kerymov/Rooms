@@ -23,7 +23,7 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 
 sealed class RoomsUiState(
-    open val rooms: List<RoomUi> = emptyList(),
+    open val rooms: List<RoomUi>? = null,
     open val currentRoomDetails: RoomDetailsUi? = null
 ) {
 
@@ -31,9 +31,42 @@ sealed class RoomsUiState(
         override val rooms: List<RoomUi> = emptyList(),
         override val currentRoomDetails: RoomDetailsUi? = null
     ) : RoomsUiState(rooms = rooms, currentRoomDetails = currentRoomDetails)
-    data class Error(val code: Int?, val message: String?) : RoomsUiState(rooms = emptyList(), currentRoomDetails = null)
-    data object Loading : RoomsUiState(rooms = emptyList(), currentRoomDetails = null)
-    data object None : RoomsUiState(rooms = emptyList(), currentRoomDetails = null)
+    sealed class Error(
+        override val rooms: List<RoomUi>?,
+        open val code: Int?,
+        open val message: String?
+    ) : RoomsUiState(rooms = rooms, currentRoomDetails = null) {
+        data class RoomsFetchingError(
+            override val code: Int?,
+            override val message: String?
+        ) : Error(
+            rooms = null,
+            code = code,
+            message = message
+        )
+
+        data class RoomCreationError(
+            override val rooms: List<RoomUi>?,
+            override val code: Int?,
+            override val message: String?
+        ) : Error(
+            rooms = rooms,
+            code = code,
+            message = message
+        )
+
+        data class RoomLoginError(
+            override val rooms: List<RoomUi>?,
+            override val code: Int?,
+            override val message: String?
+        ) : Error(
+            rooms = rooms,
+            code = code,
+            message = message
+        )
+    }
+    data class Loading(override val rooms: List<RoomUi>?) : RoomsUiState(rooms = rooms, currentRoomDetails = null)
+    data object None : RoomsUiState(rooms = null, currentRoomDetails = null)
 }
 
 class RoomsViewModel(
@@ -51,11 +84,11 @@ class RoomsViewModel(
 
     fun getRooms() {
         viewModelScope.launch(Dispatchers.IO) {
-            _uiState.value = RoomsUiState.Loading
+            _uiState.value = RoomsUiState.Loading(_uiState.value.rooms)
 
             getRoomsUseCase.invoke()
                 .catch { e ->
-                    _uiState.value = RoomsUiState.Error(
+                    _uiState.value = RoomsUiState.Error.RoomsFetchingError(
                         code = null,
                         message = e.message
                     )
@@ -65,11 +98,11 @@ class RoomsViewModel(
                         is BaseResult.Success -> RoomsUiState.Success(
                             rooms = result.data.map { it.mapToUiModel() },
                         )
-                        is BaseResult.Error -> RoomsUiState.Error(
+                        is BaseResult.Error -> RoomsUiState.Error.RoomsFetchingError(
                             code = result.code,
                             message = result.message
                         )
-                        is BaseResult.Exception -> RoomsUiState.Error(
+                        is BaseResult.Exception -> RoomsUiState.Error.RoomsFetchingError(
                             code = null,
                             message = result.message
                         )
@@ -84,22 +117,24 @@ class RoomsViewModel(
         settings: SettingsUi
     ) {
         viewModelScope.launch(Dispatchers.IO) {
-            _uiState.value = RoomsUiState.Loading
+            _uiState.value = RoomsUiState.Loading(_uiState.value.rooms)
 
             val roomDetailsResult = async {createRoomUseCase.invoke(name, password, settings.mapToDomainModel()) }
 
             _uiState.value = when (val result = roomDetailsResult.await()) {
                 is BaseResult.Success -> RoomsUiState.Success(
-                    rooms = _uiState.value.rooms,
+                    rooms = _uiState.value.rooms ?: emptyList(),
                     currentRoomDetails = result.data.mapToUiModel()
                 )
 
-                is BaseResult.Error -> RoomsUiState.Error(
+                is BaseResult.Error -> RoomsUiState.Error.RoomCreationError(
+                    rooms = _uiState.value.rooms,
                     code = result.code,
                     message = result.message
                 )
 
-                is BaseResult.Exception -> RoomsUiState.Error(
+                is BaseResult.Exception -> RoomsUiState.Error.RoomCreationError(
+                    rooms = _uiState.value.rooms,
                     code = null,
                     message = result.message
                 )
@@ -109,44 +144,30 @@ class RoomsViewModel(
 
     fun loginRoom(name: String, password: String?) {
         viewModelScope.launch(Dispatchers.IO) {
-            _uiState.value = RoomsUiState.Loading
+            _uiState.value = RoomsUiState.Loading(_uiState.value.rooms)
 
             val roomDetailsResult = async {loginRoomUseCase.invoke(name, password) }
 
             _uiState.value = when (val result = roomDetailsResult.await()) {
                 is BaseResult.Success -> RoomsUiState.Success(
-                    rooms = _uiState.value.rooms,
+                    rooms = _uiState.value.rooms ?: emptyList(),
                     currentRoomDetails = result.data.mapToUiModel()
                 )
 
-                is BaseResult.Error -> RoomsUiState.Error(
+                is BaseResult.Error -> RoomsUiState.Error.RoomLoginError(
+                    rooms = _uiState.value.rooms,
                     code = result.code,
                     message = result.message
                 )
 
-                is BaseResult.Exception -> RoomsUiState.Error(
+                is BaseResult.Exception -> RoomsUiState.Error.RoomLoginError(
+                    rooms = _uiState.value.rooms,
                     code = null,
                     message = result.message
                 )
             }
         }
     }
-
-//    fun getRoomById(id: String): RoomDto? {
-//        val room = _uiState.value.rooms.find { it.id == id }
-//        _uiState.value = _uiState.value.copy(currentRoom = room)
-//        return room
-//    }
-
-//    fun deleteRoom(id: String) {
-//        viewModelScope.launch(Dispatchers.IO) {
-//            try {
-//                RetrofitInstance.roomsApi.deleteRoom(id)
-//            } catch (e: Exception) {
-//                Log.e("TAG", "Exception during request -> ${e.localizedMessage}")
-//            }
-//        }
-//    }
 
     companion object {
 
