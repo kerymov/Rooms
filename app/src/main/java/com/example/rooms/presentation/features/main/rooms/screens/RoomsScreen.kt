@@ -23,8 +23,12 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -71,7 +75,7 @@ import com.example.rooms.presentation.features.utils.toInnerScaffoldPadding
 import com.example.rooms.presentation.theme.RoomsTheme
 import kotlinx.serialization.json.Json
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
 fun RoomsScreen(
     modifier: Modifier = Modifier,
@@ -93,6 +97,11 @@ fun RoomsScreen(
     val roomsUiState by roomsViewModel.uiState.collectAsState()
 
     val topAppBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+
+    val pullRefreshState = rememberPullRefreshState(
+        refreshing = roomsUiState is RoomsUiState.Refreshing,
+        onRefresh = { roomsViewModel.getRooms(isRefreshing = true) }
+    )
 
     LaunchedEffect(key1 = roomsUiState.currentRoomDetails) {
         val roomDetails = roomsUiState.currentRoomDetails
@@ -125,6 +134,7 @@ fun RoomsScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(contentPadding.toInnerScaffoldPadding())
+                .pullRefresh(pullRefreshState)
         ) {
             when (val state = roomsUiState) {
                 is RoomsUiState.Error.RoomsFetchingError -> ErrorView(
@@ -152,6 +162,12 @@ fun RoomsScreen(
                     }
                 }
             }
+
+            PullRefreshIndicator(
+                refreshing = roomsUiState is RoomsUiState.Refreshing,
+                state = pullRefreshState,
+                modifier = Modifier.align(Alignment.TopCenter),
+            )
 
             if (roomsUiState is RoomsUiState.Error.OtherError) {
                 val state = roomsUiState as RoomsUiState.Error

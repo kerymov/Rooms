@@ -57,6 +57,7 @@ sealed class RoomsUiState(
         )
     }
     data class Loading(override val rooms: List<RoomUi>?) : RoomsUiState(rooms = rooms, currentRoomDetails = null)
+    data class Refreshing(override val rooms: List<RoomUi>?) : RoomsUiState(rooms = rooms, currentRoomDetails = null)
     data object None : RoomsUiState(rooms = null, currentRoomDetails = null)
 }
 
@@ -74,9 +75,13 @@ class RoomsViewModel(
         getRooms()
     }
 
-    fun getRooms() {
+    fun getRooms(isRefreshing: Boolean = false) {
         viewModelScope.launch(Dispatchers.IO) {
-            _uiState.value = RoomsUiState.Loading(_uiState.value.rooms)
+            _uiState.value = if (isRefreshing) {
+                RoomsUiState.Refreshing(_uiState.value.rooms)
+            } else {
+                RoomsUiState.Loading(_uiState.value.rooms)
+            }
 
             getRoomsUseCase.invoke()
                 .catch { e ->
@@ -111,7 +116,7 @@ class RoomsViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             _uiState.value = RoomsUiState.Loading(_uiState.value.rooms)
 
-            val roomDetailsResult = async {createRoomUseCase.invoke(name, password, settings.mapToDomainModel()) }
+            val roomDetailsResult = async { createRoomUseCase.invoke(name, password, settings.mapToDomainModel()) }
 
             _uiState.value = when (val result = roomDetailsResult.await()) {
                 is BaseResult.Success -> RoomsUiState.Success(
