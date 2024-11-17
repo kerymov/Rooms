@@ -167,6 +167,8 @@ fun RoomsScreen(
                 refreshing = roomsUiState is RoomsUiState.Refreshing,
                 state = pullRefreshState,
                 modifier = Modifier.align(Alignment.TopCenter),
+                contentColor = MaterialTheme.colorScheme.primary,
+                backgroundColor = MaterialTheme.colorScheme.surface
             )
 
             if (roomsUiState is RoomsUiState.Error.OtherError) {
