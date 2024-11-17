@@ -57,6 +57,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.rooms.R
+import com.example.rooms.data.utils.AppSharedPreferences
 import com.example.rooms.presentation.components.CenterAlignedTopBar
 import com.example.rooms.presentation.components.CircularLoadingIndicator
 import com.example.rooms.presentation.components.ErrorCard
@@ -197,6 +198,10 @@ fun RoomsScreen(
         }
 
         if (isDeleteRoomSheetOpen) {
+            val username = AppSharedPreferences.userName
+            val roomToDelete = roomsUiState.rooms?.find { it.id == roomIdToDelete }
+            val isAdministrator = roomToDelete?.administratorName == username
+
             DeleteRoomModalBottomSheet(
                 sheetState = deleteRoomSheetState,
                 onDismissRequest = {
@@ -208,6 +213,7 @@ fun RoomsScreen(
                     isDeleteRoomSheetOpen = false
                     roomIdToDelete = null
                 },
+                isDeleteButtonEnabled = isAdministrator,
                 windowInsets = WindowInsets(0, 0, 0, 0),
             )
         }
@@ -263,6 +269,7 @@ private fun RoomsGrid(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun RoomCard(
     name: String,
@@ -409,6 +416,7 @@ private fun DeleteRoomModalBottomSheet(
     sheetState: SheetState,
     onDismissRequest: () -> Unit,
     onDeleteClick: () -> Unit,
+    isDeleteButtonEnabled: Boolean,
     modifier: Modifier = Modifier,
     windowInsets: WindowInsets = BottomSheetDefaults.windowInsets
 ) = ModalBottomSheet(
@@ -429,11 +437,17 @@ private fun DeleteRoomModalBottomSheet(
             .padding(4.dp)
             .padding(bottom = 32.dp)
     ) {
-        TextButton(onClick = { onDeleteClick() }) {
+        TextButton(
+            onClick = { onDeleteClick() },
+            enabled = isDeleteButtonEnabled,
+            colors = ButtonDefaults.textButtonColors(
+                contentColor = MaterialTheme.colorScheme.error,
+                disabledContentColor = MaterialTheme.colorScheme.outlineVariant
+            )
+        ) {
             Text(
                 text = "Delete room",
                 style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.error,
                 modifier = Modifier.fillMaxWidth()
             )
         }

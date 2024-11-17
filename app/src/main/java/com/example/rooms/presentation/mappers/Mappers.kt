@@ -1,12 +1,10 @@
 package com.example.rooms.presentation.mappers
 
-import com.example.rooms.data.model.rooms.ScrambleDto
-import com.example.rooms.data.model.rooms.mappers.mapToDto
-import com.example.rooms.domain.model.rooms.Room
 import com.example.rooms.domain.model.User
 import com.example.rooms.domain.model.rooms.Event
 import com.example.rooms.domain.model.rooms.Penalty
 import com.example.rooms.domain.model.rooms.Result
+import com.example.rooms.domain.model.rooms.Room
 import com.example.rooms.domain.model.rooms.RoomDetails
 import com.example.rooms.domain.model.rooms.RoomSettings
 import com.example.rooms.domain.model.rooms.Scramble
@@ -34,6 +32,9 @@ internal fun Room.mapToUiModel(): RoomUi {
         id = this.id,
         name = this.name,
         event = EventUi.entries.find { it.id == this.event } ?: EventUi.THREE_BY_THREE,
+        administratorName = this.administratorName,
+        connectedUsersCount = this.connectedUsersCount,
+        maxUsersCount = this.maxUsersCount,
         isOpen = this.isOpen
     )
 }
