@@ -20,6 +20,6 @@ interface RoomsRepository {
         name: String,
         password: String?
     ): BaseResult<RoomDetails>
-//
-//    suspend fun deleteRoom(id: String): BaseResult<Boolean>
+
+    suspend fun deleteRoom(id: String): BaseResult<Boolean>
 }

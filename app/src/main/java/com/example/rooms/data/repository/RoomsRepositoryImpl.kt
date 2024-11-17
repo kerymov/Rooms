@@ -49,6 +49,10 @@ class RoomsRepositoryImpl(
 
         return remoteDataSource.loginRoom(loginRoomRequest).mapToLoginRoomDetails()
     }
+
+    override suspend fun deleteRoom(id: String): BaseResult<Boolean> {
+        return remoteDataSource.deleteRoom(id).mapToBaseResult()
+    }
 }
 
 fun NetworkResult<List<RoomDto>>.mapToRoom(): BaseResult<List<Room>> {
@@ -91,6 +95,14 @@ fun NetworkResult<LoginRoomResponse>.mapToLoginRoomDetails(): BaseResult<RoomDet
                 BaseResult.Error(code = data.statusCode, message = data.errorMessage)
             }
         }
+        is NetworkResult.Error -> BaseResult.Error(code, message)
+        is NetworkResult.Exception -> BaseResult.Exception(e.message)
+    }
+}
+
+fun NetworkResult<Boolean>.mapToBaseResult(): BaseResult<Boolean> {
+    return when (this) {
+        is NetworkResult.Success -> BaseResult.Success(data)
         is NetworkResult.Error -> BaseResult.Error(code, message)
         is NetworkResult.Exception -> BaseResult.Exception(e.message)
     }

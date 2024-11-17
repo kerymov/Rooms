@@ -152,19 +152,17 @@ fun RoomsScreen(
                 }
             }
 
-            if (roomsUiState is RoomsUiState.Error.RoomLoginError
-                || roomsUiState is RoomsUiState.Error.RoomCreationError
-            ) {
+            if (roomsUiState is RoomsUiState.Error.OtherError) {
                 val state = roomsUiState as RoomsUiState.Error
                 ErrorCard(
                     text = state.message.toString(),
                     modifier = Modifier.align(Alignment.BottomCenter)
                 )
             }
-        }
 
-        if (roomsUiState is RoomsUiState.Loading) {
-            CircularLoadingIndicator()
+            if (roomsUiState is RoomsUiState.Loading) {
+                CircularLoadingIndicator()
+            }
         }
 
         if (isCreateRoomSheetOpen) {
@@ -198,7 +196,7 @@ fun RoomsScreen(
             )
         }
 
-        if (isDeleteRoomSheetOpen && roomIdToDelete != null) {
+        if (isDeleteRoomSheetOpen) {
             DeleteRoomModalBottomSheet(
                 sheetState = deleteRoomSheetState,
                 onDismissRequest = {
@@ -206,7 +204,7 @@ fun RoomsScreen(
                     roomIdToDelete = null
                 },
                 onDeleteClick = {
-//                    roomsViewModel.deleteRoom(roomIdToDelete ?: "")
+                    roomsViewModel.deleteRoom(roomIdToDelete ?: "")
                     isDeleteRoomSheetOpen = false
                     roomIdToDelete = null
                 },

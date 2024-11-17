@@ -7,6 +7,7 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.rooms.domain.model.BaseResult
 import com.example.rooms.domain.repository.RoomsRepository
 import com.example.rooms.domain.useCases.rooms.CreateRoomUseCase
+import com.example.rooms.domain.useCases.rooms.DeleteRoomUseCase
 import com.example.rooms.domain.useCases.rooms.GetRoomsUseCase
 import com.example.rooms.domain.useCases.rooms.LoginRoomUseCase
 import com.example.rooms.presentation.features.main.rooms.models.RoomDetailsUi
@@ -45,17 +46,7 @@ sealed class RoomsUiState(
             message = message
         )
 
-        data class RoomCreationError(
-            override val rooms: List<RoomUi>?,
-            override val code: Int?,
-            override val message: String?
-        ) : Error(
-            rooms = rooms,
-            code = code,
-            message = message
-        )
-
-        data class RoomLoginError(
+        data class OtherError(
             override val rooms: List<RoomUi>?,
             override val code: Int?,
             override val message: String?
@@ -72,7 +63,8 @@ sealed class RoomsUiState(
 class RoomsViewModel(
     private val getRoomsUseCase: GetRoomsUseCase,
     private val createRoomUseCase: CreateRoomUseCase,
-    private val loginRoomUseCase: LoginRoomUseCase
+    private val loginRoomUseCase: LoginRoomUseCase,
+    private val deleteRoomUseCase: DeleteRoomUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<RoomsUiState>(RoomsUiState.None)
@@ -127,13 +119,13 @@ class RoomsViewModel(
                     currentRoomDetails = result.data.mapToUiModel()
                 )
 
-                is BaseResult.Error -> RoomsUiState.Error.RoomCreationError(
+                is BaseResult.Error -> RoomsUiState.Error.OtherError(
                     rooms = _uiState.value.rooms,
                     code = result.code,
                     message = result.message
                 )
 
-                is BaseResult.Exception -> RoomsUiState.Error.RoomCreationError(
+                is BaseResult.Exception -> RoomsUiState.Error.OtherError(
                     rooms = _uiState.value.rooms,
                     code = null,
                     message = result.message
@@ -146,7 +138,7 @@ class RoomsViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             _uiState.value = RoomsUiState.Loading(_uiState.value.rooms)
 
-            val roomDetailsResult = async {loginRoomUseCase.invoke(name, password) }
+            val roomDetailsResult = async { loginRoomUseCase.invoke(name, password) }
 
             _uiState.value = when (val result = roomDetailsResult.await()) {
                 is BaseResult.Success -> RoomsUiState.Success(
@@ -154,13 +146,40 @@ class RoomsViewModel(
                     currentRoomDetails = result.data.mapToUiModel()
                 )
 
-                is BaseResult.Error -> RoomsUiState.Error.RoomLoginError(
+                is BaseResult.Error -> RoomsUiState.Error.OtherError(
                     rooms = _uiState.value.rooms,
                     code = result.code,
                     message = result.message
                 )
 
-                is BaseResult.Exception -> RoomsUiState.Error.RoomLoginError(
+                is BaseResult.Exception -> RoomsUiState.Error.OtherError(
+                    rooms = _uiState.value.rooms,
+                    code = null,
+                    message = result.message
+                )
+            }
+        }
+    }
+
+    fun deleteRoom(id: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            _uiState.value = RoomsUiState.Loading(_uiState.value.rooms)
+
+            val deletionResult = async { deleteRoomUseCase.invoke(id) }
+
+            _uiState.value = when (val result = deletionResult.await()) {
+                is BaseResult.Success -> RoomsUiState.Success(
+                    rooms = _uiState.value.rooms?.filter { room -> room.id != id } ?: emptyList(),
+                    currentRoomDetails = null
+                )
+
+                is BaseResult.Error -> RoomsUiState.Error.OtherError(
+                    rooms = _uiState.value.rooms,
+                    code = result.code,
+                    message = result.message
+                )
+
+                is BaseResult.Exception -> RoomsUiState.Error.OtherError(
                     rooms = _uiState.value.rooms,
                     code = null,
                     message = result.message
@@ -176,7 +195,8 @@ class RoomsViewModel(
                 RoomsViewModel(
                     GetRoomsUseCase(repository),
                     CreateRoomUseCase(repository),
-                    LoginRoomUseCase(repository)
+                    LoginRoomUseCase(repository),
+                    DeleteRoomUseCase(repository)
                 )
             }
         }

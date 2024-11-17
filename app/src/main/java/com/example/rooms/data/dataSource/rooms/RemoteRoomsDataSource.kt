@@ -26,4 +26,8 @@ class RemoteRoomsDataSource(
     suspend fun loginRoom(loginRoomRequest: LoginRoomRequest): NetworkResult<LoginRoomResponse> {
         return handleApi { api.loginRoom(loginRoomRequest) }
     }
+
+    suspend fun deleteRoom(id: String): NetworkResult<Boolean> {
+        return handleApi { api.deleteRoom(id) }
+    }
 }

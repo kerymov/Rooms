@@ -24,5 +24,5 @@ interface RoomsApi {
     suspend fun loginRoom(@Body loginRoomRequest: LoginRoomRequest): Response<LoginRoomResponse>
 
     @DELETE("rooms/{roomId}")
-    suspend fun deleteRoom(@Path("roomId") id: String)
+    suspend fun deleteRoom(@Path("roomId") id: String): Response<Boolean>
 }
