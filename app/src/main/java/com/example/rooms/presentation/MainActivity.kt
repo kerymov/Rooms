@@ -10,6 +10,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.example.rooms.common.RoomsApp
 import com.example.rooms.domain.repository.AccountRepository
+import com.example.rooms.domain.repository.RoomRepository
 import com.example.rooms.domain.repository.RoomsRepository
 import com.example.rooms.presentation.features.auth.viewModels.LocalSplashState
 import com.example.rooms.presentation.features.auth.viewModels.SplashUiState
@@ -28,6 +29,7 @@ class MainActivity : ComponentActivity() {
 
         val accountRepository = (application as RoomsApp).accountRepository
         val roomsRepository = (application as RoomsApp).roomsRepository
+        val roomRepository = (application as RoomsApp).roomRepository
 
         val splashViewModel by viewModels<SplashViewModel> {
             SplashViewModel.createFactory(accountRepository)
@@ -42,7 +44,8 @@ class MainActivity : ComponentActivity() {
                 CompositionLocalProvider(LocalSplashState provides splashViewModel) {
                     ApplicationManager(
                         accountRepository = accountRepository,
-                        roomsRepository = roomsRepository
+                        roomsRepository = roomsRepository,
+                        roomRepository = roomRepository
                     )
                 }
             }
@@ -53,7 +56,8 @@ class MainActivity : ComponentActivity() {
 @Composable
 private fun ApplicationManager(
     accountRepository: AccountRepository,
-    roomsRepository: RoomsRepository
+    roomsRepository: RoomsRepository,
+    roomRepository: RoomRepository,
 ) {
     val splashState = LocalSplashState.current
 
@@ -66,6 +70,7 @@ private fun ApplicationManager(
     RootNavContainer(
         startNavModule = startNavModule,
         accountRepository = accountRepository,
-        roomsRepository = roomsRepository
+        roomsRepository = roomsRepository,
+        roomRepository = roomRepository
     )
 }

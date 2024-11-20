@@ -16,6 +16,7 @@ import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.example.rooms.domain.repository.AccountRepository
+import com.example.rooms.domain.repository.RoomRepository
 import com.example.rooms.domain.repository.RoomsRepository
 import com.example.rooms.presentation.components.BottomNavigationBar
 import com.example.rooms.presentation.components.BottomNavigationItem
@@ -40,6 +41,7 @@ fun RootNavContainer(
     startNavModule: NavModule,
     accountRepository: AccountRepository,
     roomsRepository: RoomsRepository,
+    roomRepository: RoomRepository,
 ) {
     val navController = rememberNavController()
     var currentNavModule by remember { mutableStateOf(startNavModule) }
@@ -149,7 +151,7 @@ fun RootNavContainer(
                     roomDetails?.let { details ->
                         val viewModel = backStackEntry.sharedViewModel<RoomViewModel>(
                             navController = navController,
-                            factory = RoomViewModel.createFactory(details, roomsRepository)
+                            factory = RoomViewModel.createFactory(details, roomRepository)
                         )
                         RoomScreen(
                             onNavigateBack = { navController.navigate(Rooms) {
