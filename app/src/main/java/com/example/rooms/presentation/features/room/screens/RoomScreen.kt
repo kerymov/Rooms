@@ -1,6 +1,7 @@
 package com.example.rooms.presentation.features.room.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -44,6 +45,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -105,19 +107,18 @@ fun RoomScreen(
         ) {
             val scramble = roomUiState.scramble
             ScrambleZone(scramble)
+            LatestResults(
+                results = roomUiState.users.map { Pair(it, "-:-") }
+            )
             TimerZone(
                 timerMode = timerMode,
                 isSelectModeMenuShown = isSheetOpen,
-                onChangeTimerModeClick = { isSheetOpen = !isSheetOpen },
+                onChangeTimerModeClick = {
+                    isSheetOpen = !isSheetOpen
+                    roomViewModel.getConnectedUsers()
+                },
                 onSendResultClick = { resultInMills ->
                     roomViewModel.getScramble()
-//                    SolvesRepository.addSolve(
-//                        Solve(
-//                            username = signInViewModel.uiState.value.username ?: "",
-//                            roomName = roomViewModel.uiState.value.room?.roomName ?: "",
-//                            resultInMills = resultInMills
-//                        )
-//                    )
                 },
                 modifier = Modifier
                     .fillMaxSize()
@@ -138,6 +139,43 @@ fun RoomScreen(
         }
     }
 }
+
+@Composable
+private fun LatestResults(
+    results: List<Pair<String, String>>,
+    modifier: Modifier = Modifier
+) = LazyRow(
+    modifier = modifier.fillMaxWidth()
+) {
+    items(results) { resultPair ->
+        ResultPill(
+            username = resultPair.first,
+            result = resultPair.second
+        )
+    }
+}
+
+@Composable
+private fun ResultPill(
+    username: String,
+    result: String?
+) = Text(
+    text = "$username: ${result ?: "-:-"}",
+    style = MaterialTheme.typography.labelLarge,
+    color = MaterialTheme.colorScheme.onPrimary,
+    textAlign = TextAlign.Center,
+    maxLines = 1,
+    overflow = TextOverflow.Ellipsis,
+    modifier = Modifier
+        .clip(RoundedCornerShape(100))
+        .background(MaterialTheme.colorScheme.primaryContainer)
+        .border(
+            width = 2.dp,
+            color = MaterialTheme.colorScheme.primary,
+            shape = RoundedCornerShape(100)
+        )
+        .padding(4.dp)
+)
 
 @Composable
 private fun ScrambleZone(scramble: ScrambleUi?) {
