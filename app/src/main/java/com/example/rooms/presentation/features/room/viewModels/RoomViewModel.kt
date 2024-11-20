@@ -1,28 +1,38 @@
 package com.example.rooms.presentation.features.room.viewModels
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import com.example.rooms.data.model.rooms.RoomDto
-import com.example.rooms.data.model.scramble.ScrambleDto
-import com.example.rooms.domain.repository.RoomsRepository
+import com.example.rooms.domain.model.BaseResult
+import com.example.rooms.domain.repository.RoomRepository
+import com.example.rooms.domain.useCases.room.JoinRoomUseCase
+import com.example.rooms.domain.useCases.room.LeaveRoomUseCase
+import com.example.rooms.domain.useCases.room.GetNewUsersUseCase
+import com.example.rooms.domain.useCases.room.GetScrambleUseCase
 import com.example.rooms.presentation.features.main.rooms.models.RoomDetailsUi
 import com.example.rooms.presentation.features.main.rooms.models.ScrambleUi
+import com.example.rooms.presentation.mappers.mapToUiModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 data class RoomUiState(
     val roomDetails: RoomDetailsUi? = null,
-    val scramble: ScrambleUi? = null
+    val scramble: ScrambleUi? = null,
+    val users: List<String> = listOf()
 )
 
 class RoomViewModel(
-    roomDetails: RoomDetailsUi,
+    private val roomDetails: RoomDetailsUi,
+    private val joinRoomUseCase: JoinRoomUseCase,
+    private val leaveRoomUseCase: LeaveRoomUseCase,
+    private val getNewUsersUseCase: GetNewUsersUseCase,
+    private val getScrambleUseCase: GetScrambleUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(RoomUiState())
@@ -30,29 +40,61 @@ class RoomViewModel(
 
     init {
         _uiState.value = _uiState.value.copy(roomDetails = roomDetails)
+        joinRoom(roomName = roomDetails.name)
+
+        getConnectedUsers()
         getScramble()
+    }
+
+    private fun joinRoom(roomName: String) = viewModelScope.launch(Dispatchers.IO) {
+        joinRoomUseCase.invoke(roomName)
+    }
+
+    private fun leaveRoom(roomName: String) = viewModelScope.launch(Dispatchers.IO) {
+        leaveRoomUseCase.invoke(roomName)
+    }
+
+    fun getConnectedUsers() {
+        viewModelScope.launch(Dispatchers.IO) {
+            getNewUsersUseCase.invoke()
+                .collect { user ->
+                    val currentUsers = _uiState.value.users
+                    _uiState.update {
+                        it.copy(users = currentUsers + user.username)
+                    }
+                }
+        }
     }
 
     fun getScramble() {
         viewModelScope.launch(Dispatchers.IO) {
-            try {
-//                val puzzle = uiState.value.room?.puzzle ?: 3
-//                val response = RetrofitInstance.scrambleApi.getScramble(puzzle = puzzle)
-//                val scramble = response.body()
-//                _uiState.value = _uiState.value.copy(scramble = scramble)
-            } catch (e: Exception) {
-                Log.e("TAG", "Exception during request -> ${e.localizedMessage}")
+            val roomDetailsResult = async { getScrambleUseCase.invoke(roomDetails.settings.event.id) }
+
+            when (val result = roomDetailsResult.await()) {
+                is BaseResult.Success -> _uiState.update {
+                    it.copy(scramble = result.data.mapToUiModel())
+                }
+                is BaseResult.Error -> { }
+                is BaseResult.Exception -> { }
             }
         }
     }
 
+    override fun onCleared() {
+        super.onCleared()
+        leaveRoom(roomName = roomDetails.name)
+    }
+
     companion object {
-        fun createFactory(
-            roomDetails: RoomDetailsUi,
-            repository: RoomsRepository
-        ) = viewModelFactory {
+        fun createFactory(roomDetails: RoomDetailsUi, repository: RoomRepository) = viewModelFactory {
             initializer {
-                RoomViewModel(roomDetails)
+                RoomViewModel(
+                    roomDetails,
+                    JoinRoomUseCase(repository),
+                    LeaveRoomUseCase(repository),
+                    GetNewUsersUseCase(repository),
+                    GetScrambleUseCase(repository)
+                )
             }
         }
     }
