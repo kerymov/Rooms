@@ -1,4 +1,4 @@
-package com.example.rooms.domain.model
+package com.example.rooms.domain.model.auth
 
 data class User(
     val username: String,

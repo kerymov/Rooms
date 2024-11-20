@@ -6,7 +6,7 @@ import com.example.rooms.data.model.account.auth.network.UserSignInRequest
 import com.example.rooms.data.model.account.auth.network.UserSignUpRequest
 import com.example.rooms.data.utils.AppSharedPreferences
 import com.example.rooms.domain.model.BaseResult
-import com.example.rooms.domain.model.User
+import com.example.rooms.domain.model.auth.User
 import com.example.rooms.domain.repository.AccountRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow

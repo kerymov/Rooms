@@ -1,7 +1,7 @@
 package com.example.rooms.domain.repository
 
 import com.example.rooms.domain.model.BaseResult
-import com.example.rooms.domain.model.User
+import com.example.rooms.domain.model.auth.User
 import kotlinx.coroutines.flow.Flow
 
 interface AccountRepository {

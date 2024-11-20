@@ -2,7 +2,7 @@ package com.example.rooms.data.model.account.auth.mappers
 
 import com.example.rooms.data.model.account.auth.local.UserDto
 import com.example.rooms.data.model.account.auth.network.UserAuthResponse
-import com.example.rooms.domain.model.User
+import com.example.rooms.domain.model.auth.User
 
 internal fun UserDto.mapToDomainModel(): User {
     return User(

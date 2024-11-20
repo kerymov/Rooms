@@ -1,6 +1,6 @@
 package com.example.rooms.presentation.mappers
 
-import com.example.rooms.domain.model.User
+import com.example.rooms.domain.model.auth.User
 import com.example.rooms.domain.model.rooms.Event
 import com.example.rooms.domain.model.rooms.Penalty
 import com.example.rooms.domain.model.rooms.Result

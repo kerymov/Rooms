@@ -1,7 +1,7 @@
 package com.example.rooms.data.utils
 
 import com.example.rooms.data.model.account.auth.local.UserDto
-import com.example.rooms.domain.model.User
+import com.example.rooms.domain.model.auth.User
 
 class SessionManager(
     private val dataStorePreferences: DataStorePreferences,
