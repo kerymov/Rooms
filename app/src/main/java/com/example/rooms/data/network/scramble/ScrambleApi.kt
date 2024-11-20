@@ -1,6 +1,6 @@
 package com.example.rooms.data.network.scramble
 
-import com.example.rooms.data.model.scramble.ScrambleDto
+import com.example.rooms.data.model.rooms.ScrambleDto
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Query
