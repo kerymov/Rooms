@@ -115,7 +115,6 @@ fun RoomScreen(
                 isSelectModeMenuShown = isSheetOpen,
                 onChangeTimerModeClick = {
                     isSheetOpen = !isSheetOpen
-                    roomViewModel.getConnectedUsers()
                 },
                 onSendResultClick = { resultInMills ->
                     roomViewModel.getScramble()

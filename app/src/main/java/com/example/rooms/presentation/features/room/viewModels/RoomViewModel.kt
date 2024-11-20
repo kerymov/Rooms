@@ -6,6 +6,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.rooms.domain.model.BaseResult
 import com.example.rooms.domain.repository.RoomRepository
+import com.example.rooms.domain.useCases.room.GetLeftUsersUseCase
 import com.example.rooms.domain.useCases.room.JoinRoomUseCase
 import com.example.rooms.domain.useCases.room.LeaveRoomUseCase
 import com.example.rooms.domain.useCases.room.GetNewUsersUseCase
@@ -32,6 +33,7 @@ class RoomViewModel(
     private val joinRoomUseCase: JoinRoomUseCase,
     private val leaveRoomUseCase: LeaveRoomUseCase,
     private val getNewUsersUseCase: GetNewUsersUseCase,
+    private val getLeftUsersUseCase: GetLeftUsersUseCase,
     private val getScrambleUseCase: GetScrambleUseCase
 ) : ViewModel() {
 
@@ -42,7 +44,8 @@ class RoomViewModel(
         _uiState.value = _uiState.value.copy(roomDetails = roomDetails)
         joinRoom(roomName = roomDetails.name)
 
-        getConnectedUsers()
+        getNewUsers()
+        getLeftUsers()
         getScramble()
     }
 
@@ -54,13 +57,25 @@ class RoomViewModel(
         leaveRoomUseCase.invoke(roomName)
     }
 
-    fun getConnectedUsers() {
+    private fun getNewUsers() {
         viewModelScope.launch(Dispatchers.IO) {
             getNewUsersUseCase.invoke()
                 .collect { user ->
                     val currentUsers = _uiState.value.users
-                    _uiState.update {
-                        it.copy(users = currentUsers + user.username)
+                    _uiState.update { uiState ->
+                        uiState.copy(users = currentUsers + user.username)
+                    }
+                }
+        }
+    }
+
+    private fun getLeftUsers() {
+        viewModelScope.launch(Dispatchers.IO) {
+            getLeftUsersUseCase.invoke()
+                .collect { user ->
+                    val currentUsers = _uiState.value.users
+                    _uiState.update { uiState ->
+                        uiState.copy(users = currentUsers.filter { it != user.username })
                     }
                 }
         }
@@ -71,8 +86,8 @@ class RoomViewModel(
             val roomDetailsResult = async { getScrambleUseCase.invoke(roomDetails.settings.event.id) }
 
             when (val result = roomDetailsResult.await()) {
-                is BaseResult.Success -> _uiState.update {
-                    it.copy(scramble = result.data.mapToUiModel())
+                is BaseResult.Success -> _uiState.update { uiState ->
+                    uiState.copy(scramble = result.data.mapToUiModel())
                 }
                 is BaseResult.Error -> { }
                 is BaseResult.Exception -> { }
@@ -93,6 +108,7 @@ class RoomViewModel(
                     JoinRoomUseCase(repository),
                     LeaveRoomUseCase(repository),
                     GetNewUsersUseCase(repository),
+                    GetLeftUsersUseCase(repository),
                     GetScrambleUseCase(repository)
                 )
             }

@@ -19,13 +19,9 @@ class RoomRepositoryImpl(
 
     override fun leaveRoom(roomName: String) = remoteDataSource.leaveRoom(roomName)
 
-//    override val users: Flow<User> = combine(
-//        remoteDataSource.users,
-//        remoteDataSource.leftUsers
-//    ) { usersList, leftUsersList -> usersList.filter { user -> user !in leftUsersList } }
-//        .map { User(username = it) }
-
     override val newUsers: Flow<User> = remoteDataSource.newUsers.map { User(username = it) }
+
+    override val leftUsers: Flow<User> = remoteDataSource.leftUsers.map { User(username = it) }
 
     override suspend fun getScramble(puzzle: Int): BaseResult<Scramble> {
         return remoteDataSource.getScramble(puzzle).toBaseResult()

@@ -13,5 +13,7 @@ interface RoomRepository {
 
     val newUsers: Flow<User>
 
+    val leftUsers: Flow<User>
+
     suspend fun getScramble(puzzle: Int): BaseResult<Scramble>
 }
