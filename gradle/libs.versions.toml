@@ -19,6 +19,7 @@ logging-interceptor = "4.12.0"
 datastorePreferences = "1.1.1"
 jetbrainsKotlinJvm = "1.9.0"
 kotlinSerialization = "1.9.0"
+signalr = "8.0.11"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -55,6 +56,7 @@ squareup-retrofit2-retrofit = { group = "com.squareup.retrofit2", name = "retrof
 squareup-retrofit2-converter-gson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "converter-gson" }
 squareup-okhttp3-okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
 squareup-okhttp3-logging-interceptor = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "logging-interceptor" }
+signalr = { module = "com.microsoft.signalr:signalr", version.ref = "signalr" }
 
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
 
