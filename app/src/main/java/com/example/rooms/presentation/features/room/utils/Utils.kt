@@ -5,15 +5,32 @@ import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
 
-const val MAX_TIME_LENGTH = 8
+const val MAX_TIME_LENGTH = 7
+
+private enum class TimeRange(val originalTextOffset: Int, val transformedTextOffset: Int) {
+    INITIAL(originalTextOffset = 0, transformedTextOffset = 4),
+    UNDER_TEN_MILLISECONDS(originalTextOffset = 1, transformedTextOffset = 4),
+    UNDER_ONE_SECOND(originalTextOffset = 2, transformedTextOffset = 4),
+    UNDER_TEN_SECONDS(originalTextOffset = 3, transformedTextOffset = 4),
+    UNDER_ONE_MINUTE(originalTextOffset = 4, transformedTextOffset = 5),
+    UNDER_TEN_MINUTES(originalTextOffset = 5, transformedTextOffset = 7),
+    UNDER_ONE_HOUR(originalTextOffset = 6, transformedTextOffset = 8),
+    UNDER_TEN_HOURS(originalTextOffset = 7, transformedTextOffset = 10)
+}
 
 class TimerOffsetMapping: OffsetMapping {
     override fun originalToTransformed(offset: Int): Int {
-        return offset
+        val timeRange = TimeRange.entries.find { it.originalTextOffset == offset }
+        val transformedTextOffset = timeRange?.transformedTextOffset ?: 0
+
+        return transformedTextOffset
     }
 
     override fun transformedToOriginal(offset: Int): Int {
-        return offset
+        val timeRange = TimeRange.entries.find { it.transformedTextOffset == offset }
+        val originalTextOffset = timeRange?.originalTextOffset ?: 0
+
+        return originalTextOffset
     }
 }
 
@@ -34,8 +51,7 @@ class TimerVisualTransformation: VisualTransformation {
             4 -> "${text[0]}${text[1]}.${text[2]}${text[3]}"
             5 -> "${text[0]}:${text[1]}${text[2]}.${text[3]}${text[4]}"
             6 -> "${text[0]}${text[1]}:${text[2]}${text[3]}.${text[4]}${text[5]}"
-            7 -> "${text[0]}:${text[1]}${text[2]}:${text[3]}${text[4]}.${text[5]}${text[6]}"
-            else -> "${text[0]}${text[1]}:${text[2]}${text[3]}:${text[4]}${text[5]}.${text[6]}${text[7]}"
+            else -> "${text[0]}:${text[1]}${text[2]}:${text[3]}${text[4]}.${text[5]}${text[6]}"
         }
 
         return TransformedText(

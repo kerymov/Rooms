@@ -1,4 +1,4 @@
-package com.example.rooms.presentation.features.main.rooms.components
+package com.example.rooms.presentation.features.room.components
 
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.layout.Arrangement
@@ -10,7 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Send
+import androidx.compose.material.icons.automirrored.rounded.Send
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -67,7 +67,7 @@ fun ManualTypingTimer(
                 onSendResultClick()
             }) {
                 Icon(
-                    imageVector = Icons.Rounded.Send,
+                    imageVector = Icons.AutoMirrored.Rounded.Send,
                     contentDescription = "Send",
                     tint = MaterialTheme.colorScheme.onPrimary,
                     modifier = Modifier.size(32.dp)
@@ -84,7 +84,8 @@ fun ManualTypingTimer(
         readOnly = true,
         enabled = false,
         singleLine = true,
-        textStyle = MaterialTheme.typography.displayMedium.copy(textAlign = TextAlign.Center)
+        textStyle = MaterialTheme.typography.displayMedium.copy(textAlign = TextAlign.Center),
+        modifier = Modifier.fillMaxWidth()
     )
 
     NumberKeyboard(

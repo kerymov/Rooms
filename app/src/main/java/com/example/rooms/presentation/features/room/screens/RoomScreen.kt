@@ -18,6 +18,7 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PageSize
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material.Chip
 import androidx.compose.material.ChipDefaults
 import androidx.compose.material.ExperimentalMaterialApi
@@ -55,7 +56,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.rooms.R
 import com.example.rooms.presentation.components.CenterAlignedTopBar
 import com.example.rooms.presentation.features.main.rooms.components.ClickableTimer
-import com.example.rooms.presentation.features.main.rooms.components.ManualTypingTimer
+import com.example.rooms.presentation.features.room.components.ManualTypingTimer
 import com.example.rooms.presentation.features.room.components.ScrambleImage
 import com.example.rooms.presentation.features.main.rooms.models.ScrambleUi
 import com.example.rooms.presentation.features.main.rooms.models.SolveUi
@@ -291,12 +292,15 @@ private fun TimerZone(
         ) {
             TextButton(
                 onClick = onChangeTimerModeClick,
-                enabled = isTimerEnabled
+                enabled = isTimerEnabled,
+                colors = ButtonDefaults.textButtonColors(
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                    disabledContentColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f)
+                )
             ) {
                 Text(
                     text = timerMode.label,
                     style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onPrimary,
                     modifier = Modifier.padding(end = 2.dp)
                 )
 
@@ -304,7 +308,6 @@ private fun TimerZone(
                 Icon(
                     imageVector = ImageVector.vectorResource(icon),
                     contentDescription = "Timer mode",
-                    tint = MaterialTheme.colorScheme.onPrimary,
                     modifier = Modifier.size(32.dp)
                 )
             }
