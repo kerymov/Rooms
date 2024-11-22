@@ -8,6 +8,7 @@ import okhttp3.Request
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.time.Duration
 
 object RetrofitInstance {
 
@@ -25,6 +26,10 @@ object RetrofitInstance {
         }
         .addInterceptor(authInterceptor)
         .addInterceptor(httpLoggingInterceptor)
+        .connectTimeout(Duration.ofSeconds(10))
+        .callTimeout(Duration.ofSeconds(10))
+        .readTimeout(Duration.ofSeconds(10))
+        .writeTimeout(Duration.ofSeconds(10))
         .build()
 
     private fun provideRetrofit(token: String?): Retrofit {
