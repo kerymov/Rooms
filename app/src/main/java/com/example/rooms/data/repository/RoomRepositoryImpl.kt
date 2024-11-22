@@ -5,7 +5,9 @@ import com.example.rooms.data.model.rooms.ScrambleDto
 import com.example.rooms.data.model.rooms.mappers.mapToDomainModel
 import com.example.rooms.data.network.NetworkResult
 import com.example.rooms.domain.model.BaseResult
+import com.example.rooms.domain.model.rooms.Result
 import com.example.rooms.domain.model.rooms.Scramble
+import com.example.rooms.domain.model.rooms.Solve
 import com.example.rooms.domain.model.rooms.User
 import com.example.rooms.domain.repository.RoomRepository
 import kotlinx.coroutines.flow.Flow
@@ -22,6 +24,14 @@ class RoomRepositoryImpl(
     override val newUsers: Flow<User> = remoteDataSource.newUsers.map { User(username = it) }
 
     override val leftUsers: Flow<User> = remoteDataSource.leftUsers.map { User(username = it) }
+
+    override val finishedSolves: Flow<Solve> = remoteDataSource.finishedSolves.map {
+        it.mapToDomainModel()
+    }
+
+    override val newSolves: Flow<Result> = remoteDataSource.results.map {
+        it.mapToDomainModel()
+    }
 
     override suspend fun getScramble(puzzle: Int): BaseResult<Scramble> {
         return remoteDataSource.getScramble(puzzle).toBaseResult()

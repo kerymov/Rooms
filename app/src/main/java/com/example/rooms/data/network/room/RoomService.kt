@@ -3,10 +3,12 @@ package com.example.rooms.data.network.room
 import com.example.rooms.data.model.rooms.ResultDto
 import com.example.rooms.data.model.rooms.SolveDto
 import com.microsoft.signalr.HubConnectionBuilder
+import com.microsoft.signalr.TypeReference
 import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import java.lang.reflect.Type
 
 class RoomService(authToken: String?) {
 
@@ -59,11 +61,14 @@ class RoomService(authToken: String?) {
         }
     }
 
+    private var solveDtoType: Type = object : TypeReference<SolveDto?>() {}.type
     val finishedSolves: Flow<SolveDto> = callbackFlow {
-        connection.on(
+        connection.on<SolveDto>(
             Method.SEND_SOLVE.raw,
-            { solve -> trySend(solve) },
-            SolveDto::class.java
+            { solve ->
+                trySend(solve)
+            },
+            solveDtoType
         )
         awaitClose {
             connection.stop()
@@ -115,6 +120,7 @@ class RoomService(authToken: String?) {
 
     private val connection = HubConnectionBuilder
         .create("https://team-cubing.azurewebsites.net/api/hubs/room")
+        .withHeaders(mapOf("Content-Type" to "application/json"))
         .withAccessTokenProvider(
             Single.defer { Single.just(authToken ?: "") }
         )

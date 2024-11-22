@@ -2,6 +2,7 @@ package com.example.rooms.data.dataSource.room
 
 import com.example.rooms.data.model.rooms.ResultDto
 import com.example.rooms.data.model.rooms.ScrambleDto
+import com.example.rooms.data.model.rooms.SolveDto
 import com.example.rooms.data.network.NetworkResult
 import com.example.rooms.data.network.handleApi
 import com.example.rooms.data.network.room.RoomService
@@ -20,6 +21,8 @@ class RemoteRoomDataSource(
     val newUsers: Flow<String> = service.newUsers
 
     val leftUsers: Flow<String> = service.leftUsers
+
+    val finishedSolves: Flow<SolveDto> = service.finishedSolves
 
     val results: Flow<ResultDto> = service.results
 

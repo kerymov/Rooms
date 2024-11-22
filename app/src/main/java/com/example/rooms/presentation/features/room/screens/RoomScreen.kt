@@ -1,7 +1,7 @@
 package com.example.rooms.presentation.features.room.screens
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,6 +18,9 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PageSize
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Chip
+import androidx.compose.material.ChipDefaults
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Groups
@@ -55,6 +58,7 @@ import com.example.rooms.presentation.features.main.rooms.components.ClickableTi
 import com.example.rooms.presentation.features.main.rooms.components.ManualTypingTimer
 import com.example.rooms.presentation.features.room.components.ScrambleImage
 import com.example.rooms.presentation.features.main.rooms.models.ScrambleUi
+import com.example.rooms.presentation.features.main.rooms.models.SolveUi
 import com.example.rooms.presentation.features.main.rooms.utils.Timer
 import com.example.rooms.presentation.features.main.rooms.utils.TimerState
 import com.example.rooms.presentation.features.room.viewModels.RoomViewModel
@@ -107,8 +111,9 @@ fun RoomScreen(
         ) {
             val scramble = roomUiState.scramble
             ScrambleZone(scramble)
-            LatestResults(
-                results = roomUiState.users.map { Pair(it, "-:-") }
+            UsersWithLatestResults(
+                users = roomUiState.users,
+                solves = roomUiState.solves
             )
             TimerZone(
                 timerMode = timerMode,
@@ -140,41 +145,46 @@ fun RoomScreen(
 }
 
 @Composable
-private fun LatestResults(
-    results: List<Pair<String, String>>,
+private fun UsersWithLatestResults(
+    users: List<String>,
+    solves: List<SolveUi>,
     modifier: Modifier = Modifier
 ) = LazyRow(
+    contentPadding = PaddingValues(horizontal = 12.dp),
+    horizontalArrangement = Arrangement.spacedBy(4.dp),
     modifier = modifier.fillMaxWidth()
 ) {
-    items(results) { resultPair ->
+    items(users) { username ->
         ResultPill(
-            username = resultPair.first,
-            result = resultPair.second
+            username = username,
+            result = solves.lastOrNull()?.results?.find { it.userName == username }?.time.toString()
         )
     }
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun ResultPill(
     username: String,
     result: String?
-) = Text(
-    text = "$username: ${result ?: "-:-"}",
-    style = MaterialTheme.typography.labelLarge,
-    color = MaterialTheme.colorScheme.onPrimary,
-    textAlign = TextAlign.Center,
-    maxLines = 1,
-    overflow = TextOverflow.Ellipsis,
-    modifier = Modifier
-        .clip(RoundedCornerShape(100))
-        .background(MaterialTheme.colorScheme.primaryContainer)
-        .border(
-            width = 2.dp,
-            color = MaterialTheme.colorScheme.primary,
-            shape = RoundedCornerShape(100)
-        )
-        .padding(4.dp)
-)
+) = Chip(
+    onClick = {},
+    shape = RoundedCornerShape(100),
+    border = BorderStroke(width = 2.dp, color = MaterialTheme.colorScheme.primary),
+    colors = ChipDefaults.chipColors(
+        backgroundColor = MaterialTheme.colorScheme.primaryContainer,
+        contentColor = MaterialTheme.colorScheme.onPrimary
+    )
+)  {
+    Text(
+        text = "$username: ${result ?: "-:-"}",
+        style = MaterialTheme.typography.labelLarge,
+        textAlign = TextAlign.Center,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+        modifier = Modifier.padding(4.dp)
+    )
+}
 
 @Composable
 private fun ScrambleZone(scramble: ScrambleUi?) {
