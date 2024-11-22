@@ -1,5 +1,6 @@
 package com.example.rooms.presentation.features.room.screens
 
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -14,18 +15,20 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PageSize
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material.Chip
 import androidx.compose.material.ChipDefaults
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
+import androidx.compose.material.icons.automirrored.rounded.NavigateNext
 import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -48,6 +51,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -56,13 +60,15 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.rooms.R
 import com.example.rooms.presentation.components.CenterAlignedTopBar
 import com.example.rooms.presentation.features.main.rooms.components.ClickableTimer
-import com.example.rooms.presentation.features.room.components.ManualTypingTimer
-import com.example.rooms.presentation.features.room.components.ScrambleImage
 import com.example.rooms.presentation.features.main.rooms.models.ScrambleUi
 import com.example.rooms.presentation.features.main.rooms.models.SolveUi
 import com.example.rooms.presentation.features.main.rooms.utils.Timer
 import com.example.rooms.presentation.features.main.rooms.utils.TimerState
+import com.example.rooms.presentation.features.room.components.ManualTypingTimer
+import com.example.rooms.presentation.features.room.components.ScrambleImage
 import com.example.rooms.presentation.features.room.viewModels.RoomViewModel
+import com.example.rooms.presentation.features.utils.FadeSide
+import com.example.rooms.presentation.features.utils.fadingEdge
 import com.example.rooms.presentation.features.utils.toInnerScaffoldPadding
 
 private enum class Page {
@@ -84,11 +90,11 @@ fun RoomScreen(
 ) {
     val roomUiState by roomViewModel.uiState.collectAsState()
 
-    val event = roomUiState.roomDetails?.settings?.event
+    val event = roomUiState.roomDetails.settings?.event
     Scaffold(
         topBar = {
             CenterAlignedTopBar(
-                title = "${roomUiState.roomDetails?.name} - ${event?.shortName}",
+                title = "${roomUiState.roomDetails.name} - ${event?.shortName}",
                 navigationIcon = Icons.AutoMirrored.Filled.ExitToApp,
                 actions = listOf(
                     Icons.Filled.Groups to {  }
@@ -150,15 +156,58 @@ private fun UsersWithLatestResults(
     users: List<String>,
     solves: List<SolveUi>,
     modifier: Modifier = Modifier
-) = LazyRow(
-    contentPadding = PaddingValues(horizontal = 12.dp),
-    horizontalArrangement = Arrangement.spacedBy(4.dp),
+) = Row(
+    verticalAlignment = Alignment.CenterVertically,
+    horizontalArrangement = Arrangement.SpaceBetween,
     modifier = modifier.fillMaxWidth()
 ) {
-    items(users) { username ->
-        ResultPill(
-            username = username,
-            result = solves.lastOrNull()?.results?.find { it.userName == username }?.time.toString()
+    val listState = rememberLazyListState()
+
+    LazyRow(
+        state = listState,
+        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+        modifier = Modifier
+            .weight(1f)
+            .fadingEdge(
+                FadeSide.RIGHT,
+                color = MaterialTheme.colorScheme.background,
+                width = 32.dp,
+                spec = tween(500),
+                isVisible = listState.canScrollForward
+            )
+    ) {
+        items(users) { username ->
+            ResultPill(
+                username = username,
+                result = solves.lastOrNull()?.results?.find { it.userName == username }?.time.toString()
+            )
+        }
+    }
+
+    TextButton(
+        onClick = { },
+        contentPadding = PaddingValues(
+            top = ButtonDefaults.TextButtonContentPadding.calculateTopPadding(),
+            bottom = ButtonDefaults.TextButtonContentPadding.calculateTopPadding(),
+            start = 4.dp,
+            end = 0.dp
+        ),
+        modifier = Modifier.padding(end = 4.dp)
+    ) {
+        Text(
+            text = "All",
+            style = MaterialTheme.typography.titleMedium.copy(
+                platformStyle = PlatformTextStyle(includeFontPadding = true)
+            ),
+            color = MaterialTheme.colorScheme.primary,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+        Icon(
+            imageVector = Icons.AutoMirrored.Rounded.NavigateNext,
+            contentDescription = "Show all results",
+            tint = MaterialTheme.colorScheme.primary
         )
     }
 }
