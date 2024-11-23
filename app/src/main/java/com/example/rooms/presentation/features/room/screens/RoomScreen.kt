@@ -60,8 +60,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.rooms.R
 import com.example.rooms.presentation.components.CenterAlignedTopBar
 import com.example.rooms.presentation.features.main.rooms.components.ClickableTimer
+import com.example.rooms.presentation.features.main.rooms.models.ResultUi
 import com.example.rooms.presentation.features.main.rooms.models.ScrambleUi
-import com.example.rooms.presentation.features.main.rooms.models.SolveUi
 import com.example.rooms.presentation.features.main.rooms.utils.Timer
 import com.example.rooms.presentation.features.main.rooms.utils.TimerState
 import com.example.rooms.presentation.features.room.components.ManualTypingTimer
@@ -90,11 +90,11 @@ fun RoomScreen(
 ) {
     val roomUiState by roomViewModel.uiState.collectAsState()
 
-    val event = roomUiState.roomDetails.settings?.event
+    val event = roomUiState.roomDetails.settings.event
     Scaffold(
         topBar = {
             CenterAlignedTopBar(
-                title = "${roomUiState.roomDetails.name} - ${event?.shortName}",
+                title = "${roomUiState.roomDetails.name} - ${event.shortName}",
                 navigationIcon = Icons.AutoMirrored.Filled.ExitToApp,
                 actions = listOf(
                     Icons.Filled.Groups to {  }
@@ -116,11 +116,10 @@ fun RoomScreen(
                 .fillMaxSize()
                 .padding(contentPadding.toInnerScaffoldPadding())
         ) {
-            val scramble = roomUiState.scramble
-            ScrambleZone(scramble)
-            UsersWithLatestResults(
+            ScrambleZone(roomUiState.currentSolve?.scramble)
+            CurrentSolveResults(
                 users = roomUiState.users,
-                solves = roomUiState.solves
+                results = roomUiState.currentSolve?.results ?: emptyList()
             )
             TimerZone(
                 timerMode = timerMode,
@@ -129,7 +128,7 @@ fun RoomScreen(
                     isSheetOpen = !isSheetOpen
                 },
                 onSendResultClick = { resultInMills ->
-                    roomViewModel.getScramble()
+//                    roomViewModel.getScramble()
                 },
                 modifier = Modifier
                     .fillMaxSize()
@@ -152,9 +151,9 @@ fun RoomScreen(
 }
 
 @Composable
-private fun UsersWithLatestResults(
+private fun CurrentSolveResults(
     users: List<String>,
-    solves: List<SolveUi>,
+    results: List<ResultUi>,
     modifier: Modifier = Modifier
 ) = Row(
     verticalAlignment = Alignment.CenterVertically,
@@ -180,7 +179,7 @@ private fun UsersWithLatestResults(
         items(users) { username ->
             ResultPill(
                 username = username,
-                result = solves.lastOrNull()?.results?.find { it.userName == username }?.time.toString()
+                result = results.find { it.userName == username }?.time.toString()
             )
         }
     }
