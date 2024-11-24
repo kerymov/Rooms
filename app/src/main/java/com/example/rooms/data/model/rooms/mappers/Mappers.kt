@@ -150,8 +150,8 @@ internal fun Result.mapToDto(): ResultDto {
 internal fun Penalty.mapToDto(): Int {
     return when (this) {
         Penalty.NO_PENALTY -> 0
-        Penalty.DNF -> 1
-        Penalty.PLUS_TWO -> 2
+        Penalty.PLUS_TWO -> 1
+        Penalty.DNF -> 2
     }
 }
 
@@ -159,7 +159,7 @@ internal fun Penalty.mapToDto(): Int {
 internal fun Int.mapToPenaltyDomainModel(): Penalty {
     return when (this) {
         0 -> Penalty.NO_PENALTY
-        2 -> Penalty.PLUS_TWO
+        1 -> Penalty.PLUS_TWO
         else -> Penalty.DNF
     }
 }

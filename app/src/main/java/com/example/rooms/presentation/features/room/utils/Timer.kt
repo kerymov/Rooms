@@ -1,4 +1,4 @@
-package com.example.rooms.presentation.features.main.rooms.utils
+package com.example.rooms.presentation.features.room.utils
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -8,11 +8,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.time.Instant
-import java.time.LocalDateTime
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
-import java.util.Locale
 
 enum class TimerState {
     IDLE,
@@ -24,14 +19,6 @@ enum class Penalty {
     NO_PENALTY,
     PLUS_TWO,
     DNF
-}
-
-private enum class Duration(val timeInMills: Long, val formatPattern: String) {
-    INITIAL_AND_MORE(0, "s.SS"),
-    TEN_SECONDS_AND_MORE(10000, "ss.SS"),
-    ONE_MINUTE_AND_MORE(60000, "m:ss.SS"),
-    TEN_MINUTES_AND_MORE(600000, "mm:ss.SS"),
-    ONE_HOUR_AND_MORE(3600000, "h:mm:ss.SS")
 }
 
 class Timer {
@@ -62,7 +49,7 @@ class Timer {
                 delay(10L)
                 timeInMills += System.currentTimeMillis() - lastTimestamp
                 lastTimestamp = System.currentTimeMillis()
-                formattedTime = formatTime(timeInMills)
+                formattedTime = timeInMills.formatTimeFromMills()
             }
         }
     }
@@ -110,34 +97,11 @@ class Timer {
 
     private fun addTwoSeconds() {
         timeInMills += 2000L
-        formattedTime = formatTime(timeInMills)
+        formattedTime = timeInMills.formatTimeFromMills()
     }
 
     private fun subtractTwoSeconds() {
         timeInMills -= 2000L
-        formattedTime = formatTime(timeInMills)
-    }
-
-    fun setDnf() {
-
-    }
-
-    private fun formatTime(timeInMills: Long): String {
-        val localDateTime = LocalDateTime.ofInstant(
-            Instant.ofEpochMilli(timeInMills),
-            ZoneId.systemDefault()
-        )
-        val pattern = when {
-            timeInMills < Duration.TEN_SECONDS_AND_MORE.timeInMills -> Duration.INITIAL_AND_MORE.formatPattern
-            timeInMills < Duration.ONE_MINUTE_AND_MORE.timeInMills -> Duration.TEN_SECONDS_AND_MORE.formatPattern
-            timeInMills < Duration.TEN_MINUTES_AND_MORE.timeInMills -> Duration.ONE_MINUTE_AND_MORE.formatPattern
-            timeInMills < Duration.ONE_HOUR_AND_MORE.timeInMills -> Duration.TEN_MINUTES_AND_MORE.formatPattern
-            else -> Duration.ONE_HOUR_AND_MORE.formatPattern
-        }
-        val formatter = DateTimeFormatter.ofPattern(
-            pattern,
-            Locale.getDefault()
-        )
-        return localDateTime.format(formatter)
+        formattedTime = timeInMills.formatTimeFromMills()
     }
 }

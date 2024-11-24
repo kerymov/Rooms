@@ -60,14 +60,15 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.rooms.R
 import com.example.rooms.presentation.components.CenterAlignedTopBar
 import com.example.rooms.presentation.features.main.rooms.components.ClickableTimer
-import com.example.rooms.presentation.features.main.rooms.models.NewSolveResultUi
 import com.example.rooms.presentation.features.main.rooms.models.PenaltyUi
 import com.example.rooms.presentation.features.main.rooms.models.ResultUi
 import com.example.rooms.presentation.features.main.rooms.models.ScrambleUi
-import com.example.rooms.presentation.features.main.rooms.utils.Timer
-import com.example.rooms.presentation.features.main.rooms.utils.TimerState
+import com.example.rooms.presentation.features.room.utils.Timer
+import com.example.rooms.presentation.features.room.utils.TimerState
 import com.example.rooms.presentation.features.room.components.ManualTypingTimer
 import com.example.rooms.presentation.features.room.components.ScrambleImage
+import com.example.rooms.presentation.features.room.utils.formatRawStringTimeToMills
+import com.example.rooms.presentation.features.room.utils.formatTimeFromMills
 import com.example.rooms.presentation.features.room.viewModels.RoomViewModel
 import com.example.rooms.presentation.features.utils.FadeSide
 import com.example.rooms.presentation.features.utils.fadingEdge
@@ -179,9 +180,20 @@ private fun CurrentSolveResults(
             )
     ) {
         items(users) { username ->
+            val result = results.find { it.userName == username }
+            val (time, penalty) = result?.time to result?.penalty
+
+            val formattedResult = time?.let {
+                when(penalty) {
+                    PenaltyUi.PLUS_TWO -> it.formatTimeFromMills() + "+"
+                    PenaltyUi.DNF -> "DNF(${it.formatTimeFromMills()})"
+                    else -> it.formatTimeFromMills()
+                }
+            } ?: "-:-"
+
             ResultPill(
                 username = username,
-                result = results.find { it.userName == username }?.time.toString()
+                result = formattedResult
             )
         }
     }
@@ -217,7 +229,7 @@ private fun CurrentSolveResults(
 @Composable
 private fun ResultPill(
     username: String,
-    result: String?
+    result: String
 ) = Chip(
     onClick = {},
     shape = RoundedCornerShape(100),
@@ -228,7 +240,7 @@ private fun ResultPill(
     )
 )  {
     Text(
-        text = "$username: ${result ?: "-:-"}",
+        text = "$username: $result",
         style = MaterialTheme.typography.labelLarge,
         textAlign = TextAlign.Center,
         maxLines = 1,
@@ -399,8 +411,11 @@ private fun TimerZone(
             }
             TimerMode.TYPING -> {
                 ManualTypingTimer(
-                    onSendResultClick = { _, _ ->
-//                        onSendResultClick(12L)
+                    onSendResultClick = { timeString ->
+                        onSendResultClick(
+                            timeString.formatRawStringTimeToMills(),
+                            PenaltyUi.NO_PENALTY
+                        )
                     },
                     modifier = Modifier.fillMaxSize()
                 )

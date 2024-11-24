@@ -23,7 +23,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
@@ -35,7 +34,7 @@ import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
 import com.example.rooms.R
 import com.example.rooms.presentation.components.ActionButton
-import com.example.rooms.presentation.features.main.rooms.utils.Penalty
+import com.example.rooms.presentation.features.room.utils.Penalty
 import com.example.rooms.presentation.theme.ChangeSystemBarsColors
 
 @OptIn(ExperimentalFoundationApi::class)

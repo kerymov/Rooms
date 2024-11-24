@@ -39,7 +39,7 @@ import com.example.rooms.presentation.features.room.utils.TimerVisualTransformat
 @Composable
 fun ManualTypingTimer(
     modifier: Modifier,
-    onSendResultClick: (Long, PenaltyUi) -> Unit
+    onSendResultClick: (String) -> Unit
 ) = Column(
     verticalArrangement = Arrangement.Center,
     horizontalAlignment = Alignment.CenterHorizontally,
@@ -64,8 +64,8 @@ fun ManualTypingTimer(
         },
         trailingIcon = {
             IconButton(onClick = {
+                onSendResultClick(time)
                 time = ""
-//                onSendResultClick()
             }) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Rounded.Send,
@@ -90,7 +90,10 @@ fun ManualTypingTimer(
     )
 
     NumberKeyboard(
-        onButtonClick = { if (time.length < MAX_TIME_LENGTH) time += it },
+        onButtonClick = {
+            if (time.isEmpty() && it == "0") return@NumberKeyboard
+            if (time.length < MAX_TIME_LENGTH) time += it
+        },
         onBackspaceClick = { time = time.dropLast(1) }
     )
 }
