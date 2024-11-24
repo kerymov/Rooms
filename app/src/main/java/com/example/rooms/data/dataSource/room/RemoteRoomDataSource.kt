@@ -15,7 +15,7 @@ class RemoteRoomDataSource(
     private val scrambleApi: ScrambleApi
 ) {
 
-    fun joinRoom(roomName: String) = service.joinRoom(roomName)
+    fun joinRoom(roomName: String, onComplete: () -> Unit) = service.joinRoom(roomName, onComplete)
 
     fun leaveRoom(roomName: String) = service.leaveRoom(roomName)
 

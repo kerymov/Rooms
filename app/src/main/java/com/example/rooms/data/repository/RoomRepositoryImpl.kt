@@ -19,7 +19,7 @@ class RoomRepositoryImpl(
     private val remoteDataSource: RemoteRoomDataSource
 ) : RoomRepository {
 
-    override fun joinRoom(roomName: String) = remoteDataSource.joinRoom(roomName)
+    override fun joinRoom(roomName: String, onComplete: () -> Unit) = remoteDataSource.joinRoom(roomName, onComplete)
 
     override fun leaveRoom(roomName: String) = remoteDataSource.leaveRoom(roomName)
 

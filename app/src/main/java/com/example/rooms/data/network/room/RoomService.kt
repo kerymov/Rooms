@@ -73,12 +73,12 @@ class RoomService(authToken: String?) {
         }
     }
 
-    fun joinRoom(roomName: String) {
+    fun joinRoom(roomName: String, onComplete: () -> Unit) {
         connection
             .start()
             .doOnComplete {
                 connection.invoke(Method.SEND_JOIN_ROOM.raw, roomName)
-                askForNewSolve(roomName)
+                onComplete()
             }
             .blockingAwait();
     }

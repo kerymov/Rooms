@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface RoomRepository {
 
-    fun joinRoom(roomName: String)
+    fun joinRoom(roomName: String, onComplete: () -> Unit)
 
     fun leaveRoom(roomName: String)
 

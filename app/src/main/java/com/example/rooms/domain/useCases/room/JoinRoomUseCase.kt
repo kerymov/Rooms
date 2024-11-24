@@ -6,5 +6,5 @@ class JoinRoomUseCase(
     private val repository: RoomRepository
 ) {
 
-    fun invoke(roomName: String) = repository.joinRoom(roomName)
+    fun invoke(roomName: String, onComplete: () -> Unit) = repository.joinRoom(roomName, onComplete)
 }

@@ -4,14 +4,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import com.example.rooms.domain.model.rooms.Penalty
 import com.example.rooms.domain.repository.RoomRepository
 import com.example.rooms.domain.useCases.room.AskForNewSolveUseCase
 import com.example.rooms.domain.useCases.room.GetFinishedSolvesUseCase
 import com.example.rooms.domain.useCases.room.GetLeftUsersUseCase
 import com.example.rooms.domain.useCases.room.GetNewResultsUseCase
 import com.example.rooms.domain.useCases.room.GetNewUsersUseCase
-import com.example.rooms.domain.useCases.room.GetScrambleUseCase
 import com.example.rooms.domain.useCases.room.JoinRoomUseCase
 import com.example.rooms.domain.useCases.room.LeaveRoomUseCase
 import com.example.rooms.domain.useCases.room.SendSolveResultUseCase
@@ -27,12 +25,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.time.delay
-import java.time.Duration
 
 data class RoomUiState(
     val roomDetails: RoomDetailsUi,
     val currentSolve: SolveUi? = null,
+    val isWaitingForNewScramble: Boolean = true,
     val users: List<String> = emptyList(),
     val solves: List<SolveUi> = emptyList()
 )
@@ -55,7 +52,9 @@ class RoomViewModel(
     init {
         initUiState()
 
-        joinRoom(roomName = roomDetails.name)
+        joinRoom(roomName = roomDetails.name) {
+            askForNewSolve(roomId = roomDetails.id)
+        }
 
         getNewUsers()
         getLeftUsers()
@@ -69,20 +68,9 @@ class RoomViewModel(
                 users = roomDetails.connectedUserNames,
                 solves = roomDetails.solves,
                 currentSolve = roomDetails.solves.lastOrNull(),
+                isWaitingForNewScramble = roomDetails.solves.lastOrNull() == null
             )
         }
-    }
-
-    private fun joinRoom(roomName: String) = viewModelScope.launch(Dispatchers.IO) {
-        joinRoomUseCase.invoke(roomName)
-    }
-
-    private fun leaveRoom(roomName: String) = viewModelScope.launch(Dispatchers.IO) {
-        leaveRoomUseCase.invoke(roomName)
-    }
-
-    private fun askForNewSolve(roomId: String) = viewModelScope.launch(Dispatchers.IO) {
-        askForNewSolveUseCase.invoke(roomId)
     }
 
     fun sendSolveResult(time: Long, penalty: PenaltyUi) = viewModelScope.launch(Dispatchers.IO) {
@@ -93,6 +81,19 @@ class RoomViewModel(
             penalty = penalty
         )
         sendSolveResultUseCase.invoke(result.mapToDomainModel())
+        _uiState.update { it.copy(isWaitingForNewScramble = true) }
+    }
+
+    private fun joinRoom(roomName: String, onComplete: () -> Unit) = viewModelScope.launch(Dispatchers.IO) {
+        joinRoomUseCase.invoke(roomName, onComplete)
+    }
+
+    private fun leaveRoom(roomName: String) = viewModelScope.launch(Dispatchers.IO) {
+        leaveRoomUseCase.invoke(roomName)
+    }
+
+    private fun askForNewSolve(roomId: String) = viewModelScope.launch(Dispatchers.IO) {
+        askForNewSolveUseCase.invoke(roomId)
     }
 
     private fun getNewUsers() {
@@ -133,7 +134,8 @@ class RoomViewModel(
                     _uiState.update { uiState ->
                         uiState.copy(
                             solves = currentSolves + solve.mapToUiModel(),
-                            currentSolve = solve.mapToUiModel()
+                            currentSolve = solve.mapToUiModel(),
+                            isWaitingForNewScramble = false
                         )
                     }
                 }

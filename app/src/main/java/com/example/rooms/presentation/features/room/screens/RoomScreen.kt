@@ -118,7 +118,7 @@ fun RoomScreen(
                 .fillMaxSize()
                 .padding(contentPadding.toInnerScaffoldPadding())
         ) {
-            ScrambleZone(roomUiState.currentSolve?.scramble)
+            ScrambleZone(roomUiState.currentSolve?.scramble, roomUiState.isWaitingForNewScramble)
             CurrentSolveResults(
                 users = roomUiState.users,
                 results = roomUiState.currentSolve?.results ?: emptyList()
@@ -238,13 +238,28 @@ private fun ResultPill(
 }
 
 @Composable
-private fun ScrambleZone(scramble: ScrambleUi?) {
+private fun ScrambleZone(scramble: ScrambleUi?, isWaitingForNewScramble: Boolean) {
     val pagerState = rememberPagerState(
         initialPage = Page.SCRAMBLE.ordinal,
         initialPageOffsetFraction = 0f
     ) { 2 }
 
-    scramble?.let {
+    if (scramble == null || isWaitingForNewScramble) {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(160.dp)
+        ) {
+            Text(
+                text = "Waiting for a scramble...",
+                style = MaterialTheme.typography.titleMedium,
+                color = contentColorFor(backgroundColor = MaterialTheme.colorScheme.background),
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+    } else {
         HorizontalPager(
             state = pagerState,
             contentPadding = PaddingValues(vertical = 12.dp, horizontal = 20.dp),
@@ -287,19 +302,6 @@ private fun ScrambleZone(scramble: ScrambleUi?) {
                 )
             }
         }
-    } ?: Box(
-        contentAlignment = Alignment.Center,
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(160.dp)
-    ) {
-        Text(
-            text = "Waiting for scramble...",
-            style = MaterialTheme.typography.titleMedium,
-            color = contentColorFor(backgroundColor = MaterialTheme.colorScheme.background),
-            textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth()
-        )
     }
 }
 
