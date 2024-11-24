@@ -14,6 +14,7 @@ import androidx.compose.material.icons.automirrored.rounded.Send
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonColors
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -32,7 +33,6 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.rooms.R
-import com.example.rooms.presentation.features.main.rooms.models.PenaltyUi
 import com.example.rooms.presentation.features.room.utils.MAX_TIME_LENGTH
 import com.example.rooms.presentation.features.room.utils.TimerVisualTransformation
 
@@ -44,7 +44,7 @@ fun ManualTypingTimer(
     verticalArrangement = Arrangement.Center,
     horizontalAlignment = Alignment.CenterHorizontally,
     modifier = modifier
-){
+) {
     var time by rememberSaveable { mutableStateOf("") }
 
     OutlinedTextField(
@@ -63,6 +63,7 @@ fun ManualTypingTimer(
             IconButton(onClick = {}, enabled = false) { Box(modifier = Modifier.size(32.dp)) }
         },
         trailingIcon = {
+            if (time.isEmpty()) return@OutlinedTextField
             IconButton(onClick = {
                 onSendResultClick(time)
                 time = ""
