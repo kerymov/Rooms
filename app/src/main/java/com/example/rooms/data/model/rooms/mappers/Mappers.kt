@@ -3,11 +3,13 @@ package com.example.rooms.data.model.rooms.mappers
 import com.example.rooms.data.model.rooms.ResultDto
 import com.example.rooms.data.model.rooms.CreateRoomDetailsDto
 import com.example.rooms.data.model.rooms.LoginRoomDetailsDto
+import com.example.rooms.data.model.rooms.NewSolveResultDto
 import com.example.rooms.data.model.rooms.RoomDto
 import com.example.rooms.data.model.rooms.RoomSettingsDto
 import com.example.rooms.data.model.rooms.ScrambleDto
 import com.example.rooms.data.model.rooms.SolveDto
 import com.example.rooms.domain.model.rooms.Event
+import com.example.rooms.domain.model.rooms.NewSolveResult
 import com.example.rooms.domain.model.rooms.Penalty
 import com.example.rooms.domain.model.rooms.Result
 import com.example.rooms.domain.model.rooms.Room
@@ -85,13 +87,23 @@ internal fun SolveDto.mapToDomainModel(): Solve {
     )
 }
 
-//internal fun Solve.mapToDto(): SolveDto {
-//    return SolveDto(
-//        solveNumber = this.solveNumber,
-//        scramble = this.scramble.mapToDto(),
-//        results = this.results.map { it.mapToDto() }
-//    )
-//}
+internal fun Solve.mapToDto(): SolveDto {
+    return SolveDto(
+        solveNumber = this.solveNumber,
+        scramble = this.scramble.scramble,
+        scrambledPuzzleImage = this.scramble.image?.mapToDto(),
+        results = this.results.map { it.mapToDto() }
+    )
+}
+
+internal fun NewSolveResult.mapToDto(): NewSolveResultDto {
+    return NewSolveResultDto(
+        roomId = this.roomId,
+        solveNumber = this.solveNumber,
+        timeInMilliseconds = this.timeInMilliseconds.toInt(),
+        penalty = this.penalty.mapToDto()
+    )
+}
 
 internal fun ScrambleDto.mapToDomainModel(): Scramble {
     return Scramble(

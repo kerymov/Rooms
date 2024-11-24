@@ -60,6 +60,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.rooms.R
 import com.example.rooms.presentation.components.CenterAlignedTopBar
 import com.example.rooms.presentation.features.main.rooms.components.ClickableTimer
+import com.example.rooms.presentation.features.main.rooms.models.NewSolveResultUi
+import com.example.rooms.presentation.features.main.rooms.models.PenaltyUi
 import com.example.rooms.presentation.features.main.rooms.models.ResultUi
 import com.example.rooms.presentation.features.main.rooms.models.ScrambleUi
 import com.example.rooms.presentation.features.main.rooms.utils.Timer
@@ -127,8 +129,8 @@ fun RoomScreen(
                 onChangeTimerModeClick = {
                     isSheetOpen = !isSheetOpen
                 },
-                onSendResultClick = { resultInMills ->
-//                    roomViewModel.getScramble()
+                onSendResultClick = { timeInMills, penalty ->
+                    roomViewModel.sendSolveResult(time = timeInMills, penalty = penalty)
                 },
                 modifier = Modifier
                     .fillMaxSize()
@@ -320,7 +322,7 @@ private fun TimerZone(
     timerMode: TimerMode,
     isSelectModeMenuShown: Boolean,
     onChangeTimerModeClick: () -> Unit,
-    onSendResultClick: (Long) -> Unit,
+    onSendResultClick: (Long, PenaltyUi) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var isTimerEnabled by rememberSaveable { mutableStateOf(true) }
@@ -379,7 +381,12 @@ private fun TimerZone(
                         isTimerEnabled = false
                     },
                     onSendResultClick = {
-                        onSendResultClick(timer.timeInMills)
+                        onSendResultClick(
+                            timer.timeInMills,
+                            PenaltyUi.entries.find {
+                                it.ordinal == timer.penalty.ordinal
+                            } ?: PenaltyUi.NO_PENALTY
+                        )
                         timer.reset()
                         isTimerEnabled = true
                     },
@@ -390,7 +397,9 @@ private fun TimerZone(
             }
             TimerMode.TYPING -> {
                 ManualTypingTimer(
-                    onSendResultClick = { onSendResultClick(12L) },
+                    onSendResultClick = { _, _ ->
+//                        onSendResultClick(12L)
+                    },
                     modifier = Modifier.fillMaxSize()
                 )
             }

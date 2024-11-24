@@ -2,6 +2,7 @@ package com.example.rooms.presentation.mappers
 
 import com.example.rooms.domain.model.auth.User
 import com.example.rooms.domain.model.rooms.Event
+import com.example.rooms.domain.model.rooms.NewSolveResult
 import com.example.rooms.domain.model.rooms.Penalty
 import com.example.rooms.domain.model.rooms.Result
 import com.example.rooms.domain.model.rooms.Room
@@ -11,6 +12,7 @@ import com.example.rooms.domain.model.rooms.Scramble
 import com.example.rooms.domain.model.rooms.Solve
 import com.example.rooms.presentation.features.auth.models.UserUiModel
 import com.example.rooms.presentation.features.main.rooms.models.EventUi
+import com.example.rooms.presentation.features.main.rooms.models.NewSolveResultUi
 import com.example.rooms.presentation.features.main.rooms.models.PenaltyUi
 import com.example.rooms.presentation.features.main.rooms.models.ResultUi
 import com.example.rooms.presentation.features.main.rooms.models.RoomDetailsUi
@@ -94,6 +96,36 @@ internal fun Solve.mapToUiModel(): SolveUi {
     )
 }
 
+internal fun SolveUi.mapToDomainModel(): Solve {
+    return Solve(
+        solveNumber = this.solveNumber,
+        scramble = this.scramble.mapToDomainModel(),
+        results = this.results.map { it.mapToDomainModel() }
+    )
+}
+
+internal fun ScrambleUi.mapToDomainModel(): Scramble {
+    return Scramble(
+        scramble = this.scramble,
+        image =  this.image?.mapToDomainModel()
+    )
+}
+
+internal fun ScrambleUi.Image.mapToDomainModel(): Scramble.Image {
+    return Scramble.Image(
+        faces = this.faces.map { Scramble.Face(it.colors) }
+    )
+}
+
+internal fun NewSolveResultUi.mapToDomainModel(): NewSolveResult {
+    return NewSolveResult(
+        roomId = this.roomId,
+        solveNumber = this.solveNumber,
+        timeInMilliseconds = this.timeInMilliseconds,
+        penalty = this.penalty.mapToDomainModel()
+    )
+}
+
 internal fun Scramble.mapToUiModel(): ScrambleUi {
     return ScrambleUi(
         scramble = this.scramble,
@@ -120,5 +152,21 @@ internal fun Penalty.mapToUiModel(): PenaltyUi {
         Penalty.NO_PENALTY -> PenaltyUi.NO_PENALTY
         Penalty.DNF -> PenaltyUi.DNF
         Penalty.PLUS_TWO -> PenaltyUi.PLUS_TWO
+    }
+}
+
+internal fun ResultUi.mapToDomainModel(): Result {
+    return Result(
+        userName = this.userName,
+        time = this.time,
+        penalty = this.penalty.mapToDomainModel()
+    )
+}
+
+internal fun PenaltyUi.mapToDomainModel(): Penalty {
+    return when (this) {
+        PenaltyUi.NO_PENALTY -> Penalty.NO_PENALTY
+        PenaltyUi.DNF -> Penalty.DNF
+        PenaltyUi.PLUS_TWO -> Penalty.PLUS_TWO
     }
 }

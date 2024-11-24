@@ -1,20 +1,19 @@
 package com.example.rooms.data.network.room
 
+import com.example.rooms.data.model.rooms.NewSolveResultDto
 import com.example.rooms.data.model.rooms.ResultDto
 import com.example.rooms.data.model.rooms.SolveDto
 import com.microsoft.signalr.HubConnectionBuilder
-import com.microsoft.signalr.TypeReference
 import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
-import java.lang.reflect.Type
 
 class RoomService(authToken: String?) {
 
     private enum class Method(val raw: String) {
-        FETCH_NEW_RESULT("NewResult"),
-        SEND_SOLVE("SolveFinished"),
+        FETCH_AND_SEND_NEW_RESULT("NewResult"),
+        FETCH_FINISHED_SOLVE("SolveFinished"),
         FETCH_USER_LEFT("UserLeft"),
         FETCH_NEW_USER("NewUser"),
         SEND_ASK_NEW_SOLVE("AskForNewSolve"),
@@ -52,7 +51,7 @@ class RoomService(authToken: String?) {
 
     val results: Flow<ResultDto> = callbackFlow {
         connection.on(
-            Method.FETCH_NEW_RESULT.raw,
+            Method.FETCH_AND_SEND_NEW_RESULT.raw,
             { result -> trySend(result) },
             ResultDto::class.java,
         )
@@ -61,14 +60,13 @@ class RoomService(authToken: String?) {
         }
     }
 
-    private var solveDtoType: Type = object : TypeReference<SolveDto?>() {}.type
     val finishedSolves: Flow<SolveDto> = callbackFlow {
-        connection.on<SolveDto>(
-            Method.SEND_SOLVE.raw,
+        connection.on(
+            Method.FETCH_FINISHED_SOLVE.raw,
             { solve ->
                 trySend(solve)
             },
-            solveDtoType
+            SolveDto::class.java
         )
         awaitClose {
             connection.stop()
@@ -80,6 +78,7 @@ class RoomService(authToken: String?) {
             .start()
             .doOnComplete {
                 connection.invoke(Method.SEND_JOIN_ROOM.raw, roomName)
+                askForNewSolve(roomName)
             }
             .blockingAwait();
     }
@@ -104,18 +103,12 @@ class RoomService(authToken: String?) {
         TODO()
     }
 
-    //    export interface NewUserResult {
-//        roomId: string;
-//        solveNumber: number;
-//        timeInMilliseconds: number;
-//        penalty: Penalty;
-//    }
-    fun sendSolve(solve: SolveDto) {
-        connection.invoke(
-            SolveDto::class.java,
-            Method.SEND_SOLVE.raw,
-            solve
-        )
+    fun sendSolveResult(result: NewSolveResultDto) {
+        connection
+            .invoke(
+                Method.FETCH_AND_SEND_NEW_RESULT.raw,
+                result
+            )
     }
 
     private val connection = HubConnectionBuilder

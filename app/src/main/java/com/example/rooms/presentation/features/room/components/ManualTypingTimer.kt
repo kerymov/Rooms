@@ -32,13 +32,14 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.rooms.R
+import com.example.rooms.presentation.features.main.rooms.models.PenaltyUi
 import com.example.rooms.presentation.features.room.utils.MAX_TIME_LENGTH
 import com.example.rooms.presentation.features.room.utils.TimerVisualTransformation
 
 @Composable
 fun ManualTypingTimer(
     modifier: Modifier,
-    onSendResultClick: () -> Unit
+    onSendResultClick: (Long, PenaltyUi) -> Unit
 ) = Column(
     verticalArrangement = Arrangement.Center,
     horizontalAlignment = Alignment.CenterHorizontally,
@@ -64,7 +65,7 @@ fun ManualTypingTimer(
         trailingIcon = {
             IconButton(onClick = {
                 time = ""
-                onSendResultClick()
+//                onSendResultClick()
             }) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Rounded.Send,

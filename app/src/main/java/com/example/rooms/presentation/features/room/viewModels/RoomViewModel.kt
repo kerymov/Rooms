@@ -4,7 +4,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import com.example.rooms.domain.model.rooms.Penalty
 import com.example.rooms.domain.repository.RoomRepository
+import com.example.rooms.domain.useCases.room.AskForNewSolveUseCase
 import com.example.rooms.domain.useCases.room.GetFinishedSolvesUseCase
 import com.example.rooms.domain.useCases.room.GetLeftUsersUseCase
 import com.example.rooms.domain.useCases.room.GetNewResultsUseCase
@@ -12,8 +14,12 @@ import com.example.rooms.domain.useCases.room.GetNewUsersUseCase
 import com.example.rooms.domain.useCases.room.GetScrambleUseCase
 import com.example.rooms.domain.useCases.room.JoinRoomUseCase
 import com.example.rooms.domain.useCases.room.LeaveRoomUseCase
+import com.example.rooms.domain.useCases.room.SendSolveResultUseCase
+import com.example.rooms.presentation.features.main.rooms.models.NewSolveResultUi
+import com.example.rooms.presentation.features.main.rooms.models.PenaltyUi
 import com.example.rooms.presentation.features.main.rooms.models.RoomDetailsUi
 import com.example.rooms.presentation.features.main.rooms.models.SolveUi
+import com.example.rooms.presentation.mappers.mapToDomainModel
 import com.example.rooms.presentation.mappers.mapToUiModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,6 +27,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.time.delay
+import java.time.Duration
 
 data class RoomUiState(
     val roomDetails: RoomDetailsUi,
@@ -37,7 +45,8 @@ class RoomViewModel(
     private val getLeftUsersUseCase: GetLeftUsersUseCase,
     private val getFinishedSolvesUseCase: GetFinishedSolvesUseCase,
     private val getNewResultsUseCase: GetNewResultsUseCase,
-    private val getScrambleUseCase: GetScrambleUseCase
+    private val sendSolveResultUseCase: SendSolveResultUseCase,
+    private val askForNewSolveUseCase: AskForNewSolveUseCase,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(RoomUiState(roomDetails))
@@ -70,6 +79,20 @@ class RoomViewModel(
 
     private fun leaveRoom(roomName: String) = viewModelScope.launch(Dispatchers.IO) {
         leaveRoomUseCase.invoke(roomName)
+    }
+
+    private fun askForNewSolve(roomId: String) = viewModelScope.launch(Dispatchers.IO) {
+        askForNewSolveUseCase.invoke(roomId)
+    }
+
+    fun sendSolveResult(time: Long, penalty: PenaltyUi) = viewModelScope.launch(Dispatchers.IO) {
+        val result = NewSolveResultUi(
+            roomId = _uiState.value.roomDetails.id,
+            solveNumber = _uiState.value.currentSolve?.solveNumber ?: 1,
+            timeInMilliseconds = time,
+            penalty = penalty
+        )
+        sendSolveResultUseCase.invoke(result.mapToDomainModel())
     }
 
     private fun getNewUsers() {
@@ -132,22 +155,6 @@ class RoomViewModel(
         }
     }
 
-//    fun getScramble() {
-//        viewModelScope.launch(Dispatchers.IO) {
-//            val roomDetailsResult =
-//                async { getScrambleUseCase.invoke(roomDetails.settings.event.id) }
-//
-//            when (val result = roomDetailsResult.await()) {
-//                is BaseResult.Success -> _uiState.update { uiState ->
-//                    uiState.copy(currentSolveScramble = result.data.mapToUiModel())
-//                }
-//
-//                is BaseResult.Error -> {}
-//                is BaseResult.Exception -> {}
-//            }
-//        }
-//    }
-
     override fun onCleared() {
         super.onCleared()
         leaveRoom(roomName = roomDetails.name)
@@ -165,7 +172,8 @@ class RoomViewModel(
                         GetLeftUsersUseCase(repository),
                         GetFinishedSolvesUseCase(repository),
                         GetNewResultsUseCase(repository),
-                        GetScrambleUseCase(repository)
+                        SendSolveResultUseCase(repository),
+                        AskForNewSolveUseCase(repository)
                     )
                 }
             }

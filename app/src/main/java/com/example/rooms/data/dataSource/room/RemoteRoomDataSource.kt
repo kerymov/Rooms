@@ -1,5 +1,6 @@
 package com.example.rooms.data.dataSource.room
 
+import com.example.rooms.data.model.rooms.NewSolveResultDto
 import com.example.rooms.data.model.rooms.ResultDto
 import com.example.rooms.data.model.rooms.ScrambleDto
 import com.example.rooms.data.model.rooms.SolveDto
@@ -17,6 +18,10 @@ class RemoteRoomDataSource(
     fun joinRoom(roomName: String) = service.joinRoom(roomName)
 
     fun leaveRoom(roomName: String) = service.leaveRoom(roomName)
+
+    fun sendSolveResult(result: NewSolveResultDto) = service.sendSolveResult(result)
+
+    fun askForNewSolve(roomId: String) = service.askForNewSolve(roomId)
 
     val newUsers: Flow<String> = service.newUsers
 

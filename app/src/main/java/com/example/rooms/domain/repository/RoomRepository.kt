@@ -1,6 +1,7 @@
 package com.example.rooms.domain.repository
 
 import com.example.rooms.domain.model.BaseResult
+import com.example.rooms.domain.model.rooms.NewSolveResult
 import com.example.rooms.domain.model.rooms.Result
 import com.example.rooms.domain.model.rooms.Scramble
 import com.example.rooms.domain.model.rooms.Solve
@@ -12,6 +13,10 @@ interface RoomRepository {
     fun joinRoom(roomName: String)
 
     fun leaveRoom(roomName: String)
+
+    fun askForNewSolve(roomId: String)
+
+    fun sendSolveResult(result: NewSolveResult)
 
     val newUsers: Flow<User>
 
