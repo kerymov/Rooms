@@ -1,10 +1,8 @@
-package com.example.rooms.presentation.features.main.rooms.components
+package com.example.rooms.presentation.features.room.components
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,11 +17,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
@@ -36,16 +37,18 @@ import com.example.rooms.R
 import com.example.rooms.presentation.components.ActionButton
 import com.example.rooms.presentation.features.room.utils.Penalty
 import com.example.rooms.presentation.theme.ChangeSystemBarsColors
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ClickableTimer(
     formattedTime: String,
-    isActive: Boolean,
-    isEnabled: Boolean,
     penalty: Penalty,
-    onStartClick: () -> Unit,
-    onStopClick: () -> Unit,
+    isEnabled: Boolean,
+    isActive: Boolean,
+    onStart: () -> Unit,
+    onDismiss: () -> Unit,
+    onStop: () -> Unit,
     onSendResultClick: () -> Unit,
     onPlusTwoClick: () -> Unit,
     onDnfClick: () -> Unit,
@@ -69,16 +72,53 @@ fun ClickableTimer(
 
     var isActionButtonsVisible by rememberSaveable { mutableStateOf(false) }
 
+    val defaultColor = MaterialTheme.colorScheme.onPrimary
+    val preparationColor = Color.Red
+    val readyColor = Color.Green
+    var timerColor by remember { mutableStateOf(defaultColor) }
+
+    var isTimerPressed by remember { mutableStateOf(false) }
+    val timerPreparationCoroutineScope = rememberCoroutineScope()
+
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier.combinedClickable(
-            onClick = { onStartClick() },
-            role = Role.Button,
-            enabled = isEnabled,
-            interactionSource = MutableInteractionSource(),
-            indication = null
-        )
+        modifier = modifier
+            .pointerInput(Unit) {
+                detectTapGestures(
+                    onPress = { _ ->
+                        if (!isEnabled) return@detectTapGestures
+
+                        isTimerPressed = true
+                        timerColor = preparationColor
+                        val pressStartTime = System.currentTimeMillis()
+
+                        val preparationJob = timerPreparationCoroutineScope.launch {
+                            delay(500)
+                            if (isTimerPressed) {
+                                timerColor = readyColor
+                            }
+                        }
+
+                        try {
+                            awaitRelease()
+
+                            timerColor = defaultColor
+                            preparationJob.cancel()
+
+                            val pressingDuration = System.currentTimeMillis() - pressStartTime
+                            if (pressingDuration > 500) {
+                                onStart()
+                            } else {
+                                onDismiss()
+                            }
+                        } catch (e: Exception) {
+                            onDismiss()
+                            preparationJob.cancel()
+                        }
+                    }
+                )
+            }
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -90,7 +130,7 @@ fun ClickableTimer(
             Text(
                 text = if (penalty == Penalty.DNF) "DNF" else formattedTime,
                 style = MaterialTheme.typography.displayLarge,
-                color = MaterialTheme.colorScheme.onPrimary,
+                color = timerColor,
                 textAlign = TextAlign.Center
             )
         }
@@ -128,7 +168,7 @@ fun ClickableTimer(
                 formattedTime = formattedTime,
                 onDismissRequest = {
                     isActionButtonsVisible = true
-                    onStopClick()
+                    onStop()
                 }
             )
         }

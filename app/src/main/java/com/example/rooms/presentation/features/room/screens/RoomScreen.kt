@@ -59,7 +59,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.rooms.R
 import com.example.rooms.presentation.components.CenterAlignedTopBar
-import com.example.rooms.presentation.features.main.rooms.components.ClickableTimer
+import com.example.rooms.presentation.features.room.components.ClickableTimer
 import com.example.rooms.presentation.features.main.rooms.models.PenaltyUi
 import com.example.rooms.presentation.features.main.rooms.models.ResultUi
 import com.example.rooms.presentation.features.main.rooms.models.ScrambleUi
@@ -383,17 +383,18 @@ private fun TimerZone(
 
                 ClickableTimer(
                     formattedTime = timer.formattedTime,
-                    isActive = timer.state == TimerState.ACTIVE,
-                    isEnabled = isTimerEnabled,
                     penalty = timer.penalty,
-                    onStartClick = {
+                    isEnabled = isTimerEnabled,
+                    isActive = timer.state == TimerState.ACTIVE,
+                    onStart = {
                         timer.reset()
                         timer.start()
                     },
-                    onStopClick = {
+                    onStop = {
                         timer.stop()
                         isTimerEnabled = false
                     },
+                    onDismiss = timer::reset,
                     onSendResultClick = {
                         onSendResultClick(
                             timer.timeInMills,
