@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.rooms.presentation.features.main.rooms.models.EventUi
 import com.example.rooms.presentation.features.main.rooms.models.ScrambleUi
 import com.example.rooms.presentation.theme.BlueCube
 import com.example.rooms.presentation.theme.GreenCube
@@ -37,6 +38,7 @@ private enum class CubeColor(val id: Int, val value: Color) {
 @Composable
 fun ScrambleImage(
     image: ScrambleUi.Image,
+    event: EventUi,
     modifier: Modifier = Modifier
 ) {
     val redFace = image.faces.getOrNull(CubeColor.RED.id)
@@ -46,6 +48,7 @@ fun ScrambleImage(
     val yellowFace = image.faces.getOrNull(CubeColor.YELLOW.id)
     val blueFace = image.faces.getOrNull(CubeColor.BLUE.id)
 
+    val columnsCount = event.id
     val faceModifier = Modifier
         .size(68.dp)
         .wrapContentSize()
@@ -60,7 +63,7 @@ fun ScrambleImage(
             verticalAlignment = Alignment.CenterVertically
         ) {
             FaceItem(modifier = faceModifier)
-            whiteFace?.let { FaceItem(colors = whiteFace.colors, modifier = faceModifier) }
+            whiteFace?.let { FaceItem(colors = whiteFace.colors, columnsCount = columnsCount, modifier = faceModifier) }
             FaceItem(modifier = faceModifier)
             FaceItem(modifier = faceModifier)
         }
@@ -69,10 +72,10 @@ fun ScrambleImage(
             horizontalArrangement = Arrangement.spacedBy(2.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            orangeFace?.let { FaceItem(colors = orangeFace.colors, modifier = faceModifier) }
-            greenFace?.let { FaceItem(colors = greenFace.colors, modifier = faceModifier) }
-            redFace?.let { FaceItem(colors = redFace.colors, modifier = faceModifier) }
-            blueFace?.let { FaceItem(colors = blueFace.colors, modifier = faceModifier) }
+            orangeFace?.let { FaceItem(colors = orangeFace.colors, columnsCount = columnsCount, modifier = faceModifier) }
+            greenFace?.let { FaceItem(colors = greenFace.colors, columnsCount = columnsCount, modifier = faceModifier) }
+            redFace?.let { FaceItem(colors = redFace.colors, columnsCount = columnsCount, modifier = faceModifier) }
+            blueFace?.let { FaceItem(colors = blueFace.colors, columnsCount = columnsCount, modifier = faceModifier) }
         }
 
         Row(
@@ -80,7 +83,7 @@ fun ScrambleImage(
             verticalAlignment = Alignment.CenterVertically
         ) {
             FaceItem(modifier = faceModifier)
-            yellowFace?.let { FaceItem(colors = yellowFace.colors, modifier = faceModifier) }
+            yellowFace?.let { FaceItem(colors = yellowFace.colors, columnsCount = columnsCount, modifier = faceModifier) }
             FaceItem(modifier = faceModifier)
             FaceItem(modifier = faceModifier)
         }
@@ -91,8 +94,8 @@ fun ScrambleImage(
 private fun FaceItem(modifier: Modifier) = Box(modifier = modifier)
 
 @Composable
-private fun FaceItem(colors: List<List<Int>>, modifier: Modifier) = LazyVerticalGrid(
-    columns = GridCells.Fixed(3),
+private fun FaceItem(colors: List<List<Int>>, columnsCount: Int, modifier: Modifier) = LazyVerticalGrid(
+    columns = GridCells.Fixed(columnsCount),
     verticalArrangement = Arrangement.spacedBy(2.dp),
     horizontalArrangement = Arrangement.spacedBy(2.dp),
     contentPadding = PaddingValues(2.dp),
@@ -120,6 +123,7 @@ private fun ColorItem(
 @Composable
 private fun ScrambleImagePreview() {
     ScrambleImage(
+        event = EventUi.THREE_BY_THREE,
         image = ScrambleUi.Image(
             faces = listOf(
                 ScrambleUi.Face(
