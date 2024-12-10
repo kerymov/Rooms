@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
@@ -59,20 +58,26 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.rooms.R
 import com.example.rooms.presentation.components.CenterAlignedTopBar
+import com.example.rooms.presentation.features.main.rooms.models.EventUi
 import com.example.rooms.presentation.features.room.components.ClickableTimer
 import com.example.rooms.presentation.features.main.rooms.models.PenaltyUi
 import com.example.rooms.presentation.features.main.rooms.models.ResultUi
+import com.example.rooms.presentation.features.main.rooms.models.RoomDetailsUi
 import com.example.rooms.presentation.features.main.rooms.models.ScrambleUi
+import com.example.rooms.presentation.features.main.rooms.models.SettingsUi
+import com.example.rooms.presentation.features.main.rooms.models.SolveUi
 import com.example.rooms.presentation.features.room.utils.Timer
 import com.example.rooms.presentation.features.room.utils.TimerState
 import com.example.rooms.presentation.features.room.components.ManualTypingTimer
-import com.example.rooms.presentation.features.room.components.ScrambleImage
+import com.example.rooms.presentation.features.room.components.ScrambleImageCanvas
 import com.example.rooms.presentation.features.room.utils.formatRawStringTimeToMills
 import com.example.rooms.presentation.features.room.utils.formatTimeFromMills
+import com.example.rooms.presentation.features.room.viewModels.RoomUiState
 import com.example.rooms.presentation.features.room.viewModels.RoomViewModel
 import com.example.rooms.presentation.features.utils.FadeSide
 import com.example.rooms.presentation.features.utils.fadingEdge
 import com.example.rooms.presentation.features.utils.toInnerScaffoldPadding
+import com.example.rooms.presentation.theme.RoomsTheme
 
 private enum class Page {
     SCRAMBLE,
@@ -84,20 +89,34 @@ private enum class TimerMode(val label: String) {
     TYPING("Typing")
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RoomScreen(
-    modifier: Modifier = Modifier,
     onNavigateBack: () -> Unit,
+    modifier: Modifier = Modifier,
     roomViewModel: RoomViewModel = viewModel(),
 ) {
     val roomUiState by roomViewModel.uiState.collectAsState()
 
-    val event = roomUiState.roomDetails.settings.event
+    Content(
+        state = roomUiState,
+        onNavigateBack = onNavigateBack,
+        onSolveResultSend = roomViewModel::sendSolveResult,
+        modifier = modifier
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun Content(
+    state: RoomUiState,
+    onNavigateBack: () -> Unit,
+    onSolveResultSend: (time: Long, penalty: PenaltyUi) -> Unit,
+    modifier: Modifier = Modifier
+) {
     Scaffold(
         topBar = {
             CenterAlignedTopBar(
-                title = "${roomUiState.roomDetails.name} - ${event.shortName}",
+                title = "${state.roomDetails.name} - ${state.roomDetails.settings.event.shortName}",
                 navigationIcon = Icons.AutoMirrored.Filled.ExitToApp,
                 actions = listOf(
                     Icons.Filled.Groups to {  }
@@ -107,7 +126,7 @@ fun RoomScreen(
         },
         containerColor = MaterialTheme.colorScheme.background,
         contentColor = contentColorFor(MaterialTheme.colorScheme.background),
-        modifier = modifier.fillMaxSize()
+        modifier = modifier
     ) { contentPadding ->
         var timerMode by rememberSaveable { mutableStateOf(TimerMode.TIMER) }
         var isSheetOpen by rememberSaveable { mutableStateOf(false) }
@@ -119,10 +138,18 @@ fun RoomScreen(
                 .fillMaxSize()
                 .padding(contentPadding.toInnerScaffoldPadding())
         ) {
-            ScrambleZone(roomUiState.currentSolve?.scramble, roomUiState.isWaitingForNewScramble)
+            ScrambleZone(
+                scramble = state.currentSolve?.scramble,
+                event = state.roomDetails.settings.event,
+                isWaitingForNewScramble = state.isWaitingForNewScramble,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+            )
             CurrentSolveResults(
-                users = roomUiState.users,
-                results = roomUiState.currentSolve?.results ?: emptyList()
+                users = state.users,
+                results = state.currentSolve?.results ?: emptyList(),
+                modifier = Modifier.fillMaxWidth()
             )
             TimerZone(
                 timerMode = timerMode,
@@ -131,11 +158,11 @@ fun RoomScreen(
                     isSheetOpen = !isSheetOpen
                 },
                 onSendResultClick = { timeInMills, penalty ->
-                    roomViewModel.sendSolveResult(time = timeInMills, penalty = penalty)
+                    onSolveResultSend(timeInMills, penalty)
                 },
                 modifier = Modifier
-                    .fillMaxSize()
-                    .weight(1f)
+                    .fillMaxWidth()
+                    .weight(2f)
             )
         }
 
@@ -161,7 +188,7 @@ private fun CurrentSolveResults(
 ) = Row(
     verticalAlignment = Alignment.CenterVertically,
     horizontalArrangement = Arrangement.SpaceBetween,
-    modifier = modifier.fillMaxWidth()
+    modifier = modifier
 ) {
     val listState = rememberLazyListState()
 
@@ -250,18 +277,16 @@ private fun ResultPill(
 }
 
 @Composable
-private fun ScrambleZone(scramble: ScrambleUi?, isWaitingForNewScramble: Boolean) {
-    val pagerState = rememberPagerState(
-        initialPage = Page.SCRAMBLE.ordinal,
-        initialPageOffsetFraction = 0f
-    ) { 2 }
-
+private fun ScrambleZone(
+    scramble: ScrambleUi?,
+    event: EventUi,
+    isWaitingForNewScramble: Boolean,
+    modifier: Modifier = Modifier
+) {
     if (scramble == null || isWaitingForNewScramble) {
         Box(
             contentAlignment = Alignment.Center,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(160.dp)
+            modifier = modifier
         ) {
             Text(
                 text = "Waiting for a scramble...",
@@ -272,46 +297,61 @@ private fun ScrambleZone(scramble: ScrambleUi?, isWaitingForNewScramble: Boolean
             )
         }
     } else {
-        HorizontalPager(
-            state = pagerState,
-            contentPadding = PaddingValues(vertical = 12.dp, horizontal = 20.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            key = { Page.entries[it].ordinal },
-            pageSize = PageSize.Fixed(300.dp)
-        ) { page ->
-            when (page) {
-                Page.SCRAMBLE.ordinal -> {
-                    Text(
-                        text = scramble.scramble,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = contentColorFor(backgroundColor = MaterialTheme.colorScheme.background),
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(end = 16.dp)
-                    )
-                }
-                Page.SCRAMBLE_IMAGE.ordinal -> {
-                    ScrambleImage(
-                        image = scramble.image ?: ScrambleUi.Image(listOf()),
-                        modifier = Modifier.fillMaxWidth()
-                    )
+        val pagerState = rememberPagerState(
+            initialPage = Page.SCRAMBLE.ordinal,
+            initialPageOffsetFraction = 0f
+        ) { 2 }
+
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = modifier
+        ) {
+            HorizontalPager(
+                state = pagerState,
+                contentPadding = PaddingValues(vertical = 12.dp, horizontal = 20.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                key = { Page.entries[it].ordinal },
+                pageSize = PageSize.Fixed(300.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+            ) { page ->
+                when (page) {
+                    Page.SCRAMBLE.ordinal -> {
+                        Text(
+                            text = scramble.scramble,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = contentColorFor(backgroundColor = MaterialTheme.colorScheme.background),
+                            textAlign = TextAlign.Center,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(end = 16.dp)
+                        )
+                    }
+                    Page.SCRAMBLE_IMAGE.ordinal -> {
+                        ScrambleImageCanvas(
+                            image = scramble.image ?: ScrambleUi.Image(listOf()),
+                            event = event,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
                 }
             }
-        }
 
-        LazyRow(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 12.dp, horizontal = 20.dp)
-        ) {
-            items(Page.entries) { page ->
-                PageIndicator(
-                    isActive = page.ordinal == pagerState.targetPage,
-                    modifier = Modifier.padding(end = if (page.ordinal == Page.entries.lastIndex) 0.dp else 8.dp)
-                )
+            LazyRow(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 12.dp, horizontal = 20.dp)
+            ) {
+                items(Page.entries) { page ->
+                    PageIndicator(
+                        isActive = page.ordinal == pagerState.targetPage,
+                        modifier = Modifier.padding(end = if (page.ordinal == Page.entries.lastIndex) 0.dp else 8.dp)
+                    )
+                }
             }
         }
     }
@@ -471,16 +511,81 @@ private fun TimerModeModalBottomSheet(
 
 @Preview
 @Composable
-private fun PreviewRoomScreen() {
-//    RoomScreen(
-//        room = Room(
-//            name = "Room name",
-//            event = Event.FIVE_BY_FIVE,
-//            isOpen = true,
-//            password = null
-//        ),
-//        onNavigationButtonClick = { },
-//        onActionButtonClick = { },
-//        modifier = Modifier.fillMaxSize()
-//    )
+private fun PreviewRoomScreenContent() {
+    val scramble = "F2 D2 L2 D U2 R2 U' B2 R2 F' D' F R' U B' U F' U2"
+    val image = ScrambleUi.Image(
+        faces = listOf(
+            ScrambleUi.Face(
+                colors = listOf(
+                    listOf(2, 4, 5),
+                    listOf(3, 0, 4),
+                    listOf(0, 4, 4)
+                )
+            ),
+            ScrambleUi.Face(
+                colors = listOf(
+                    listOf(0, 5, 1),
+                    listOf(0, 1, 0),
+                    listOf(3, 2, 0)
+                )
+            ),
+            ScrambleUi.Face(
+                colors = listOf(
+                    listOf(4, 1, 1),
+                    listOf(2, 2, 5),
+                    listOf(2, 4, 5)
+                )
+            ),
+            ScrambleUi.Face(
+                colors = listOf(
+                    listOf(5, 2, 5),
+                    listOf(3, 3, 3),
+                    listOf(4, 0, 1)
+                )
+            ),
+            ScrambleUi.Face(
+                colors = listOf(
+                    listOf(3, 3, 1),
+                    listOf(1, 4, 5),
+                    listOf(2, 1, 2)
+                )
+            ),
+            ScrambleUi.Face(
+                colors = listOf(
+                    listOf(3, 0, 4),
+                    listOf(2, 5, 1),
+                    listOf(3, 5, 0)
+                )
+            )
+        )
+    )
+
+    RoomsTheme {
+        Content(
+            state = RoomUiState(
+                roomDetails = RoomDetailsUi(
+                    id = "Test",
+                    name = "Test",
+                    password = "",
+                    administratorName = "admin",
+                    cachedScrambles = emptyList(),
+                    connectedUserNames = listOf("admin"),
+                    wasOnceConnectedUserNames = listOf("admin"),
+                    solves = emptyList(),
+                    settings = SettingsUi(event = EventUi.THREE_BY_THREE)
+                ),
+                currentSolve = SolveUi(
+                    solveNumber = 2,
+                    scramble = ScrambleUi(scramble = scramble, image = image),
+                    results = listOf(ResultUi("admin", 9830, PenaltyUi.PLUS_TWO))
+                ),
+                isWaitingForNewScramble = false,
+                users = listOf("admin"),
+                solves = emptyList()
+            ),
+            onNavigateBack = { },
+            onSolveResultSend = { _, _ -> },
+            modifier = Modifier.fillMaxSize()
+        )
+    }
 }

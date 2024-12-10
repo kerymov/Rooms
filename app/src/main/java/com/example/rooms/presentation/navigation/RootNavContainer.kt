@@ -154,10 +154,13 @@ fun RootNavContainer(
                             factory = RoomViewModel.createFactory(details, roomRepository)
                         )
                         RoomScreen(
-                            onNavigateBack = { navController.navigate(Rooms) {
-                                popUpTo(0)
-                            } },
-                            roomViewModel = viewModel
+                            onNavigateBack = {
+                                navController.navigate(Rooms) {
+                                    popUpTo(0)
+                                }
+                            },
+                            roomViewModel = viewModel,
+                            modifier = Modifier.fillMaxSize()
                         )
                     }
                 }
