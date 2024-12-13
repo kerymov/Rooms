@@ -4,11 +4,17 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
+import com.example.rooms.presentation.features.main.rooms.models.PenaltyUi
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+import kotlin.properties.ReadOnlyProperty
+import kotlin.properties.ReadWriteProperty
+import kotlin.reflect.KProperty
+
+const val RESULT_PLACEHOLDER = "--:--"
 
 const val MILLISECONDS_IN_SECOND = 1000
 const val MILLISECONDS_IN_MINUTE = MILLISECONDS_IN_SECOND * 60
@@ -130,4 +136,19 @@ internal fun String.formatTimeToMills(): Long {
             minutes * MILLISECONDS_IN_MINUTE +
             seconds * MILLISECONDS_IN_SECOND +
             milliseconds * 10
+}
+
+internal fun resultInWcaNotation(time: Long, penalty: PenaltyUi): String {
+    return when(penalty) {
+        PenaltyUi.PLUS_TWO -> time.formatTimeFromMills() + "+"
+        PenaltyUi.DNF -> "DNF(${time.formatTimeFromMills()})"
+        else -> time.formatTimeFromMills()
+    }
+}
+
+internal fun StatisticInfo.toWcaNotation(): String = when(this) {
+    is Completed -> time.formatTimeFromMills()
+    is DnfSingle -> "DNF"
+    is DnfAverage -> "DNF"
+    is NoValue -> "--:--"
 }
