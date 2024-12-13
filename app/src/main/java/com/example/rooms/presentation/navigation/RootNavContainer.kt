@@ -26,7 +26,7 @@ import com.example.rooms.presentation.features.auth.viewModels.AuthViewModel
 import com.example.rooms.presentation.features.main.profile.screens.ProfileScreen
 import com.example.rooms.presentation.features.main.profile.viewModels.ProfileViewModel
 import com.example.rooms.presentation.features.main.rooms.models.RoomDetailsUi
-import com.example.rooms.presentation.features.main.rooms.screens.ResultsScreen
+import com.example.rooms.presentation.features.room.screens.ResultsScreen
 import com.example.rooms.presentation.features.room.screens.RoomScreen
 import com.example.rooms.presentation.features.main.rooms.screens.RoomsScreen
 import com.example.rooms.presentation.features.room.viewModels.RoomViewModel
@@ -139,9 +139,7 @@ fun RootNavContainer(
                     )
                 }
             }
-            navigation<Room>(
-                startDestination = Room.RoomMain()
-            ) {
+            navigation<Room>(startDestination = Room.RoomMain()) {
                 composable<Room.RoomMain> { backStackEntry ->
                     currentNavModule = Room
 
@@ -159,13 +157,22 @@ fun RootNavContainer(
                                     popUpTo(0)
                                 }
                             },
+                            onNavigateToResults = {
+                                navController.navigate(Room.Results) {
+
+                                }
+                            },
                             roomViewModel = viewModel,
                             modifier = Modifier.fillMaxSize()
                         )
                     }
                 }
-                composable<Room.Results> {
+                composable<Room.Results> { backStackEntry ->
                     currentNavModule = Room
+
+                    val viewModel = backStackEntry.sharedViewModel<RoomViewModel>(
+                        navController = navController
+                    )
 
                     ResultsScreen(
                         navController = navController,

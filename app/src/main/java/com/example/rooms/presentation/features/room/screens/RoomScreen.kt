@@ -70,8 +70,10 @@ import com.example.rooms.presentation.features.room.utils.Timer
 import com.example.rooms.presentation.features.room.utils.TimerState
 import com.example.rooms.presentation.features.room.components.ManualTypingTimer
 import com.example.rooms.presentation.features.room.components.ScrambleImageCanvas
+import com.example.rooms.presentation.features.room.utils.RESULT_PLACEHOLDER
 import com.example.rooms.presentation.features.room.utils.formatRawStringTimeToMills
 import com.example.rooms.presentation.features.room.utils.formatTimeFromMills
+import com.example.rooms.presentation.features.room.utils.resultInWcaNotation
 import com.example.rooms.presentation.features.room.viewModels.RoomUiState
 import com.example.rooms.presentation.features.room.viewModels.RoomViewModel
 import com.example.rooms.presentation.features.utils.FadeSide
@@ -92,6 +94,7 @@ private enum class TimerMode(val label: String) {
 @Composable
 fun RoomScreen(
     onNavigateBack: () -> Unit,
+    onNavigateToResults: () -> Unit,
     modifier: Modifier = Modifier,
     roomViewModel: RoomViewModel = viewModel(),
 ) {
@@ -100,6 +103,7 @@ fun RoomScreen(
     Content(
         state = roomUiState,
         onNavigateBack = onNavigateBack,
+        onShowResults = onNavigateToResults,
         onSolveResultSend = roomViewModel::sendSolveResult,
         modifier = modifier
     )
@@ -110,6 +114,7 @@ fun RoomScreen(
 private fun Content(
     state: RoomUiState,
     onNavigateBack: () -> Unit,
+    onShowResults: () -> Unit,
     onSolveResultSend: (time: Long, penalty: PenaltyUi) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -129,8 +134,11 @@ private fun Content(
         modifier = modifier
     ) { contentPadding ->
         var timerMode by rememberSaveable { mutableStateOf(TimerMode.TIMER) }
-        var isSheetOpen by rememberSaveable { mutableStateOf(false) }
-        val sheetState = rememberModalBottomSheetState()
+        var isTimerModeSheetOpen by rememberSaveable { mutableStateOf(false) }
+        val timerModeSheetState = rememberModalBottomSheetState()
+
+        var isResultsSheetOpen by rememberSaveable { mutableStateOf(false) }
+        val resultsSheetState = rememberModalBottomSheetState()
 
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -149,13 +157,14 @@ private fun Content(
             CurrentSolveResults(
                 users = state.users,
                 results = state.currentSolve?.results ?: emptyList(),
+                onShowResults = { isResultsSheetOpen = true },
                 modifier = Modifier.fillMaxWidth()
             )
             TimerZone(
                 timerMode = timerMode,
-                isSelectModeMenuShown = isSheetOpen,
+                isSelectModeMenuShown = isTimerModeSheetOpen,
                 onChangeTimerModeClick = {
-                    isSheetOpen = !isSheetOpen
+                    isTimerModeSheetOpen = !isTimerModeSheetOpen
                 },
                 onSendResultClick = { timeInMills, penalty ->
                     onSolveResultSend(timeInMills, penalty)
@@ -166,15 +175,25 @@ private fun Content(
             )
         }
 
-        if (isSheetOpen) {
+        if (isTimerModeSheetOpen) {
             TimerModeModalBottomSheet(
-                sheetState = sheetState,
-                onDismissRequest = { isSheetOpen = false },
+                sheetState = timerModeSheetState,
+                onDismissRequest = { isTimerModeSheetOpen = false },
                 onItemSelect = { mode ->
                     timerMode = mode
-                    isSheetOpen = false
+                    isTimerModeSheetOpen = false
                 },
                 modifier = Modifier.fillMaxWidth()
+            )
+        }
+
+        if (isResultsSheetOpen) {
+            RoomResultsBottomSheet(
+                sheetState = resultsSheetState,
+                onDismissRequest = { isResultsSheetOpen = false },
+                users = state.users,
+                solves = state.solves.reversed(),
+                modifier = Modifier.fillMaxSize()
             )
         }
     }
@@ -184,6 +203,7 @@ private fun Content(
 private fun CurrentSolveResults(
     users: List<String>,
     results: List<ResultUi>,
+    onShowResults: () -> Unit,
     modifier: Modifier = Modifier
 ) = Row(
     verticalAlignment = Alignment.CenterVertically,
@@ -211,12 +231,8 @@ private fun CurrentSolveResults(
             val (time, penalty) = result?.time to result?.penalty
 
             val formattedResult = time?.let {
-                when(penalty) {
-                    PenaltyUi.PLUS_TWO -> it.formatTimeFromMills() + "+"
-                    PenaltyUi.DNF -> "DNF(${it.formatTimeFromMills()})"
-                    else -> it.formatTimeFromMills()
-                }
-            } ?: "-:-"
+                resultInWcaNotation(it, penalty ?: PenaltyUi.NO_PENALTY)
+            } ?: RESULT_PLACEHOLDER
 
             ResultPill(
                 username = username,
@@ -226,7 +242,7 @@ private fun CurrentSolveResults(
     }
 
     TextButton(
-        onClick = { },
+        onClick = onShowResults,
         contentPadding = PaddingValues(
             top = ButtonDefaults.TextButtonContentPadding.calculateTopPadding(),
             bottom = ButtonDefaults.TextButtonContentPadding.calculateTopPadding(),
@@ -584,6 +600,7 @@ private fun PreviewRoomScreenContent() {
                 solves = emptyList()
             ),
             onNavigateBack = { },
+            onShowResults = { },
             onSolveResultSend = { _, _ -> },
             modifier = Modifier.fillMaxSize()
         )
