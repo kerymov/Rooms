@@ -8,6 +8,7 @@ import androidx.activity.viewModels
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.rooms.common.RoomsApp
 import com.example.rooms.domain.repository.AccountRepository
 import com.example.rooms.domain.repository.RoomRepository
@@ -18,6 +19,7 @@ import com.example.rooms.presentation.features.auth.viewModels.SplashViewModel
 import com.example.rooms.presentation.navigation.Auth
 import com.example.rooms.presentation.navigation.Main
 import com.example.rooms.presentation.navigation.RootNavContainer
+import com.example.rooms.presentation.navigation.RootViewModel
 import com.example.rooms.presentation.theme.RoomsTheme
 
 class MainActivity : ComponentActivity() {
@@ -67,8 +69,11 @@ private fun ApplicationManager(
         else -> return
     }
 
+    val rootViewModel = viewModel<RootViewModel>()
+
     RootNavContainer(
         startNavModule = startNavModule,
+        rootViewModel = rootViewModel,
         accountRepository = accountRepository,
         roomsRepository = roomsRepository,
         roomRepository = roomRepository

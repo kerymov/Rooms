@@ -23,16 +23,13 @@ import androidx.compose.material.Chip
 import androidx.compose.material.ChipDefaults
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.automirrored.rounded.NavigateNext
-import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -57,28 +54,25 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.rooms.R
-import com.example.rooms.presentation.components.CenterAlignedTopBar
 import com.example.rooms.presentation.features.main.rooms.models.EventUi
-import com.example.rooms.presentation.features.room.components.ClickableTimer
 import com.example.rooms.presentation.features.main.rooms.models.PenaltyUi
 import com.example.rooms.presentation.features.main.rooms.models.ResultUi
 import com.example.rooms.presentation.features.main.rooms.models.RoomDetailsUi
 import com.example.rooms.presentation.features.main.rooms.models.ScrambleUi
 import com.example.rooms.presentation.features.main.rooms.models.SettingsUi
 import com.example.rooms.presentation.features.main.rooms.models.SolveUi
-import com.example.rooms.presentation.features.room.utils.Timer
-import com.example.rooms.presentation.features.room.utils.TimerState
+import com.example.rooms.presentation.features.room.components.ClickableTimer
 import com.example.rooms.presentation.features.room.components.ManualTypingTimer
 import com.example.rooms.presentation.features.room.components.ScrambleImageCanvas
 import com.example.rooms.presentation.features.room.utils.RESULT_PLACEHOLDER
+import com.example.rooms.presentation.features.room.utils.Timer
+import com.example.rooms.presentation.features.room.utils.TimerState
 import com.example.rooms.presentation.features.room.utils.formatRawStringTimeToMills
-import com.example.rooms.presentation.features.room.utils.formatTimeFromMills
 import com.example.rooms.presentation.features.room.utils.resultInWcaNotation
 import com.example.rooms.presentation.features.room.viewModels.RoomUiState
 import com.example.rooms.presentation.features.room.viewModels.RoomViewModel
 import com.example.rooms.presentation.features.utils.FadeSide
 import com.example.rooms.presentation.features.utils.fadingEdge
-import com.example.rooms.presentation.features.utils.toInnerScaffoldPadding
 import com.example.rooms.presentation.theme.RoomsTheme
 
 private enum class Page {
@@ -93,7 +87,6 @@ private enum class TimerMode(val label: String) {
 
 @Composable
 fun RoomScreen(
-    onNavigateBack: () -> Unit,
     onNavigateToResults: () -> Unit,
     modifier: Modifier = Modifier,
     roomViewModel: RoomViewModel = viewModel(),
@@ -102,7 +95,6 @@ fun RoomScreen(
 
     Content(
         state = roomUiState,
-        onNavigateBack = onNavigateBack,
         onShowResults = onNavigateToResults,
         onSolveResultSend = roomViewModel::sendSolveResult,
         modifier = modifier
@@ -113,89 +105,70 @@ fun RoomScreen(
 @Composable
 private fun Content(
     state: RoomUiState,
-    onNavigateBack: () -> Unit,
     onShowResults: () -> Unit,
     onSolveResultSend: (time: Long, penalty: PenaltyUi) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Scaffold(
-        topBar = {
-            CenterAlignedTopBar(
-                title = "${state.roomDetails.name} - ${state.roomDetails.settings.event.shortName}",
-                navigationIcon = Icons.AutoMirrored.Filled.ExitToApp,
-                actions = listOf(
-                    Icons.Filled.Groups to {  }
-                ),
-                onNavigationButtonClick = onNavigateBack,
-            )
-        },
-        containerColor = MaterialTheme.colorScheme.background,
-        contentColor = contentColorFor(MaterialTheme.colorScheme.background),
-        modifier = modifier
-    ) { contentPadding ->
-        var timerMode by rememberSaveable { mutableStateOf(TimerMode.TIMER) }
-        var isTimerModeSheetOpen by rememberSaveable { mutableStateOf(false) }
-        val timerModeSheetState = rememberModalBottomSheetState()
+    var timerMode by rememberSaveable { mutableStateOf(TimerMode.TIMER) }
+    var isTimerModeSheetOpen by rememberSaveable { mutableStateOf(false) }
+    val timerModeSheetState = rememberModalBottomSheetState()
 
-        var isResultsSheetOpen by rememberSaveable { mutableStateOf(false) }
-        val resultsSheetState = rememberModalBottomSheetState()
+    var isResultsSheetOpen by rememberSaveable { mutableStateOf(false) }
+    val resultsSheetState = rememberModalBottomSheetState()
 
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier.fillMaxSize()
+    ) {
+        ScrambleZone(
+            scramble = state.currentSolve?.scramble,
+            event = state.roomDetails.settings.event,
+            isWaitingForNewScramble = state.isWaitingForNewScramble,
             modifier = Modifier
-                .fillMaxSize()
-                .padding(contentPadding.toInnerScaffoldPadding())
-        ) {
-            ScrambleZone(
-                scramble = state.currentSolve?.scramble,
-                event = state.roomDetails.settings.event,
-                isWaitingForNewScramble = state.isWaitingForNewScramble,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-            )
-            CurrentSolveResults(
-                users = state.users,
-                results = state.currentSolve?.results ?: emptyList(),
-                onShowResults = { isResultsSheetOpen = true },
-                modifier = Modifier.fillMaxWidth()
-            )
-            TimerZone(
-                timerMode = timerMode,
-                isSelectModeMenuShown = isTimerModeSheetOpen,
-                onChangeTimerModeClick = {
-                    isTimerModeSheetOpen = !isTimerModeSheetOpen
-                },
-                onSendResultClick = { timeInMills, penalty ->
-                    onSolveResultSend(timeInMills, penalty)
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(2f)
-            )
-        }
+                .fillMaxWidth()
+                .weight(1f)
+        )
+        CurrentSolveResults(
+            users = state.users,
+            results = state.currentSolve?.results ?: emptyList(),
+            onShowResults = { isResultsSheetOpen = true },
+            modifier = Modifier.fillMaxWidth()
+        )
+        TimerZone(
+            timerMode = timerMode,
+            isSelectModeMenuShown = isTimerModeSheetOpen,
+            onChangeTimerModeClick = {
+                isTimerModeSheetOpen = !isTimerModeSheetOpen
+            },
+            onSendResultClick = { timeInMills, penalty ->
+                onSolveResultSend(timeInMills, penalty)
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(2f)
+        )
+    }
 
-        if (isTimerModeSheetOpen) {
-            TimerModeModalBottomSheet(
-                sheetState = timerModeSheetState,
-                onDismissRequest = { isTimerModeSheetOpen = false },
-                onItemSelect = { mode ->
-                    timerMode = mode
-                    isTimerModeSheetOpen = false
-                },
-                modifier = Modifier.fillMaxWidth()
-            )
-        }
+    if (isTimerModeSheetOpen) {
+        TimerModeModalBottomSheet(
+            sheetState = timerModeSheetState,
+            onDismissRequest = { isTimerModeSheetOpen = false },
+            onItemSelect = { mode ->
+                timerMode = mode
+                isTimerModeSheetOpen = false
+            },
+            modifier = Modifier.fillMaxWidth()
+        )
+    }
 
-        if (isResultsSheetOpen) {
-            RoomResultsBottomSheet(
-                sheetState = resultsSheetState,
-                onDismissRequest = { isResultsSheetOpen = false },
-                users = state.users,
-                solves = state.solves.reversed(),
-                modifier = Modifier.fillMaxSize()
-            )
-        }
+    if (isResultsSheetOpen) {
+        RoomResultsBottomSheet(
+            sheetState = resultsSheetState,
+            onDismissRequest = { isResultsSheetOpen = false },
+            users = state.users,
+            solves = state.solves.reversed(),
+            modifier = Modifier.fillMaxSize()
+        )
     }
 }
 
@@ -281,7 +254,7 @@ private fun ResultPill(
         backgroundColor = MaterialTheme.colorScheme.primaryContainer,
         contentColor = MaterialTheme.colorScheme.onPrimary
     )
-)  {
+) {
     Text(
         text = "$username: $result",
         style = MaterialTheme.typography.labelLarge,
@@ -345,6 +318,7 @@ private fun ScrambleZone(
                                 .padding(end = 16.dp)
                         )
                     }
+
                     Page.SCRAMBLE_IMAGE.ordinal -> {
                         ScrambleImageCanvas(
                             image = scramble.image ?: ScrambleUi.Image(listOf()),
@@ -424,7 +398,8 @@ private fun TimerZone(
                     modifier = Modifier.padding(end = 2.dp)
                 )
 
-                val icon = if (isSelectModeMenuShown) R.drawable.keyboard_arrow_up else R.drawable.keyboard_arrow_down
+                val icon =
+                    if (isSelectModeMenuShown) R.drawable.keyboard_arrow_up else R.drawable.keyboard_arrow_down
                 Icon(
                     imageVector = ImageVector.vectorResource(icon),
                     contentDescription = "Timer mode",
@@ -466,6 +441,7 @@ private fun TimerZone(
                     modifier = Modifier.fillMaxSize()
                 )
             }
+
             TimerMode.TYPING -> {
                 ManualTypingTimer(
                     onSendResultClick = { timeString ->
@@ -599,7 +575,6 @@ private fun PreviewRoomScreenContent() {
                 users = listOf("admin"),
                 solves = emptyList()
             ),
-            onNavigateBack = { },
             onShowResults = { },
             onSolveResultSend = { _, _ -> },
             modifier = Modifier.fillMaxSize()

@@ -1,4 +1,4 @@
-package com.example.rooms.presentation.features.main.rooms.screens
+package com.example.rooms.presentation.features.room.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -27,9 +26,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.rooms.R
-import com.example.rooms.presentation.SolvesRepository
-import com.example.rooms.presentation.components.CenterAlignedTopBar
 import com.example.rooms.presentation.theme.ChangeSystemBarsColors
 import java.time.Instant
 import java.time.LocalDateTime
@@ -74,21 +70,21 @@ fun ResultsScreen(
             ),
             modifier = modifier.fillMaxSize()
         ) {
-            val solvesByUser = SolvesRepository.getUserSolvesFromRoom(roomName = roomName)
-            items(solvesByUser.keys.toList()) { username ->
-                UserCard(
-                    best = formatTime(SolvesRepository.getBestResult(username, roomName)),
-                    ao5 = SolvesRepository.getLastAverageOf(5, username, roomName)
-                        ?.let { value -> formatTime(value) },
-                    ao12 = SolvesRepository.getLastAverageOf(12, username, roomName)
-                        ?.let { value -> formatTime(value) },
-                    ao100 = SolvesRepository.getLastAverageOf(100, username, roomName)
-                        ?.let { value -> formatTime(value) },
-                    mean = formatTime(SolvesRepository.getMeanOfAllSolves(username, roomName)),
-                    username = username,
-                    modifier = Modifier.padding(4.dp)
-                )
-            }
+//            val solvesByUser = StaticticsCalculator.getUserSolvesFromRoom(roomName = roomName)
+//            items(solvesByUser.keys.toList()) { username ->
+//                UserCard(
+//                    best = formatTime(StaticticsCalculator.getBestResult(username, roomName)),
+//                    ao5 = StaticticsCalculator.getLastAverageOf(5, username, roomName)
+//                        ?.let { value -> formatTime(value) },
+//                    ao12 = StaticticsCalculator.getLastAverageOf(12, username, roomName)
+//                        ?.let { value -> formatTime(value) },
+//                    ao100 = StaticticsCalculator.getLastAverageOf(100, username, roomName)
+//                        ?.let { value -> formatTime(value) },
+//                    mean = formatTime(StaticticsCalculator.getMeanOfAllSolves(username, roomName)),
+//                    username = username,
+//                    modifier = Modifier.padding(4.dp)
+//                )
+//            }
         }
     }
 }
