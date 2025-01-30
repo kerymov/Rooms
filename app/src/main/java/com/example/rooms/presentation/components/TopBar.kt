@@ -13,6 +13,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
@@ -21,13 +22,23 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.rooms.presentation.theme.SetSystemBarIconColors
 
+@Immutable
+data class TopAppBarInteractionItem(
+    val icon: ImageVector,
+    val onClick: () -> Unit
+)
+
+@Immutable
+data class TopAppBarItem(
+    val title: String,
+    val navigationItem: TopAppBarInteractionItem? = null,
+    val actions: List<TopAppBarInteractionItem> = emptyList(),
+)
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CenterAlignedTopBar(
-    title: String,
-    navigationIcon: ImageVector? = null,
-    onNavigationButtonClick: () -> Unit = { },
-    actions: List<Pair<ImageVector?, () -> Unit>> = listOf(),
+    item: TopAppBarItem,
     scrollBehaviour: TopAppBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(),
 ) {
     val containerColor = MaterialTheme.colorScheme.background
@@ -49,22 +60,16 @@ fun CenterAlignedTopBar(
 
     CenterAlignedTopAppBar(
         title = {
-            Title(text = title)
+            Title(text = item.title)
         },
         navigationIcon = {
-            navigationIcon?.let { icon ->
-                TopBarIconButton(icon) {
-                    onNavigationButtonClick()
-                }
+            item.navigationItem?.let {
+                TopBarIconButton(it.icon, it.onClick)
             }
         },
         actions = {
-            actions.forEach { actionItem ->
-                actionItem.first?.let { icon ->
-                    TopBarIconButton(icon = icon) {
-                        actionItem.second()
-                    }
-                }
+            item.actions.forEach { action ->
+                TopBarIconButton(icon = action.icon, onClick = action.onClick)
             }
         },
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
@@ -108,9 +113,9 @@ private fun TopBarIconButton(
 @Composable
 private fun TopBarPreview() {
     CenterAlignedTopBar(
-        title = "Rooms",
-        navigationIcon = null,
-        onNavigationButtonClick = { },
-        actions = listOf(Icons.Filled.Add to { })
+        item = TopAppBarItem(
+            title = "Rooms",
+            navigationItem = TopAppBarInteractionItem(Icons.Filled.Add) { },
+        )
     )
 }
