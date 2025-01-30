@@ -1,6 +1,5 @@
 package com.example.rooms.presentation.navigation
 
-import com.example.rooms.presentation.features.main.rooms.models.RoomDetailsUi
 import kotlinx.serialization.Serializable
 
 @Serializable
