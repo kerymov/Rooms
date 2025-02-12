@@ -8,10 +8,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -85,20 +87,35 @@ private enum class TimerMode(val label: String) {
     TYPING("Typing")
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RoomScreen(
-    onNavigateToResults: () -> Unit,
     modifier: Modifier = Modifier,
     roomViewModel: RoomViewModel = viewModel(),
 ) {
     val roomUiState by roomViewModel.uiState.collectAsState()
 
+    var isResultsSheetOpen by rememberSaveable { mutableStateOf(false) }
+    val resultsSheetState = rememberModalBottomSheetState()
+
     Content(
         state = roomUiState,
-        onShowResults = onNavigateToResults,
+        onShowResults = { isResultsSheetOpen = true },
         onSolveResultSend = roomViewModel::sendSolveResult,
         modifier = modifier
     )
+
+    if (isResultsSheetOpen) {
+        RoomResultsBottomSheet(
+            sheetState = resultsSheetState,
+            onDismissRequest = { isResultsSheetOpen = false },
+            users = roomUiState.users,
+            solves = roomUiState.solves.reversed(),
+            modifier = Modifier
+                .statusBarsPadding()
+                .fillMaxSize()
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -112,9 +129,6 @@ private fun Content(
     var timerMode by rememberSaveable { mutableStateOf(TimerMode.TIMER) }
     var isTimerModeSheetOpen by rememberSaveable { mutableStateOf(false) }
     val timerModeSheetState = rememberModalBottomSheetState()
-
-    var isResultsSheetOpen by rememberSaveable { mutableStateOf(false) }
-    val resultsSheetState = rememberModalBottomSheetState()
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -131,7 +145,7 @@ private fun Content(
         CurrentSolveResults(
             users = state.users,
             results = state.currentSolve?.results ?: emptyList(),
-            onShowResults = { isResultsSheetOpen = true },
+            onShowResults = onShowResults,
             modifier = Modifier.fillMaxWidth()
         )
         TimerZone(
@@ -158,16 +172,6 @@ private fun Content(
                 isTimerModeSheetOpen = false
             },
             modifier = Modifier.fillMaxWidth()
-        )
-    }
-
-    if (isResultsSheetOpen) {
-        RoomResultsBottomSheet(
-            sheetState = resultsSheetState,
-            onDismissRequest = { isResultsSheetOpen = false },
-            users = state.users,
-            solves = state.solves.reversed(),
-            modifier = Modifier.fillMaxSize()
         )
     }
 }
@@ -463,12 +467,14 @@ private fun TimerModeModalBottomSheet(
     sheetState: SheetState,
     onDismissRequest: () -> Unit,
     onItemSelect: (TimerMode) -> Unit,
+    windowInsets: WindowInsets = WindowInsets(0, 0, 0, 0),
     modifier: Modifier = Modifier
 ) = ModalBottomSheet(
     sheetState = sheetState,
     onDismissRequest = onDismissRequest,
     containerColor = MaterialTheme.colorScheme.background,
     dragHandle = { BottomSheetDefaults.DragHandle(color = MaterialTheme.colorScheme.primary) },
+    windowInsets = windowInsets,
     modifier = modifier
 ) {
     Column(

@@ -65,14 +65,14 @@ fun RoomsCreatingBottomSheet(
     onDismissRequest:() -> Unit,
     onCreateClick: (name: String, password: String?, settings: SettingsUi) -> Unit,
     modifier: Modifier = Modifier,
-    windowInsets: WindowInsets = BottomSheetDefaults.windowInsets,
+    windowInsets: WindowInsets = WindowInsets(0, 0, 0, 0),
 ) = ModalBottomSheet(
     sheetState = sheetState,
     onDismissRequest = onDismissRequest,
     dragHandle = { BottomSheetDefaults.DragHandle(color = MaterialTheme.colorScheme.primary) },
     containerColor = MaterialTheme.colorScheme.background,
     windowInsets = windowInsets,
-    modifier = modifier.statusBarsPadding()
+    modifier = modifier
 ) {
     var roomName by rememberSaveable { mutableStateOf("") }
     var isRoomNameError by rememberSaveable { mutableStateOf(false) }

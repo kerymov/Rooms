@@ -59,19 +59,19 @@ fun RoomResultsBottomSheet(
     users: List<String>,
     solves: List<SolveUi>,
     modifier: Modifier = Modifier,
-    windowInsets: WindowInsets = BottomSheetDefaults.windowInsets,
+    windowInsets: WindowInsets = WindowInsets(0, 0, 0, 0),
 ) = ModalBottomSheet(
     sheetState = sheetState,
     onDismissRequest = onDismissRequest,
     dragHandle = { BottomSheetDefaults.DragHandle(color = MaterialTheme.colorScheme.primary) },
     containerColor = MaterialTheme.colorScheme.background,
     windowInsets = windowInsets,
-    modifier = modifier.statusBarsPadding()
+    modifier = modifier
 ) {
     Content(
         users = users,
         solves = solves,
-        modifier = modifier
+        modifier = Modifier
             .fillMaxSize()
     )
 }
@@ -132,6 +132,7 @@ fun LazyTable(
 
     LazyColumn(
         contentPadding = PaddingValues(vertical = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp),
         modifier = Modifier
             .fillMaxWidth()
             .weight(1f)
@@ -200,9 +201,11 @@ private fun TableCellItem(
 @Composable
 private fun ResultItem(text: String, modifier: Modifier) = Text(
     text = text,
-    modifier = modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+    style = MaterialTheme.typography.bodyMedium,
     textAlign = TextAlign.Center,
-    style = MaterialTheme.typography.bodyMedium
+    maxLines = 1,
+    overflow = TextOverflow.Ellipsis,
+    modifier = modifier.padding(horizontal = 8.dp, vertical = 4.dp)
 )
 
 @Composable
@@ -230,14 +233,14 @@ private fun UserStatistics(
         }
 
         val statistic = StatisticManager.getStatistic(resultsInfo)
-
+        val defaultRowModifier = Modifier.weight(1f)
         Row(
-            horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.fillMaxWidth()
         ) {
-            StatisticItem(label = "best", value = statistic.bestTime.toWcaNotation())
-            StatisticItem(label = "worst", value = statistic.worstTime.toWcaNotation())
+            StatisticItem(label = "best", value = statistic.bestTime.toWcaNotation(), modifier = defaultRowModifier)
+            Spacer(Modifier.width(2.dp))
+            StatisticItem(label = "worst", value = statistic.worstTime.toWcaNotation(), modifier = defaultRowModifier)
         }
         Divider(modifier = Modifier
             .padding(vertical = 8.dp)
@@ -248,8 +251,9 @@ private fun UserStatistics(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.fillMaxWidth()
         ) {
-            StatisticItem(label = "ao5", value = statistic.averageOfFive.toWcaNotation())
-            StatisticItem(label = "ao12", value = statistic.averageOfTwelve.toWcaNotation())
+            StatisticItem(label = "ao5", value = statistic.averageOfFive.toWcaNotation(), modifier = defaultRowModifier)
+            Spacer(Modifier.width(2.dp))
+            StatisticItem(label = "ao12", value = statistic.averageOfTwelve.toWcaNotation(), modifier = defaultRowModifier)
         }
         Divider(modifier = Modifier
             .padding(vertical = 8.dp)
@@ -260,8 +264,9 @@ private fun UserStatistics(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.fillMaxWidth()
         ) {
-            StatisticItem(label = "ao100", value = statistic.averageOfHundred.toWcaNotation())
-            StatisticItem(label = "mean", value = statistic.mean.toWcaNotation())
+            StatisticItem(label = "ao100", value = statistic.averageOfHundred.toWcaNotation(), modifier = defaultRowModifier)
+            Spacer(Modifier.width(2.dp))
+            StatisticItem(label = "mean", value = statistic.mean.toWcaNotation(), modifier = defaultRowModifier)
         }
     }
 
@@ -279,8 +284,13 @@ private fun UserStatistics(
 }
 
 @Composable
-private fun StatisticItem(label: String, value: String) = Column(
-    horizontalAlignment = Alignment.CenterHorizontally
+private fun StatisticItem(
+    label: String,
+    value: String,
+    modifier: Modifier = Modifier
+) = Column(
+    horizontalAlignment = Alignment.CenterHorizontally,
+    modifier = modifier
 ) {
     Text(
         text = label,
@@ -302,17 +312,17 @@ private fun StatisticItem(label: String, value: String) = Column(
 @Preview(showBackground = true)
 @Composable
 private fun RoomCreatingSheetContentPreview() {
-    val users = listOf("kerymov", "Oleh", "Vlad", "Username", "admin")
+    val users = listOf("User1", "User2", "User3", "Username", "Long Username")
     val solves = List(50) { index ->
         SolveUi(
             solveNumber = index + 1,
             scramble = ScrambleUi("", null),
             results = listOf(
-                ResultUi("Oleh", Random.nextLong(70000), PenaltyUi.NO_PENALTY),
-                ResultUi("kerymov", Random.nextLong(50000), PenaltyUi.NO_PENALTY),
-                ResultUi("Vlad", Random.nextLong(10000), PenaltyUi.PLUS_TWO),
-                ResultUi("Username", Random.nextLong(10000), PenaltyUi.DNF),
-                ResultUi("admin", Random.nextLong(50000), PenaltyUi.NO_PENALTY)
+                ResultUi("User1", Random.nextLong(0, 15000), PenaltyUi.NO_PENALTY),
+                ResultUi("User2", Random.nextLong(15000, 60000), PenaltyUi.NO_PENALTY),
+                ResultUi("User3", Random.nextLong(15000, 100000), PenaltyUi.PLUS_TWO),
+                ResultUi("Username", Random.nextLong(0, 100000), PenaltyUi.DNF),
+                ResultUi("Long Username", Random.nextLong(70000, 100000), PenaltyUi.NO_PENALTY)
             )
         )
     }

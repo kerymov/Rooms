@@ -218,12 +218,6 @@ fun RootNavContainer(
                         )
 
                         RoomScreen(
-                            onNavigateToResults = {
-
-                                navController.navigate(Room.Results) {
-
-                                }
-                            },
                             roomViewModel = viewModel,
                             modifier = Modifier.fillMaxSize()
                         )
