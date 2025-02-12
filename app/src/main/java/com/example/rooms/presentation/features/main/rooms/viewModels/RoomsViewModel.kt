@@ -21,37 +21,50 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 sealed class RoomsUiState(
     open val rooms: List<RoomUi>? = null,
-    open val currentRoomDetails: RoomDetailsUi? = null
+    open val currentRoomDetails: RoomDetailsUi? = null,
+    open val isCreateRoomBottomSheetOpen: Boolean = false
 ) {
 
-    class Success(
+    data class Success(
         override val rooms: List<RoomUi> = emptyList(),
-        override val currentRoomDetails: RoomDetailsUi? = null
-    ) : RoomsUiState(rooms = rooms, currentRoomDetails = currentRoomDetails)
+        override val currentRoomDetails: RoomDetailsUi? = null,
+        override val isCreateRoomBottomSheetOpen: Boolean = false
+    ) : RoomsUiState(
+        rooms = rooms,
+        currentRoomDetails = currentRoomDetails,
+        isCreateRoomBottomSheetOpen = isCreateRoomBottomSheetOpen
+    )
+
     sealed class Error(
         override val rooms: List<RoomUi>?,
+        override val isCreateRoomBottomSheetOpen: Boolean = false,
         open val code: Int?,
         open val message: String?
-    ) : RoomsUiState(rooms = rooms, currentRoomDetails = null) {
+    ) : RoomsUiState(rooms = rooms, currentRoomDetails = null, isCreateRoomBottomSheetOpen = isCreateRoomBottomSheetOpen) {
         data class RoomsFetchingError(
+            override val isCreateRoomBottomSheetOpen: Boolean = false,
             override val code: Int?,
             override val message: String?
         ) : Error(
             rooms = null,
+            isCreateRoomBottomSheetOpen = isCreateRoomBottomSheetOpen,
             code = code,
             message = message
         )
 
         data class OtherError(
             override val rooms: List<RoomUi>?,
+            override val isCreateRoomBottomSheetOpen: Boolean = false,
             override val code: Int?,
             override val message: String?
         ) : Error(
             rooms = rooms,
+            isCreateRoomBottomSheetOpen = isCreateRoomBottomSheetOpen,
             code = code,
             message = message
         )
@@ -189,6 +202,17 @@ class RoomsViewModel(
                     code = null,
                     message = result.message
                 )
+            }
+        }
+    }
+
+    fun toggleCreateRoomBottomSheet(isOpen: Boolean) {
+        _uiState.update { state ->
+            when(state) {
+                is RoomsUiState.Success -> state.copy(isCreateRoomBottomSheetOpen = isOpen)
+                is RoomsUiState.Error.OtherError -> state.copy(isCreateRoomBottomSheetOpen = isOpen)
+                is RoomsUiState.Error.RoomsFetchingError -> state.copy(isCreateRoomBottomSheetOpen = isOpen)
+                else -> state
             }
         }
     }

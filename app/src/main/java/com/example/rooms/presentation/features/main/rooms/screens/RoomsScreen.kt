@@ -24,8 +24,6 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
@@ -59,7 +57,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.rooms.R
 import com.example.rooms.data.utils.AppSharedPreferences
-import com.example.rooms.presentation.components.CenterAlignedTopBar
 import com.example.rooms.presentation.components.CircularLoadingIndicator
 import com.example.rooms.presentation.components.ErrorCard
 import com.example.rooms.presentation.components.RoomLoginDialog
@@ -78,7 +75,6 @@ fun RoomsScreen(
     onRoomLogin: (roomDetails: String) -> Unit,
     roomsViewModel: RoomsViewModel,
 ) {
-    var isCreateRoomSheetOpen by rememberSaveable { mutableStateOf(false) }
     val createRoomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     var roomNameToLogin by rememberSaveable { mutableStateOf("") }
@@ -109,7 +105,7 @@ fun RoomsScreen(
     }
 
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .pullRefresh(pullRefreshState)
     ) {
@@ -134,7 +130,7 @@ fun RoomsScreen(
                             isDeleteRoomSheetOpen = true
                             roomIdToDelete = itemId
                         },
-                        onCreateNewRoomClick = { isCreateRoomSheetOpen = true }
+                        onCreateNewRoomClick = { roomsViewModel.toggleCreateRoomBottomSheet(isOpen = true) }
                     )
                 }
             }
@@ -161,13 +157,13 @@ fun RoomsScreen(
         }
     }
 
-    if (isCreateRoomSheetOpen) {
+    if (roomsUiState.isCreateRoomBottomSheetOpen) {
         RoomsCreatingBottomSheet(
             sheetState = createRoomSheetState,
-            onDismissRequest = { isCreateRoomSheetOpen = false },
+            onDismissRequest = { roomsViewModel.toggleCreateRoomBottomSheet(isOpen = false) },
             onCreateClick = { roomName, roomPassword, roomSettings ->
                 roomsViewModel.createRoom(roomName, roomPassword, roomSettings)
-                isCreateRoomSheetOpen = false
+                roomsViewModel.toggleCreateRoomBottomSheet(isOpen = false)
             },
             modifier = Modifier.fillMaxSize(),
             windowInsets = WindowInsets(0, 0, 0, 0)

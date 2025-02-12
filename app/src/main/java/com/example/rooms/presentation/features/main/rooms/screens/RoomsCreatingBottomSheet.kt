@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -71,7 +72,7 @@ fun RoomsCreatingBottomSheet(
     dragHandle = { BottomSheetDefaults.DragHandle(color = MaterialTheme.colorScheme.primary) },
     containerColor = MaterialTheme.colorScheme.background,
     windowInsets = windowInsets,
-    modifier = Modifier.statusBarsPadding()
+    modifier = modifier.statusBarsPadding()
 ) {
     var roomName by rememberSaveable { mutableStateOf("") }
     var isRoomNameError by rememberSaveable { mutableStateOf(false) }
@@ -83,7 +84,7 @@ fun RoomsCreatingBottomSheet(
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier
+        modifier = Modifier
             .fillMaxSize()
             .padding(horizontal = 20.dp)
     ) {

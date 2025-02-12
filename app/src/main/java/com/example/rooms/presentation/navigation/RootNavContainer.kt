@@ -154,7 +154,7 @@ fun RootNavContainer(
                             actions = listOf(
                                 TopAppBarInteractionItem(
                                     icon = Icons.Filled.Add,
-                                    onClick = { /*roomsViewModel.openCreateRoomBottomSheet()*/ }
+                                    onClick = { roomsViewModel.toggleCreateRoomBottomSheet(isOpen = true) }
                                 )
                             )
                         )
