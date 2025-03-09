@@ -3,9 +3,14 @@ package com.example.rooms.presentation.features.utils
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -36,6 +41,14 @@ inline fun <reified T : ViewModel> NavBackStackEntry.sharedViewModel(
 
     return viewModel(viewModelStoreOwner = parentEntry, factory = factory)
 }
+
+@Composable
+fun Modifier.defaultBottomSheetPadding() = this.padding(
+    bottom = WindowInsets.statusBars
+        .only(WindowInsetsSides.Top)
+        .asPaddingValues()
+        .calculateTopPadding()
+)
 
 @Composable
 fun PaddingValues.toOuterScaffoldPadding(

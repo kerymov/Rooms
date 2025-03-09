@@ -9,11 +9,20 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeContentPadding
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -48,11 +57,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.rooms.R
@@ -74,6 +86,7 @@ import com.example.rooms.presentation.features.room.utils.resultInWcaNotation
 import com.example.rooms.presentation.features.room.viewModels.RoomUiState
 import com.example.rooms.presentation.features.room.viewModels.RoomViewModel
 import com.example.rooms.presentation.features.utils.FadeSide
+import com.example.rooms.presentation.features.utils.defaultBottomSheetPadding
 import com.example.rooms.presentation.features.utils.fadingEdge
 import com.example.rooms.presentation.theme.RoomsTheme
 
@@ -87,7 +100,6 @@ private enum class TimerMode(val label: String) {
     TYPING("Typing")
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RoomScreen(
     modifier: Modifier = Modifier,
@@ -95,40 +107,26 @@ fun RoomScreen(
 ) {
     val roomUiState by roomViewModel.uiState.collectAsState()
 
-    var isResultsSheetOpen by rememberSaveable { mutableStateOf(false) }
-    val resultsSheetState = rememberModalBottomSheetState()
-
     Content(
         state = roomUiState,
-        onShowResults = { isResultsSheetOpen = true },
         onSolveResultSend = roomViewModel::sendSolveResult,
         modifier = modifier
     )
-
-    if (isResultsSheetOpen) {
-        RoomResultsBottomSheet(
-            sheetState = resultsSheetState,
-            onDismissRequest = { isResultsSheetOpen = false },
-            users = roomUiState.users,
-            solves = roomUiState.solves.reversed(),
-            modifier = Modifier
-                .statusBarsPadding()
-                .fillMaxSize()
-        )
-    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun Content(
     state: RoomUiState,
-    onShowResults: () -> Unit,
     onSolveResultSend: (time: Long, penalty: PenaltyUi) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var timerMode by rememberSaveable { mutableStateOf(TimerMode.TIMER) }
     var isTimerModeSheetOpen by rememberSaveable { mutableStateOf(false) }
     val timerModeSheetState = rememberModalBottomSheetState()
+
+    var isResultsSheetOpen by rememberSaveable { mutableStateOf(false) }
+    val resultsSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -145,7 +143,7 @@ private fun Content(
         CurrentSolveResults(
             users = state.users,
             results = state.currentSolve?.results ?: emptyList(),
-            onShowResults = onShowResults,
+            onShowResults = { isResultsSheetOpen = true },
             modifier = Modifier.fillMaxWidth()
         )
         TimerZone(
@@ -172,6 +170,18 @@ private fun Content(
                 isTimerModeSheetOpen = false
             },
             modifier = Modifier.fillMaxWidth()
+        )
+    }
+
+    if (isResultsSheetOpen) {
+        RoomResultsBottomSheet(
+            sheetState = resultsSheetState,
+            onDismissRequest = { isResultsSheetOpen = false },
+            users = state.users,
+            solves = state.solves.reversed(),
+            modifier = Modifier
+                .fillMaxSize()
+                .defaultBottomSheetPadding()
         )
     }
 }
@@ -581,7 +591,6 @@ private fun PreviewRoomScreenContent() {
                 users = listOf("admin"),
                 solves = emptyList()
             ),
-            onShowResults = { },
             onSolveResultSend = { _, _ -> },
             modifier = Modifier.fillMaxSize()
         )

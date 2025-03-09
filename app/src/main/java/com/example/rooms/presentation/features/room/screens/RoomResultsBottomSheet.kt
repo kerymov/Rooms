@@ -9,11 +9,15 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -71,8 +75,7 @@ fun RoomResultsBottomSheet(
     Content(
         users = users,
         solves = solves,
-        modifier = Modifier
-            .fillMaxSize()
+        modifier = Modifier.fillMaxSize()
     )
 }
 
@@ -96,7 +99,6 @@ fun LazyTable(
         .padding(horizontal = 4.dp)
         .width(96.dp)
 
-
     val tableData = solves.map { solve ->
         usernames.map { username ->
             solve.results.find { it.userName == username }
@@ -104,6 +106,20 @@ fun LazyTable(
     }
 
     val horizontalScrollState = rememberScrollState()
+
+    LazyRow(
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        contentPadding = PaddingValues(vertical = 8.dp, horizontal = 12.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+    ) {
+        items(usernames) { username ->
+            UserStatistics(username, solves.flatMap { solve ->
+                solve.results.filter { it.userName == username }
+            })
+        }
+    }
 
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -164,20 +180,6 @@ fun LazyTable(
                     )
                 }
             }
-        }
-    }
-
-    LazyRow(
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        contentPadding = PaddingValues(vertical = 8.dp, horizontal = 12.dp),
-        modifier = Modifier
-            .fillMaxWidth()
-    ) {
-        items(usernames) { username ->
-            UserStatistics(username, solves.flatMap { solve ->
-                solve.results.filter { it.userName == username }
-            })
         }
     }
 }

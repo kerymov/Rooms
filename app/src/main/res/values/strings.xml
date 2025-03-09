@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Rooms</string>
     <string name="back">Back</string>
+    <string name="rooms">Rooms</string>
 </resources>

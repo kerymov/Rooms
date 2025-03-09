@@ -12,11 +12,15 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
@@ -66,6 +70,7 @@ import com.example.rooms.presentation.features.main.rooms.models.RoomDetailsUi
 import com.example.rooms.presentation.features.main.rooms.models.RoomUi
 import com.example.rooms.presentation.features.main.rooms.viewModels.RoomsUiState
 import com.example.rooms.presentation.features.main.rooms.viewModels.RoomsViewModel
+import com.example.rooms.presentation.features.utils.defaultBottomSheetPadding
 import com.example.rooms.presentation.theme.RoomsTheme
 import kotlinx.serialization.json.Json
 
@@ -168,7 +173,7 @@ fun RoomsScreen(
             },
             modifier = Modifier
                 .fillMaxSize()
-                .statusBarsPadding()
+                .defaultBottomSheetPadding()
         )
     }
 
@@ -208,6 +213,7 @@ fun RoomsScreen(
             },
             isDeleteButtonEnabled = isAdministrator,
             windowInsets = WindowInsets(0, 0, 0, 0),
+            modifier = Modifier.fillMaxWidth()
         )
     }
 }
