@@ -13,6 +13,7 @@ import com.example.rooms.data.utils.AppSharedPreferences
 import com.example.rooms.domain.repository.AccountRepository
 import com.example.rooms.domain.repository.RoomRepository
 import com.example.rooms.domain.repository.RoomsRepository
+import dagger.hilt.android.HiltAndroidApp
 
 class RoomsApp : Application() {
 
