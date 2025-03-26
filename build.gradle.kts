@@ -3,7 +3,7 @@ plugins {
     alias(libs.plugins.androidApplication) apply false
     alias(libs.plugins.jetbrainsKotlinAndroid) apply false
     alias(libs.plugins.jetbrainsKotlinJvm) apply false
-    alias(libs.plugins.kotlinSerialization) apply false
+    alias(libs.plugins.jetbrainsKotlinSerialization) apply false
     alias(libs.plugins.dagger.hilt) apply false
     alias(libs.plugins.ksp) apply false
     alias(libs.plugins.android.library) apply false

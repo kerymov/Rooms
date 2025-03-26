@@ -1,16 +1,18 @@
 package com.example.data_onboarding.repository
 
+import com.example.data_onboarding.dataSources.LocalAccountDataSource
 import com.example.data_onboarding.dataSources.RemoteAccountDataSource
 import com.example.data_onboarding.models.UserSignInRequest
 import com.example.data_onboarding.models.UserSignUpRequest
 import com.example.data_onboarding.utils.UserMapper
 import com.example.domain_core.utils.BaseResult
+import com.example.domain_onboarding.models.User
 import com.example.domain_onboarding.repository.AccountRepository
 import retrofit2.HttpException
-import javax.inject.Inject
 
-class AccountRepositoryImpl @Inject constructor(
+class AccountRepositoryImpl(
     private val remoteDataSource: RemoteAccountDataSource,
+    private val localAccountDataSource: LocalAccountDataSource,
     private val mapper: UserMapper
 ) : AccountRepository {
 
@@ -23,7 +25,7 @@ class AccountRepositoryImpl @Inject constructor(
             if (response.isSuccessful && body != null) {
                 if (body.errorMessage == null) {
                     val user = mapper.mapToDomain(body)
-//                        saveUser(user)
+                    saveUser(user)
 
                     return BaseResult.Success(Unit)
                 } else {
@@ -53,7 +55,7 @@ class AccountRepositoryImpl @Inject constructor(
             if (response.isSuccessful && body != null) {
                 if (body.errorMessage == null) {
                     val user = mapper.mapToDomain(body)
-//                        saveUser(user)
+                    saveUser(user)
 
                     return BaseResult.Success(Unit)
                 } else {
@@ -69,24 +71,11 @@ class AccountRepositoryImpl @Inject constructor(
         }
     }
 
-//    override suspend fun signOut() {
-//        AppSharedPreferences.userName = null
-//        AppSharedPreferences.authToken = null
-//        AppSharedPreferences.authTokenExpiresIn = null
-//    }
-//
-//    override suspend fun saveUser(user: User) {
-//        AppSharedPreferences.userName = user.username
-//        AppSharedPreferences.authToken = user.token
-//        AppSharedPreferences.authTokenExpiresIn = user.expiresIn
-//    }
-//
-//    override suspend fun getUser(): User? {
-//        val userName = AppSharedPreferences.userName
-//        val authToken = AppSharedPreferences.authToken
-//        val authTokenExpiresIn = AppSharedPreferences.authTokenExpiresIn
-//
-//        if (userName == null || authToken == null || authTokenExpiresIn == null) return null
-//        return User(userName, authToken, authTokenExpiresIn)
-//    }
+    private suspend fun saveUser(user: User) {
+        localAccountDataSource.saveUser(
+            username = user.username,
+            authToken = user.token,
+            expiresInt = user.expiresIn
+        )
+    }
 }

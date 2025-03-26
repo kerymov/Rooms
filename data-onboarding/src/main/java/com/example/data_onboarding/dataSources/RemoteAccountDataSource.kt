@@ -8,7 +8,7 @@ import retrofit2.Response
 import javax.inject.Inject
 import javax.inject.Singleton
 
-class RemoteAccountDataSource @Inject constructor(
+class RemoteAccountDataSource(
     private val api: AccountApi
 ) {
     suspend fun signIn(userSignInRequest: UserSignInRequest): Response<UserAuthResponse> {
