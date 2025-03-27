@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.rooms.common.RoomsApp
 import com.example.rooms.domain.repository.AccountRepository
 import com.example.rooms.domain.repository.RoomRepository
 import com.example.rooms.domain.repository.RoomsRepository
@@ -20,20 +21,22 @@ import com.example.rooms.presentation.navigation.Main
 import com.example.rooms.presentation.navigation.RootNavContainer
 import com.example.rooms.presentation.navigation.RootViewModel
 import com.example.rooms.presentation.theme.RoomsTheme
-import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
-@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    @Inject lateinit var accountRepository: AccountRepository
-    @Inject lateinit var roomsRepository: RoomsRepository
-    @Inject lateinit var roomRepository: RoomRepository
+    lateinit var accountRepository: AccountRepository
+    lateinit var roomsRepository: RoomsRepository
+    lateinit var roomRepository: RoomRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         enableEdgeToEdge()
+
+        accountRepository = (application as RoomsApp).accountRepository
+        roomsRepository = (application as RoomsApp).roomsRepository
+        roomRepository = (application as RoomsApp).roomRepository
 
         val splashViewModel by viewModels<SplashViewModel> {
             SplashViewModel.createFactory(accountRepository)
