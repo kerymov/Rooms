@@ -1,11 +1,12 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.jetbrainsKotlinAndroid)
+    alias(libs.plugins.jetbrainsKotlinSerialization)
     alias(libs.plugins.ksp)
 }
 
 android {
-    namespace = "com.example.ui_onboarding"
+    namespace = "com.example.ui_rooms"
     compileSdk = 34
 
     defaultConfig {
@@ -40,9 +41,8 @@ android {
 }
 
 dependencies {
-
     implementation(project(":domain-core"))
-    implementation(project(":domain-onboarding"))
+    implementation(project(":domain-rooms"))
     implementation(project(":ui-core"))
 
     implementation(libs.androidx.core.ktx)
@@ -61,7 +61,8 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.lifecycle.viewmodel.savedstate)
-//    implementation(libs.androidx.compose.runtime.livedata)
+
+    implementation(libs.kotlinx.serialization.json)
 
     implementation(libs.dagger.hilt.core)
     implementation(libs.androidx.hilt.navigation.compose)

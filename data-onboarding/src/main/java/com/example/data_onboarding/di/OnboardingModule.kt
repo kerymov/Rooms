@@ -8,7 +8,7 @@ import com.example.data_onboarding.utils.AuthTokenProviderImpl
 import com.example.data_onboarding.utils.UserMapper
 import com.example.domain_core.preferences.Preferences
 import com.example.domain_onboarding.repository.AccountRepository
-import com.example.network_core.AuthTokenProvider
+import com.example.network_core.utils.AuthTokenProvider
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

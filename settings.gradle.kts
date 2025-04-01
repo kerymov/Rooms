@@ -21,10 +21,16 @@ dependencyResolutionManagement {
 
 rootProject.name = "Rooms"
 include(":app")
-include(":domain-core")
+
 include(":domain-onboarding")
 include(":data-onboarding")
 include(":ui-onboarding")
-include(":network-core")
-include(":ui-core")
+
+include(":domain-rooms")
+include(":data-rooms")
+include(":ui-rooms")
+
+include(":domain-core")
 include(":data-core")
+include(":ui-core")
+include(":network-core")

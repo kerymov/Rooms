@@ -1,4 +1,4 @@
-package com.example.network_core
+package com.example.network_core.utils
 
 import kotlinx.coroutines.flow.Flow
 
