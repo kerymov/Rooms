@@ -56,6 +56,7 @@ dependencies {
 
     implementation(project(":domain-core"))
     implementation(project(":domain-onboarding"))
+    implementation(project(":data-onboarding"))
     implementation(project(":ui-onboarding"))
 
     implementation(libs.androidx.core.ktx)

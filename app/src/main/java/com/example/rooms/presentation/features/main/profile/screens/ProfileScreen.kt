@@ -34,166 +34,166 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.rooms.presentation.components.CustomAlertDialog
 import com.example.rooms.presentation.components.CustomAlertDialogDefaults
 import com.example.rooms.presentation.components.Divider
-import com.example.rooms.presentation.features.main.profile.viewModels.ProfileViewModel
+//import com.example.rooms.presentation.features.main.profile.viewModels.ProfileViewModel
 
-@Composable
-fun ProfileScreen(
-    onSignOut: () -> Unit,
-    modifier: Modifier = Modifier,
-    viewModel: ProfileViewModel = viewModel()
-) {
-    val uiState by viewModel.uiState.collectAsState()
-
-    var shouldShowLogOutDialog by remember { mutableStateOf(false) }
-
-    Content(
-        username = uiState.user?.name ?: "user",
-        onRecordsClick = { },
-        onAllResultsClick = { },
-        onSignOutClick = { shouldShowLogOutDialog = true },
-        modifier = modifier,
-    )
-
-    if (shouldShowLogOutDialog) {
-        CustomAlertDialog(
-            title = "Sign out",
-            message = "Do you really want to sign out?",
-            dismissButtonText = "Cancel",
-            confirmButtonText = "Sign out",
-            onDismiss = { shouldShowLogOutDialog = false },
-            onConfirm = {
-                viewModel.signOut()
-                shouldShowLogOutDialog = false
-                onSignOut()
-            },
-            colors = CustomAlertDialogDefaults.alertColors(
-                confirmButtonColor = MaterialTheme.colorScheme.error
-            )
-        )
-    }
-}
-
-@Composable
-private fun Content(
-    username: String,
-    onRecordsClick: () -> Unit,
-    onAllResultsClick: () -> Unit,
-    onSignOutClick: () -> Unit,
-    modifier: Modifier = Modifier
-) = Box(
-    modifier = modifier.fillMaxSize()
-) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(24.dp),
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-            .padding(20.dp)
-            .verticalScroll(rememberScrollState())
-    ) {
-        UserInfo(username)
-        Section(
-            title = "Results",
-            buttons = listOf(
-                ProfileButton("Records") { onRecordsClick() },
-                ProfileButton("All results") { onAllResultsClick() }
-            )
-        )
-        Section(
-            title = "Account",
-            buttons = listOf(
-                ProfileButton("Sign out") { onSignOutClick() }
-            ),
-            containerColor = MaterialTheme.colorScheme.error,
-            contentColor = MaterialTheme.colorScheme.onError
-        )
-    }
-}
-
-@Composable
-private fun UserInfo(
-    username: String
-) = Card(
-    shape = RoundedCornerShape(16.dp),
-    colors = CardDefaults.cardColors(
-        containerColor = MaterialTheme.colorScheme.primary
-    ),
-    modifier = Modifier.fillMaxWidth()
-) {
-    Text(
-        text = "Hello, $username",
-        style = MaterialTheme.typography.headlineMedium,
-        modifier = Modifier.padding(24.dp)
-    )
-}
-
-@Composable
-private fun Section(
-    title: String,
-    buttons: List<ProfileButton>,
-    containerColor: Color = MaterialTheme.colorScheme.surface,
-    contentColor: Color = MaterialTheme.colorScheme.onSurface
-) = Column(
-    verticalArrangement = Arrangement.spacedBy(16.dp)
-) {
-    Text(
-        text = title,
-        style = MaterialTheme.typography.titleLarge,
-        color = MaterialTheme.colorScheme.onBackground
-    )
-
-    Column(
-        modifier = Modifier
-            .clip(RoundedCornerShape(16.dp))
-            .background(containerColor)
-            .fillMaxWidth()
-    ) {
-        buttons.forEachIndexed { index, button ->
-            ProfileButton(
-                button,
-                contentColor
-            )
-
-            if (index != buttons.lastIndex) {
-                Divider(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 24.dp)
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun ProfileButton(
-    button: ProfileButton,
-    contentColor: Color = MaterialTheme.colorScheme.onBackground
-) {
-    Row(
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { button.onClick() }
-            .padding(vertical = 8.dp, horizontal = 24.dp)
-    ) {
-        Text(
-            text = button.title,
-            color = contentColor,
-            style = MaterialTheme.typography.bodyLarge
-        )
-
-        Icon(
-            imageVector = Icons.AutoMirrored.Rounded.ArrowForward,
-            contentDescription = "Go to ${button.title}",
-            tint = contentColor
-        )
-    }
-}
-
-data class ProfileButton(
-    val title: String,
-    val onClick: () -> Unit
-)
+//@Composable
+//fun ProfileScreen(
+//    onSignOut: () -> Unit,
+//    modifier: Modifier = Modifier,
+//    viewModel: ProfileViewModel = viewModel()
+//) {
+//    val uiState by viewModel.uiState.collectAsState()
+//
+//    var shouldShowLogOutDialog by remember { mutableStateOf(false) }
+//
+//    Content(
+//        username = uiState.user?.name ?: "user",
+//        onRecordsClick = { },
+//        onAllResultsClick = { },
+//        onSignOutClick = { shouldShowLogOutDialog = true },
+//        modifier = modifier,
+//    )
+//
+//    if (shouldShowLogOutDialog) {
+//        CustomAlertDialog(
+//            title = "Sign out",
+//            message = "Do you really want to sign out?",
+//            dismissButtonText = "Cancel",
+//            confirmButtonText = "Sign out",
+//            onDismiss = { shouldShowLogOutDialog = false },
+//            onConfirm = {
+//                viewModel.signOut()
+//                shouldShowLogOutDialog = false
+//                onSignOut()
+//            },
+//            colors = CustomAlertDialogDefaults.alertColors(
+//                confirmButtonColor = MaterialTheme.colorScheme.error
+//            )
+//        )
+//    }
+//}
+//
+//@Composable
+//private fun Content(
+//    username: String,
+//    onRecordsClick: () -> Unit,
+//    onAllResultsClick: () -> Unit,
+//    onSignOutClick: () -> Unit,
+//    modifier: Modifier = Modifier
+//) = Box(
+//    modifier = modifier.fillMaxSize()
+//) {
+//    Column(
+//        horizontalAlignment = Alignment.CenterHorizontally,
+//        verticalArrangement = Arrangement.spacedBy(24.dp),
+//        modifier = Modifier
+//            .fillMaxSize()
+//            .background(MaterialTheme.colorScheme.background)
+//            .padding(20.dp)
+//            .verticalScroll(rememberScrollState())
+//    ) {
+//        UserInfo(username)
+//        Section(
+//            title = "Results",
+//            buttons = listOf(
+//                ProfileButton("Records") { onRecordsClick() },
+//                ProfileButton("All results") { onAllResultsClick() }
+//            )
+//        )
+//        Section(
+//            title = "Account",
+//            buttons = listOf(
+//                ProfileButton("Sign out") { onSignOutClick() }
+//            ),
+//            containerColor = MaterialTheme.colorScheme.error,
+//            contentColor = MaterialTheme.colorScheme.onError
+//        )
+//    }
+//}
+//
+//@Composable
+//private fun UserInfo(
+//    username: String
+//) = Card(
+//    shape = RoundedCornerShape(16.dp),
+//    colors = CardDefaults.cardColors(
+//        containerColor = MaterialTheme.colorScheme.primary
+//    ),
+//    modifier = Modifier.fillMaxWidth()
+//) {
+//    Text(
+//        text = "Hello, $username",
+//        style = MaterialTheme.typography.headlineMedium,
+//        modifier = Modifier.padding(24.dp)
+//    )
+//}
+//
+//@Composable
+//private fun Section(
+//    title: String,
+//    buttons: List<ProfileButton>,
+//    containerColor: Color = MaterialTheme.colorScheme.surface,
+//    contentColor: Color = MaterialTheme.colorScheme.onSurface
+//) = Column(
+//    verticalArrangement = Arrangement.spacedBy(16.dp)
+//) {
+//    Text(
+//        text = title,
+//        style = MaterialTheme.typography.titleLarge,
+//        color = MaterialTheme.colorScheme.onBackground
+//    )
+//
+//    Column(
+//        modifier = Modifier
+//            .clip(RoundedCornerShape(16.dp))
+//            .background(containerColor)
+//            .fillMaxWidth()
+//    ) {
+//        buttons.forEachIndexed { index, button ->
+//            ProfileButton(
+//                button,
+//                contentColor
+//            )
+//
+//            if (index != buttons.lastIndex) {
+//                Divider(
+//                    modifier = Modifier
+//                        .fillMaxWidth()
+//                        .padding(horizontal = 24.dp)
+//                )
+//            }
+//        }
+//    }
+//}
+//
+//@Composable
+//private fun ProfileButton(
+//    button: ProfileButton,
+//    contentColor: Color = MaterialTheme.colorScheme.onBackground
+//) {
+//    Row(
+//        horizontalArrangement = Arrangement.SpaceBetween,
+//        verticalAlignment = Alignment.CenterVertically,
+//        modifier = Modifier
+//            .fillMaxWidth()
+//            .clickable { button.onClick() }
+//            .padding(vertical = 8.dp, horizontal = 24.dp)
+//    ) {
+//        Text(
+//            text = button.title,
+//            color = contentColor,
+//            style = MaterialTheme.typography.bodyLarge
+//        )
+//
+//        Icon(
+//            imageVector = Icons.AutoMirrored.Rounded.ArrowForward,
+//            contentDescription = "Go to ${button.title}",
+//            tint = contentColor
+//        )
+//    }
+//}
+//
+//data class ProfileButton(
+//    val title: String,
+//    val onClick: () -> Unit
+//)

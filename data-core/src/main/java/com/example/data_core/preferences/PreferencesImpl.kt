@@ -1,25 +1,43 @@
 package com.example.data_core.preferences
 
-import com.example.data_core.dataStore.DataStorePreferences
+import android.content.Context
+import androidx.datastore.core.DataStore
+import androidx.datastore.dataStore
+import com.example.data_core.models.PreferencesDto
+import com.example.data_core.utils.Crypto
+import com.example.data_core.mappers.UserMapper
+import com.example.domain_core.model.User
 import com.example.domain_core.preferences.Preferences
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+
+private const val PREFERENCES_NAME = "user-preferences"
+
+private val Context.dataStore: DataStore<PreferencesDto> by dataStore(
+    fileName = PREFERENCES_NAME,
+    serializer = PreferencesSerializer(PreferencesDto(), Crypto)
+)
 
 class PreferencesImpl(
-    private val dataStorePreferences: DataStorePreferences
+    context: Context,
+    private val mapper: UserMapper
 ): Preferences {
 
-    override suspend fun getUsername(): String? {
-        return dataStorePreferences.getString(Key.USER_NAME.name)
-    }
+    private val dataStore = context.dataStore
 
-    override suspend fun saveUsername(username: String) {
-        dataStorePreferences.putString(Key.USER_NAME.name, username)
+    override val user: Flow<User?>
+        get() = dataStore.data.map { preferences ->
+            preferences.user?.let { mapper.mapToDomain(it) }
+        }
+
+    override suspend fun saveUser(user: User) {
+        dataStore.updateData { preferences ->
+            preferences.copy(user = mapper.mapFromDomain(user))
+        }
     }
 
     override suspend fun clear() {
-        dataStorePreferences.removeString(Key.USER_NAME.name)
+        dataStore.updateData { PreferencesDto() }
     }
 
-    private enum class Key {
-        USER_NAME
-    }
 }

@@ -16,34 +16,45 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
 
-    private val httpLoggingInterceptor = HttpLoggingInterceptor().apply {
-        this.level = HttpLoggingInterceptor.Level.BODY
+    @Provides
+    fun provideAuthInterceptor(authTokenProvider: AuthTokenProvider): AuthInterceptor {
+        return AuthInterceptor(authTokenProvider)
     }
 
     @Provides
     @Singleton
-    private fun provideHttpClient(authInterceptor: AuthInterceptor) = OkHttpClient.Builder()
-        .addInterceptor { chain ->
-            val requestBuilder: Request.Builder = chain.request().newBuilder()
-            requestBuilder
-                .addHeader("Content-Type", "application/json")
-                .addHeader("accept", "*/*")
-            chain.proceed(requestBuilder.build())
+    fun provideHttpLoggingInterceptor(): HttpLoggingInterceptor {
+        return HttpLoggingInterceptor().apply {
+            this.level = HttpLoggingInterceptor.Level.BODY
         }
-        .addInterceptor(authInterceptor)
-        .addInterceptor(httpLoggingInterceptor)
-        .connectTimeout(Duration.ofSeconds(10))
-        .callTimeout(Duration.ofSeconds(10))
-        .readTimeout(Duration.ofSeconds(10))
-        .writeTimeout(Duration.ofSeconds(10))
-        .build()
+    }
 
     @Provides
     @Singleton
-    private fun provideRetrofit(token: String?): Retrofit {
-        val authInterceptor = AuthInterceptor(token)
-        val httpClient = provideHttpClient(authInterceptor)
+    fun provideHttpClient(
+        authInterceptor: AuthInterceptor,
+        httpLoggingInterceptor: HttpLoggingInterceptor
+    ): OkHttpClient {
+        return OkHttpClient.Builder()
+            .addInterceptor { chain ->
+                val requestBuilder: Request.Builder = chain.request().newBuilder()
+                requestBuilder
+                    .addHeader("Content-Type", "application/json")
+                    .addHeader("accept", "*/*")
+                chain.proceed(requestBuilder.build())
+            }
+            .addInterceptor(authInterceptor)
+            .addInterceptor(httpLoggingInterceptor)
+            .connectTimeout(Duration.ofSeconds(10))
+            .callTimeout(Duration.ofSeconds(10))
+            .readTimeout(Duration.ofSeconds(10))
+            .writeTimeout(Duration.ofSeconds(10))
+            .build()
+    }
 
+    @Provides
+    @Singleton
+    fun provideRetrofit(httpClient: OkHttpClient): Retrofit {
         return Retrofit.Builder()
             .baseUrl("https://team-cubing.azurewebsites.net/api/")
             .client(httpClient)

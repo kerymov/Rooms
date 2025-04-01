@@ -4,10 +4,11 @@ import com.example.data_onboarding.dataSources.LocalAccountDataSource
 import com.example.data_onboarding.service.AccountApi
 import com.example.data_onboarding.repository.AccountRepositoryImpl
 import com.example.data_onboarding.dataSources.RemoteAccountDataSource
+import com.example.data_onboarding.utils.AuthTokenProviderImpl
 import com.example.data_onboarding.utils.UserMapper
 import com.example.domain_core.preferences.Preferences
-import com.example.domain_core.preferences.SecurePreferences
 import com.example.domain_onboarding.repository.AccountRepository
+import com.example.network_core.AuthTokenProvider
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -37,12 +38,8 @@ object OnboardingModule {
     @Singleton
     fun provideLocalAccountDataSource(
         preferences: Preferences,
-        securePreferences: SecurePreferences
     ): LocalAccountDataSource {
-        return LocalAccountDataSource(
-            preferences = preferences,
-            securePreferences = securePreferences
-        )
+        return LocalAccountDataSource(preferences = preferences)
     }
 
     @Provides
@@ -57,5 +54,13 @@ object OnboardingModule {
     @Singleton
     fun provideAccountApi(retrofit: Retrofit): AccountApi {
         return retrofit.create(AccountApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideAuthTokenProvider(
+        preferences: Preferences,
+    ): AuthTokenProvider {
+        return AuthTokenProviderImpl(preferences = preferences)
     }
 }

@@ -1,6 +1,5 @@
 package com.example.rooms.data.network
 
-import com.example.rooms.data.network.account.AccountApi
 import com.example.rooms.data.network.rooms.RoomsApi
 import com.example.rooms.data.network.scramble.ScrambleApi
 import okhttp3.OkHttpClient
@@ -42,9 +41,6 @@ object RetrofitInstance {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }
-
-    fun provideAccountApi(): AccountApi =
-        provideRetrofit(null).create(AccountApi::class.java)
 
     fun provideRoomsApi(token: String?): RoomsApi =
         provideRetrofit(token).create(RoomsApi::class.java)

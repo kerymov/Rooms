@@ -1,10 +1,13 @@
 package com.example.domain_core.preferences
 
+import com.example.domain_core.model.User
+import kotlinx.coroutines.flow.Flow
+
 interface Preferences {
 
-    suspend fun getUsername(): String?
+    val user: Flow<User?>
 
-    suspend fun saveUsername(username: String)
+    suspend fun saveUser(user: User)
 
     suspend fun clear()
 }

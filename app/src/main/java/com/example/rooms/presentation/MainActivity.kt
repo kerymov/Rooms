@@ -10,22 +10,22 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.rooms.common.RoomsApp
-import com.example.rooms.domain.repository.AccountRepository
 import com.example.rooms.domain.repository.RoomRepository
 import com.example.rooms.domain.repository.RoomsRepository
-import com.example.rooms.presentation.features.auth.viewModels.LocalSplashState
-import com.example.rooms.presentation.features.auth.viewModels.SplashUiState
-import com.example.rooms.presentation.features.auth.viewModels.SplashViewModel
+import com.example.rooms.presentation.features.LocalSplashState
+import com.example.rooms.presentation.features.SplashUiState
+import com.example.rooms.presentation.features.SplashViewModel
 import com.example.rooms.presentation.navigation.Auth
 import com.example.rooms.presentation.navigation.Main
 import com.example.rooms.presentation.navigation.RootNavContainer
 import com.example.rooms.presentation.navigation.RootViewModel
 import com.example.rooms.presentation.theme.RoomsTheme
-import javax.inject.Inject
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    lateinit var accountRepository: AccountRepository
+//    lateinit var accountRepository: AccountRepository
     lateinit var roomsRepository: RoomsRepository
     lateinit var roomRepository: RoomRepository
 
@@ -34,13 +34,11 @@ class MainActivity : ComponentActivity() {
 
         enableEdgeToEdge()
 
-        accountRepository = (application as RoomsApp).accountRepository
+//        accountRepository = (application as RoomsApp).accountRepository
         roomsRepository = (application as RoomsApp).roomsRepository
         roomRepository = (application as RoomsApp).roomRepository
 
-        val splashViewModel by viewModels<SplashViewModel> {
-            SplashViewModel.createFactory(accountRepository)
-        }
+        val splashViewModel by viewModels<SplashViewModel>()
 
         installSplashScreen().setKeepOnScreenCondition {
             splashViewModel.uiState.value == SplashUiState.None
@@ -50,7 +48,6 @@ class MainActivity : ComponentActivity() {
             RoomsTheme {
                 CompositionLocalProvider(LocalSplashState provides splashViewModel) {
                     ApplicationManager(
-                        accountRepository = accountRepository,
                         roomsRepository = roomsRepository,
                         roomRepository = roomRepository
                     )
@@ -62,7 +59,6 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 private fun ApplicationManager(
-    accountRepository: AccountRepository,
     roomsRepository: RoomsRepository,
     roomRepository: RoomRepository,
 ) {
@@ -79,7 +75,6 @@ private fun ApplicationManager(
     RootNavContainer(
         startNavModule = startNavModule,
         rootViewModel = rootViewModel,
-        accountRepository = accountRepository,
         roomsRepository = roomsRepository,
         roomRepository = roomRepository
     )

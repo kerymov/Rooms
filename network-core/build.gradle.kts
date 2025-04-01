@@ -16,6 +16,8 @@ kotlin {
 }
 
 dependencies {
+    implementation(libs.kotlinx.coroutines.core)
+
     implementation(libs.squareup.retrofit2.retrofit)
     implementation(libs.squareup.retrofit2.converter.gson)
     implementation(libs.squareup.okhttp3.okhttp)

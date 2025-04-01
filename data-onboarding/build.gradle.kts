@@ -36,6 +36,7 @@ android {
 dependencies {
     implementation(project(":domain-onboarding"))
     implementation(project(":domain-core"))
+    implementation(project(":data-core"))
     implementation(project(":network-core"))
 
     implementation(libs.squareup.retrofit2.retrofit)

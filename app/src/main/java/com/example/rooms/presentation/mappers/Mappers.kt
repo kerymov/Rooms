@@ -1,6 +1,5 @@
 package com.example.rooms.presentation.mappers
 
-import com.example.rooms.domain.model.auth.User
 import com.example.rooms.domain.model.rooms.Event
 import com.example.rooms.domain.model.rooms.NewSolveResult
 import com.example.rooms.domain.model.rooms.Penalty
@@ -10,7 +9,6 @@ import com.example.rooms.domain.model.rooms.RoomDetails
 import com.example.rooms.domain.model.rooms.RoomSettings
 import com.example.rooms.domain.model.rooms.Scramble
 import com.example.rooms.domain.model.rooms.Solve
-import com.example.rooms.presentation.features.auth.models.UserUiModel
 import com.example.rooms.presentation.features.main.rooms.models.EventUi
 import com.example.rooms.presentation.features.main.rooms.models.NewSolveResultUi
 import com.example.rooms.presentation.features.main.rooms.models.PenaltyUi
@@ -21,13 +19,13 @@ import com.example.rooms.presentation.features.main.rooms.models.ScrambleUi
 import com.example.rooms.presentation.features.main.rooms.models.SettingsUi
 import com.example.rooms.presentation.features.main.rooms.models.SolveUi
 
-internal fun User.mapToUiModel(): UserUiModel {
-    return UserUiModel(
-        name = this.username,
-        token = this.token,
-        expiresIn = this.expiresIn
-    )
-}
+//internal fun User.mapToUiModel(): UserUiModel {
+//    return UserUiModel(
+//        name = this.username,
+//        token = this.token,
+//        expiresIn = this.expiresIn
+//    )
+//}
 
 internal fun Room.mapToUiModel(): RoomUi {
     return RoomUi(
