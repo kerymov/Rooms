@@ -6,7 +6,6 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 //import com.example.rooms.domain.useCases.auth.GetUserUseCase
 //import com.example.rooms.domain.useCases.auth.SignOutUseCase
-import com.example.rooms.presentation.mappers.mapToUiModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

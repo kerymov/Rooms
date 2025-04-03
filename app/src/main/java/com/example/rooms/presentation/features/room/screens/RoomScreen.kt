@@ -64,17 +64,9 @@ import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.rooms.R
-import com.example.rooms.presentation.features.main.rooms.models.EventUi
-import com.example.rooms.presentation.features.main.rooms.models.PenaltyUi
-import com.example.rooms.presentation.features.main.rooms.models.ResultUi
-import com.example.rooms.presentation.features.main.rooms.models.RoomDetailsUi
-import com.example.rooms.presentation.features.main.rooms.models.ScrambleUi
-import com.example.rooms.presentation.features.main.rooms.models.SettingsUi
-import com.example.rooms.presentation.features.main.rooms.models.SolveUi
 import com.example.rooms.presentation.features.room.components.ClickableTimer
 import com.example.rooms.presentation.features.room.components.ManualTypingTimer
 import com.example.rooms.presentation.features.room.components.ScrambleImageCanvas
@@ -89,6 +81,13 @@ import com.example.rooms.presentation.features.utils.FadeSide
 import com.example.rooms.presentation.features.utils.defaultBottomSheetPadding
 import com.example.rooms.presentation.features.utils.fadingEdge
 import com.example.rooms.presentation.theme.RoomsTheme
+import com.example.ui_rooms.models.EventUi
+import com.example.ui_rooms.models.PenaltyUi
+import com.example.ui_rooms.models.ResultUi
+import com.example.ui_rooms.models.RoomDetailsUi
+import com.example.ui_rooms.models.ScrambleUi
+import com.example.ui_rooms.models.SettingsUi
+import com.example.ui_rooms.models.SolveUi
 
 private enum class Page {
     SCRAMBLE,

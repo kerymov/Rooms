@@ -1,11 +1,13 @@
 package com.example.network_core.utils
 
+import com.example.domain_core.auth.AuthTokenProvider
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
 import okhttp3.Response
+import javax.inject.Inject
 
-class AuthInterceptor(
+class AuthInterceptor @Inject constructor(
     private val tokenProvider: AuthTokenProvider
 ): Interceptor {
 

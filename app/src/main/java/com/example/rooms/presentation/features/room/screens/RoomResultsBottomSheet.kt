@@ -43,16 +43,16 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.rooms.presentation.components.Divider
-import com.example.rooms.presentation.features.main.rooms.models.PenaltyUi
-import com.example.rooms.presentation.features.main.rooms.models.ResultUi
-import com.example.rooms.presentation.features.main.rooms.models.ScrambleUi
-import com.example.rooms.presentation.features.main.rooms.models.SolveUi
 import com.example.rooms.presentation.features.room.utils.RESULT_PLACEHOLDER
 import com.example.rooms.presentation.features.room.utils.ResultInfo
 import com.example.rooms.presentation.features.room.utils.StatisticManager
 import com.example.rooms.presentation.features.room.utils.resultInWcaNotation
 import com.example.rooms.presentation.features.room.utils.toWcaNotation
 import com.example.rooms.presentation.theme.RoomsTheme
+import com.example.ui_rooms.models.PenaltyUi
+import com.example.ui_rooms.models.ResultUi
+import com.example.ui_rooms.models.ScrambleUi
+import com.example.ui_rooms.models.SolveUi
 import kotlin.random.Random
 
 @OptIn(ExperimentalMaterial3Api::class)

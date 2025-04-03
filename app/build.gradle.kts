@@ -55,9 +55,15 @@ android {
 dependencies {
 
     implementation(project(":domain-core"))
+    implementation(project(":data-core"))
+
     implementation(project(":domain-onboarding"))
     implementation(project(":data-onboarding"))
     implementation(project(":ui-onboarding"))
+
+    implementation(project(":domain-rooms"))
+    implementation(project(":data-rooms")) // Temporary dependency
+    implementation(project(":ui-rooms"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.core.splashscreen)

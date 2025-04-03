@@ -4,7 +4,7 @@ import com.example.data_core.models.UserDto
 import com.example.domain_core.model.User
 import javax.inject.Inject
 
-class UserMapper @Inject constructor() {
+class UserMapper {
 
     val mapToDomain: (UserDto) -> User = {
         with(it) {

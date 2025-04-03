@@ -1,9 +1,9 @@
 package com.example.rooms.data.dataSource.room
 
-import com.example.rooms.data.model.rooms.NewSolveResultDto
-import com.example.rooms.data.model.rooms.ResultDto
-import com.example.rooms.data.model.rooms.ScrambleDto
-import com.example.rooms.data.model.rooms.SolveDto
+import com.example.data_rooms.models.NewSolveResultDto
+import com.example.data_rooms.models.ResultDto
+import com.example.data_rooms.models.ScrambleDto
+import com.example.data_rooms.models.SolveDto
 import com.example.rooms.data.network.NetworkResult
 import com.example.rooms.data.network.handleApi
 import com.example.rooms.data.network.room.RoomService

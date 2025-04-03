@@ -16,6 +16,9 @@ kotlin {
 }
 
 dependencies {
+
+    implementation(project(":domain-core"))
+
     implementation(libs.kotlinx.coroutines.core)
 
     implementation(libs.squareup.retrofit2.retrofit)

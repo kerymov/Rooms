@@ -9,6 +9,7 @@ import com.example.domain_core.utils.BaseResult
 import com.example.domain_onboarding.models.User
 import com.example.domain_onboarding.repository.AccountRepository
 import retrofit2.HttpException
+import javax.inject.Inject
 
 class AccountRepositoryImpl(
     private val remoteDataSource: RemoteAccountDataSource,

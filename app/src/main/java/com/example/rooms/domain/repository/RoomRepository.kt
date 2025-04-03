@@ -1,11 +1,11 @@
 package com.example.rooms.domain.repository
 
+import com.example.domain_rooms.models.Result
+import com.example.domain_rooms.models.NewSolveResult
+import com.example.domain_rooms.models.Scramble
+import com.example.domain_rooms.models.Solve
+import com.example.domain_rooms.models.User
 import com.example.rooms.domain.model.BaseResult
-import com.example.rooms.domain.model.rooms.NewSolveResult
-import com.example.rooms.domain.model.rooms.Result
-import com.example.rooms.domain.model.rooms.Scramble
-import com.example.rooms.domain.model.rooms.Solve
-import com.example.rooms.domain.model.rooms.User
 import kotlinx.coroutines.flow.Flow
 
 interface RoomRepository {

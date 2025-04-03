@@ -1,7 +1,7 @@
 package com.example.network_core.di
 
+import com.example.domain_core.auth.AuthTokenProvider
 import com.example.network_core.utils.AuthInterceptor
-import com.example.network_core.utils.AuthTokenProvider
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

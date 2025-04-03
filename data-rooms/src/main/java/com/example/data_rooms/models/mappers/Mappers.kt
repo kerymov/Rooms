@@ -18,7 +18,7 @@ import com.example.domain_rooms.models.Scramble
 import com.example.domain_rooms.models.Solve
 import com.example.domain_rooms.models.Result
 
-internal fun RoomDto.mapToDomainModel(): Room {
+fun RoomDto.mapToDomainModel(): Room {
     return Room(
         id = this.id,
         name = this.roomName,
@@ -30,7 +30,7 @@ internal fun RoomDto.mapToDomainModel(): Room {
     )
 }
 
-internal fun CreateRoomDetailsDto.mapToDomainModel(): RoomDetails {
+fun CreateRoomDetailsDto.mapToDomainModel(): RoomDetails {
     return RoomDetails(
         id = this.id,
         name = this.name,
@@ -44,7 +44,7 @@ internal fun CreateRoomDetailsDto.mapToDomainModel(): RoomDetails {
     )
 }
 
-internal fun LoginRoomDetailsDto.mapToDomainModel(): RoomDetails {
+fun LoginRoomDetailsDto.mapToDomainModel(): RoomDetails {
     return RoomDetails(
         id = this.id,
         name = this.name,
@@ -58,7 +58,7 @@ internal fun LoginRoomDetailsDto.mapToDomainModel(): RoomDetails {
     )
 }
 
-internal fun RoomSettings.mapToDto(): RoomSettingsDto {
+fun RoomSettings.mapToDto(): RoomSettingsDto {
     return RoomSettingsDto(
         puzzle = this.event.mapToDto(),
         isOpen = this.isOpen,
@@ -67,7 +67,7 @@ internal fun RoomSettings.mapToDto(): RoomSettingsDto {
     )
 }
 
-internal fun RoomSettingsDto.mapToDomainModel(): RoomSettings {
+fun RoomSettingsDto.mapToDomainModel(): RoomSettings {
     return RoomSettings(
         event = this.puzzle.mapToEventDomainModel(),
         isOpen = this.isOpen,
@@ -76,7 +76,7 @@ internal fun RoomSettingsDto.mapToDomainModel(): RoomSettings {
     )
 }
 
-internal fun SolveDto.mapToDomainModel(): Solve {
+fun SolveDto.mapToDomainModel(): Solve {
     return Solve(
         solveNumber = this.solveNumber,
         scramble = Scramble(
@@ -87,7 +87,7 @@ internal fun SolveDto.mapToDomainModel(): Solve {
     )
 }
 
-internal fun Solve.mapToDto(): SolveDto {
+fun Solve.mapToDto(): SolveDto {
     return SolveDto(
         solveNumber = this.solveNumber,
         scramble = this.scramble.scramble,
@@ -96,7 +96,7 @@ internal fun Solve.mapToDto(): SolveDto {
     )
 }
 
-internal fun NewSolveResult.mapToDto(): NewSolveResultDto {
+fun NewSolveResult.mapToDto(): NewSolveResultDto {
     return NewSolveResultDto(
         roomId = this.roomId,
         solveNumber = this.solveNumber,
@@ -105,33 +105,33 @@ internal fun NewSolveResult.mapToDto(): NewSolveResultDto {
     )
 }
 
-internal fun ScrambleDto.mapToDomainModel(): Scramble {
+fun ScrambleDto.mapToDomainModel(): Scramble {
     return Scramble(
         scramble = this.scramble,
         image = this.image?.mapToDomainModel()
     )
 }
 
-internal fun Scramble.mapToDto(): ScrambleDto {
+fun Scramble.mapToDto(): ScrambleDto {
     return ScrambleDto(
         scramble = this.scramble,
         image = this.image?.mapToDto()
     )
 }
 
-internal fun Scramble.Image.mapToDto(): ScrambleDto.Image {
+fun Scramble.Image.mapToDto(): ScrambleDto.Image {
     return ScrambleDto.Image(
         faces = this.faces.map { ScrambleDto.Face(it.colors) }
     )
 }
 
-internal fun ScrambleDto.Image.mapToDomainModel(): Scramble.Image {
+fun ScrambleDto.Image.mapToDomainModel(): Scramble.Image {
     return Scramble.Image(
         faces = this.faces.map { Scramble.Face(it.colors) }
     )
 }
 
-internal fun ResultDto.mapToDomainModel(): Result {
+fun ResultDto.mapToDomainModel(): Result {
     return Result(
         userName = this.userName,
         time = this.time,
@@ -139,7 +139,7 @@ internal fun ResultDto.mapToDomainModel(): Result {
     )
 }
 
-internal fun Result.mapToDto(): ResultDto {
+fun Result.mapToDto(): ResultDto {
     return ResultDto(
         userName = this.userName,
         time = this.time,
@@ -147,7 +147,7 @@ internal fun Result.mapToDto(): ResultDto {
     )
 }
 
-internal fun Penalty.mapToDto(): Int {
+fun Penalty.mapToDto(): Int {
     return when (this) {
         Penalty.NO_PENALTY -> 0
         Penalty.PLUS_TWO -> 1
@@ -156,7 +156,7 @@ internal fun Penalty.mapToDto(): Int {
 }
 
 
-internal fun Int.mapToPenaltyDomainModel(): Penalty {
+fun Int.mapToPenaltyDomainModel(): Penalty {
     return when (this) {
         0 -> Penalty.NO_PENALTY
         1 -> Penalty.PLUS_TWO
@@ -164,7 +164,7 @@ internal fun Int.mapToPenaltyDomainModel(): Penalty {
     }
 }
 
-internal fun Event.mapToDto(): Int {
+fun Event.mapToDto(): Int {
     return when (this) {
         Event.THREE_BY_THREE -> 3
         Event.TWO_BY_TWO -> 2
@@ -175,7 +175,7 @@ internal fun Event.mapToDto(): Int {
     }
 }
 
-internal fun Int.mapToEventDomainModel(): Event {
+fun Int.mapToEventDomainModel(): Event {
     return when (this) {
         3 -> Event.THREE_BY_THREE
         2 -> Event.TWO_BY_TWO

@@ -11,7 +11,6 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.rooms.common.RoomsApp
 import com.example.rooms.domain.repository.RoomRepository
-import com.example.rooms.domain.repository.RoomsRepository
 import com.example.rooms.presentation.features.LocalSplashState
 import com.example.rooms.presentation.features.SplashUiState
 import com.example.rooms.presentation.features.SplashViewModel
@@ -25,8 +24,6 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-//    lateinit var accountRepository: AccountRepository
-    lateinit var roomsRepository: RoomsRepository
     lateinit var roomRepository: RoomRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,8 +31,6 @@ class MainActivity : ComponentActivity() {
 
         enableEdgeToEdge()
 
-//        accountRepository = (application as RoomsApp).accountRepository
-        roomsRepository = (application as RoomsApp).roomsRepository
         roomRepository = (application as RoomsApp).roomRepository
 
         val splashViewModel by viewModels<SplashViewModel>()
@@ -48,7 +43,6 @@ class MainActivity : ComponentActivity() {
             RoomsTheme {
                 CompositionLocalProvider(LocalSplashState provides splashViewModel) {
                     ApplicationManager(
-                        roomsRepository = roomsRepository,
                         roomRepository = roomRepository
                     )
                 }
@@ -59,7 +53,6 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 private fun ApplicationManager(
-    roomsRepository: RoomsRepository,
     roomRepository: RoomRepository,
 ) {
     val splashState = LocalSplashState.current
@@ -75,7 +68,6 @@ private fun ApplicationManager(
     RootNavContainer(
         startNavModule = startNavModule,
         rootViewModel = rootViewModel,
-        roomsRepository = roomsRepository,
         roomRepository = roomRepository
     )
 }

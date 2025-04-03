@@ -29,20 +29,19 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.example.rooms.R
 import com.example.rooms.domain.repository.RoomRepository
-import com.example.rooms.domain.repository.RoomsRepository
 import com.example.rooms.presentation.components.BottomNavigationBar
 import com.example.rooms.presentation.components.CenterAlignedTopBar
 import com.example.rooms.presentation.components.TopAppBarInteractionItem
 import com.example.rooms.presentation.components.TopAppBarItem
-import com.example.rooms.presentation.features.main.rooms.models.RoomDetailsUi
-import com.example.rooms.presentation.features.main.rooms.screens.RoomsScreen
-import com.example.rooms.presentation.features.main.rooms.viewModels.RoomsViewModel
 import com.example.rooms.presentation.features.room.screens.RoomScreen
 import com.example.rooms.presentation.features.room.viewModels.RoomViewModel
 import com.example.rooms.presentation.features.utils.sharedViewModel
 import com.example.ui_onboarding.screens.SignInScreen
 import com.example.ui_onboarding.screens.SignUpScreen
 import com.example.ui_onboarding.viewModels.AuthViewModel
+import com.example.ui_rooms.models.RoomDetailsUi
+import com.example.ui_rooms.screens.RoomsScreen
+import com.example.ui_rooms.viewModels.RoomsViewModel
 import kotlinx.serialization.json.Json
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -50,9 +49,7 @@ import kotlinx.serialization.json.Json
 fun RootNavContainer(
     startNavModule: NavModule,
     rootViewModel: RootViewModel,
-//    accountRepository: AccountRepository,
-    roomsRepository: RoomsRepository,
-    roomRepository: RoomRepository,
+    roomRepository: RoomRepository
 ) {
     val navController = rememberNavController()
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
@@ -134,9 +131,7 @@ fun RootNavContainer(
                 startDestination = Main.Rooms
             ) {
                 composable<Main.Rooms> {
-                    val roomsViewModel = viewModel<RoomsViewModel>(
-                        factory = RoomsViewModel.createFactory(roomsRepository)
-                    )
+                    val roomsViewModel = hiltViewModel<RoomsViewModel>()
 
                     rootViewModel.updateTopAppBar(
                         item = TopAppBarItem(

@@ -1,4 +1,4 @@
-package com.example.network_core.utils
+package com.example.domain_core.auth
 
 import kotlinx.coroutines.flow.Flow
 

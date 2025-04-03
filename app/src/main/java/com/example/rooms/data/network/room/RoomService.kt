@@ -1,8 +1,8 @@
 package com.example.rooms.data.network.room
 
-import com.example.rooms.data.model.rooms.NewSolveResultDto
-import com.example.rooms.data.model.rooms.ResultDto
-import com.example.rooms.data.model.rooms.SolveDto
+import com.example.data_rooms.models.NewSolveResultDto
+import com.example.data_rooms.models.ResultDto
+import com.example.data_rooms.models.SolveDto
 import com.microsoft.signalr.HubConnectionBuilder
 import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.channels.awaitClose

@@ -1,16 +1,16 @@
 package com.example.rooms.data.repository
 
+import com.example.data_rooms.models.ScrambleDto
+import com.example.data_rooms.models.mappers.mapToDomainModel
+import com.example.data_rooms.models.mappers.mapToDto
+import com.example.domain_rooms.models.NewSolveResult
+import com.example.domain_rooms.models.Scramble
+import com.example.domain_rooms.models.Solve
+import com.example.domain_rooms.models.User
+import com.example.domain_rooms.models.Result
 import com.example.rooms.data.dataSource.room.RemoteRoomDataSource
-import com.example.rooms.data.model.rooms.ScrambleDto
-import com.example.rooms.data.model.rooms.mappers.mapToDomainModel
-import com.example.rooms.data.model.rooms.mappers.mapToDto
 import com.example.rooms.data.network.NetworkResult
 import com.example.rooms.domain.model.BaseResult
-import com.example.rooms.domain.model.rooms.NewSolveResult
-import com.example.rooms.domain.model.rooms.Result
-import com.example.rooms.domain.model.rooms.Scramble
-import com.example.rooms.domain.model.rooms.Solve
-import com.example.rooms.domain.model.rooms.User
 import com.example.rooms.domain.repository.RoomRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map

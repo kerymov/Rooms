@@ -1,6 +1,6 @@
 package com.example.rooms.domain.useCases.room
 
-import com.example.rooms.domain.model.rooms.Result
+import com.example.domain_rooms.models.Result
 import com.example.rooms.domain.repository.RoomRepository
 import kotlinx.coroutines.flow.Flow
 

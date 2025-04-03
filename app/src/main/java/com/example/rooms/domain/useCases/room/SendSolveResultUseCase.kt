@@ -1,7 +1,6 @@
 package com.example.rooms.domain.useCases.room
 
-import com.example.rooms.domain.model.rooms.NewSolveResult
-import com.example.rooms.domain.model.rooms.Solve
+import com.example.domain_rooms.models.NewSolveResult
 import com.example.rooms.domain.repository.RoomRepository
 
 class SendSolveResultUseCase(

@@ -1,7 +1,7 @@
 package com.example.rooms.domain.useCases.room
 
+import com.example.domain_rooms.models.Scramble
 import com.example.rooms.domain.model.BaseResult
-import com.example.rooms.domain.model.rooms.Scramble
 import com.example.rooms.domain.repository.RoomRepository
 
 class GetScrambleUseCase(

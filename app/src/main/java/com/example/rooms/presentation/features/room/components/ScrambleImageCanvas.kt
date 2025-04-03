@@ -14,14 +14,14 @@ import androidx.compose.ui.graphics.drawscope.inset
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.rooms.presentation.features.main.rooms.models.EventUi
-import com.example.rooms.presentation.features.main.rooms.models.ScrambleUi
 import com.example.rooms.presentation.theme.BlueCube
 import com.example.rooms.presentation.theme.GreenCube
 import com.example.rooms.presentation.theme.OrangeCube
 import com.example.rooms.presentation.theme.RedCube
 import com.example.rooms.presentation.theme.WhiteCube
 import com.example.rooms.presentation.theme.YellowCube
+import com.example.ui_rooms.models.EventUi
+import com.example.ui_rooms.models.ScrambleUi
 
 private enum class ImageColor(val id: Int, val value: Color) {
     RED(0, RedCube),
