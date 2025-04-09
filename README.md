@@ -17,12 +17,13 @@ Thanks a lot to Oleg for providing a high-quality back-end solution.
 ### Android main stack:
 - Kotlin
 - Jetpack Compose
-- Kotlin Coroutines
-- Flow
+- Kotlin Coroutines & Flows
+- Hilt
 - Retrofit2
 - Compose Navigation
 - SignalR
 
 ### Architecture:
+- Multi-module architecture
 - Clean Architecture
 - MVVM
