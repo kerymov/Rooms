@@ -62,8 +62,12 @@ dependencies {
     implementation(project(":ui-onboarding"))
 
     implementation(project(":domain-rooms"))
-    implementation(project(":data-rooms")) // Temporary dependency
+    implementation(project(":data-rooms"))
     implementation(project(":ui-rooms"))
+
+    implementation(project(":domain-room"))
+    implementation(project(":data-room"))
+    implementation(project(":ui-room"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.core.splashscreen)

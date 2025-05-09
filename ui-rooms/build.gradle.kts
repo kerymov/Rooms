@@ -44,6 +44,7 @@ dependencies {
     implementation(project(":domain-core"))
     implementation(project(":domain-rooms"))
     implementation(project(":ui-core"))
+    api(project(":ui-common-speedcubing"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)

@@ -1,5 +1,6 @@
 package com.example.ui_rooms.models
 
+import com.example.ui_common_speedcubing.models.SolveUi
 import kotlinx.serialization.Serializable
 
 @Serializable

@@ -57,13 +57,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.ui_common_speedcubing.models.EventUi
 import com.example.ui_core.components.CircularLoadingIndicator
 import com.example.ui_core.components.ErrorCard
 import com.example.ui_core.theme.RoomsTheme
 import com.example.ui_core.utils.defaultBottomSheetPadding
 import com.example.ui_rooms.components.RoomLoginDialog
 import com.example.ui_rooms.components.RoomsCreatingBottomSheet
-import com.example.ui_rooms.models.EventUi
 import com.example.ui_rooms.models.RoomDetailsUi
 import com.example.ui_rooms.models.RoomUi
 import com.example.ui_rooms.viewModels.RoomsUiState

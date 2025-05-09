@@ -1,5 +1,7 @@
 package com.example.data_rooms.models
 
+import com.example.data_common_speedcubing.models.SolveDto
+
 data class LoginRoomDetailsDto(
     val id: String,
     val name: String,

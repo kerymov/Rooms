@@ -1,5 +1,7 @@
 package com.example.domain_rooms.models
 
+import com.example.domain_common_speedcubing.models.Solve
+
 data class RoomDetails(
     val id: String,
     val name: String,

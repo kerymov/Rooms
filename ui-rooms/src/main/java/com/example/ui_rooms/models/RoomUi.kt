@@ -1,5 +1,7 @@
 package com.example.ui_rooms.models
 
+import com.example.ui_common_speedcubing.models.EventUi
+
 data class RoomUi(
     val id: String,
     val name: String,

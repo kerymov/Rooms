@@ -16,9 +16,9 @@ kotlin {
 }
 
 dependencies {
+    implementation(project(":data-common-speedcubing"))
     implementation(project(":domain-rooms"))
     implementation(project(":domain-core"))
-//    implementation(project(":data-core"))
     implementation(project(":network-core"))
 
     implementation(libs.kotlinx.coroutines.core)

@@ -52,8 +52,8 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.ui_common_speedcubing.models.EventUi
 import com.example.ui_core.components.Divider
-import com.example.ui_rooms.models.EventUi
 import com.example.ui_rooms.models.SettingsUi
 
 @OptIn(ExperimentalMaterial3Api::class)

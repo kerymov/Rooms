@@ -1,6 +1,6 @@
 package com.example.rooms.data.network
 
-import com.example.rooms.data.network.scramble.ScrambleApi
+import com.example.data_room.services.ScrambleApi
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.logging.HttpLoggingInterceptor

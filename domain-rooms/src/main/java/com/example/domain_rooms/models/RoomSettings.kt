@@ -1,6 +1,6 @@
 package com.example.domain_rooms.models
 
-import com.example.domain_rooms.models.Event
+import com.example.domain_common_speedcubing.models.Event
 
 data class RoomSettings(
     val event: Event,
