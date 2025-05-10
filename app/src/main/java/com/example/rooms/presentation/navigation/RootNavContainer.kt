@@ -47,8 +47,7 @@ import kotlinx.serialization.json.Json
 @Composable
 fun RootNavContainer(
     startNavModule: NavModule,
-    rootViewModel: RootViewModel,
-    roomRepository: RoomRepository
+    rootViewModel: RootViewModel
 ) {
     val navController = rememberNavController()
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
@@ -176,9 +175,12 @@ fun RootNavContainer(
                     val roomDetails = room.details?.let { Json.decodeFromString<RoomDetailsUi>(it) }
 
                     roomDetails?.let { details ->
-                        val viewModel = backStackEntry.sharedViewModel<RoomViewModel>(
-                            navController = navController,
-                            factory = RoomViewModel.createFactory(details, roomRepository)
+//                        val viewModel = backStackEntry.sharedViewModel<RoomViewModel>(
+//                            navController = navController,
+//                            factory = RoomViewModel.createFactory(details, roomRepository)
+//                        )
+                        val viewModel = hiltViewModel<RoomViewModel, RoomViewModel.Factory>(
+                            creationCallback = { factory -> factory.create(roomDetails = roomDetails) }
                         )
 
                         rootViewModel.updateTopAppBar(

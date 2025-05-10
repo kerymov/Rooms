@@ -15,26 +15,33 @@ import com.example.domain_room.useCases.LeaveRoomUseCase
 import com.example.domain_room.useCases.SendSolveResultUseCase
 import com.example.ui_common_speedcubing.mappers.mapToUiModel
 import com.example.ui_common_speedcubing.models.PenaltyUi
+import com.example.ui_common_speedcubing.models.SolveUi
 import com.example.ui_room.mappers.mapToDomainModel
 import com.example.ui_room.models.NewSolveResultUi
 import com.example.ui_room.models.RoomDetailsUi
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 data class RoomUiState(
     val roomDetails: RoomDetailsUi,
-    val currentSolve: com.example.ui_common_speedcubing.models.SolveUi? = null,
+    val currentSolve: SolveUi? = null,
     val isWaitingForNewScramble: Boolean = true,
     val users: List<String> = emptyList(),
-    val solves: List<com.example.ui_common_speedcubing.models.SolveUi> = emptyList()
+    val solves: List<SolveUi> = emptyList()
 )
 
-class RoomViewModel(
-    private val roomDetails: RoomDetailsUi,
+@HiltViewModel(assistedFactory = RoomViewModel.Factory::class)
+class RoomViewModel @AssistedInject constructor(
+    @Assisted private val roomDetails: RoomDetailsUi,
     private val joinRoomUseCase: JoinRoomUseCase,
     private val leaveRoomUseCase: LeaveRoomUseCase,
     private val getNewUsersUseCase: GetNewUsersUseCase,
@@ -161,22 +168,27 @@ class RoomViewModel(
         leaveRoom(roomName = roomDetails.name)
     }
 
-    companion object {
-        fun createFactory(roomDetails: RoomDetailsUi, repository: RoomRepository) =
-            viewModelFactory {
-                initializer {
-                    RoomViewModel(
-                        roomDetails,
-                        JoinRoomUseCase(repository),
-                        LeaveRoomUseCase(repository),
-                        GetNewUsersUseCase(repository),
-                        GetLeftUsersUseCase(repository),
-                        GetFinishedSolvesUseCase(repository),
-                        GetNewResultsUseCase(repository),
-                        SendSolveResultUseCase(repository),
-                        AskForNewSolveUseCase(repository)
-                    )
-                }
-            }
+    @AssistedFactory
+    interface Factory {
+        fun create(roomDetails: RoomDetailsUi): RoomViewModel
     }
+
+//    companion object {
+//        fun createFactory(roomDetails: RoomDetailsUi, repository: RoomRepository) =
+//            viewModelFactory {
+//                initializer {
+//                    RoomViewModel(
+//                        roomDetails,
+//                        JoinRoomUseCase(repository),
+//                        LeaveRoomUseCase(repository),
+//                        GetNewUsersUseCase(repository),
+//                        GetLeftUsersUseCase(repository),
+//                        GetFinishedSolvesUseCase(repository),
+//                        GetNewResultsUseCase(repository),
+//                        SendSolveResultUseCase(repository),
+//                        AskForNewSolveUseCase(repository)
+//                    )
+//                }
+//            }
+//    }
 }

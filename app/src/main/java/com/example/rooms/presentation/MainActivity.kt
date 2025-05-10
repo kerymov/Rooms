@@ -24,14 +24,10 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    lateinit var roomRepository: RoomRepository
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         enableEdgeToEdge()
-
-        roomRepository = (application as RoomsApp).roomRepository
 
         val splashViewModel by viewModels<SplashViewModel>()
 
@@ -42,9 +38,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             RoomsTheme {
                 CompositionLocalProvider(LocalSplashState provides splashViewModel) {
-                    ApplicationManager(
-                        roomRepository = roomRepository
-                    )
+                    ApplicationManager()
                 }
             }
         }
@@ -52,9 +46,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-private fun ApplicationManager(
-    roomRepository: RoomRepository,
-) {
+private fun ApplicationManager() {
     val splashState = LocalSplashState.current
 
     val startNavModule = when (splashState.uiState.value) {
@@ -67,7 +59,6 @@ private fun ApplicationManager(
 
     RootNavContainer(
         startNavModule = startNavModule,
-        rootViewModel = rootViewModel,
-        roomRepository = roomRepository
+        rootViewModel = rootViewModel
     )
 }

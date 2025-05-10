@@ -3,8 +3,9 @@ package com.example.domain_room.useCases
 import com.example.domain_room.models.User
 import com.example.domain_room.repository.RoomRepository
 import kotlinx.coroutines.flow.Flow
+import javax.inject.Inject
 
-class GetLeftUsersUseCase(
+class GetLeftUsersUseCase @Inject constructor(
     private val repository: RoomRepository
 ) {
 

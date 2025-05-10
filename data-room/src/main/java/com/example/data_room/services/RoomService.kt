@@ -9,7 +9,7 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 
-class RoomService(authToken: String?) {
+class RoomService {
 
     private enum class Method(val raw: String) {
         FETCH_AND_SEND_NEW_RESULT("NewResult"),
@@ -114,8 +114,8 @@ class RoomService(authToken: String?) {
     private val connection = HubConnectionBuilder
         .create("https://team-cubing.azurewebsites.net/api/hubs/room")
         .withHeaders(mapOf("Content-Type" to "application/json"))
-        .withAccessTokenProvider(
-            Single.defer { Single.just(authToken ?: "") }
-        )
         .build()
 }
+//.withAccessTokenProvider(
+//    Single.defer { Single.just(authToken ?: "") }
+//)

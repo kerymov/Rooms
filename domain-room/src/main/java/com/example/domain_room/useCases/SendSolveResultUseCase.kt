@@ -2,8 +2,9 @@ package com.example.domain_room.useCases
 
 import com.example.domain_room.models.NewSolveResult
 import com.example.domain_room.repository.RoomRepository
+import javax.inject.Inject
 
-class SendSolveResultUseCase(
+class SendSolveResultUseCase @Inject constructor(
     private val repository: RoomRepository
 ) {
 

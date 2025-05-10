@@ -3,8 +3,9 @@ package com.example.domain_room.useCases
 import com.example.domain_room.repository.RoomRepository
 import com.example.domain_common_speedcubing.models.Solve
 import kotlinx.coroutines.flow.Flow
+import javax.inject.Inject
 
-class GetFinishedSolvesUseCase(
+class GetFinishedSolvesUseCase @Inject constructor(
     private val repository: RoomRepository
 ) {
 
