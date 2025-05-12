@@ -3,13 +3,16 @@ package com.example.data_room.services
 import com.example.data_common_speedcubing.models.ResultDto
 import com.example.data_common_speedcubing.models.SolveDto
 import com.example.data_room.models.NewSolveResultDto
+import com.example.domain_core.auth.AuthTokenProvider
 import com.microsoft.signalr.HubConnectionBuilder
 import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.runBlocking
 
-class RoomService {
+class RoomService(tokenProvider: AuthTokenProvider) {
 
     private enum class Method(val raw: String) {
         FETCH_AND_SEND_NEW_RESULT("NewResult"),
@@ -114,8 +117,10 @@ class RoomService {
     private val connection = HubConnectionBuilder
         .create("https://team-cubing.azurewebsites.net/api/hubs/room")
         .withHeaders(mapOf("Content-Type" to "application/json"))
+        .withAccessTokenProvider(
+            Single.defer { Single.just(
+                runBlocking { tokenProvider.authToken.firstOrNull() } ?: "")
+            }
+        )
         .build()
 }
-//.withAccessTokenProvider(
-//    Single.defer { Single.just(authToken ?: "") }
-//)

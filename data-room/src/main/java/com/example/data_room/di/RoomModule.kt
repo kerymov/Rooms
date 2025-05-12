@@ -4,6 +4,7 @@ import com.example.data_room.dataSources.RemoteRoomDataSource
 import com.example.data_room.repository.RoomRepositoryImpl
 import com.example.data_room.services.RoomService
 import com.example.data_room.services.ScrambleApi
+import com.example.domain_core.auth.AuthTokenProvider
 import com.example.domain_room.repository.RoomRepository
 import dagger.Module
 import dagger.Provides
@@ -30,8 +31,8 @@ object RoomModule {
 
     @Provides
     @Singleton
-    fun provideRoomService(): RoomService {
-        return RoomService()
+    fun provideRoomService(authTokenProvider: AuthTokenProvider): RoomService {
+        return RoomService(authTokenProvider)
     }
 
     @Provides
