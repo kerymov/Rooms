@@ -30,7 +30,6 @@ object RoomModule {
     }
 
     @Provides
-    @Singleton
     fun provideRoomService(authTokenProvider: AuthTokenProvider): RoomService {
         return RoomService(authTokenProvider)
     }

@@ -4,48 +4,41 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.domain_core.auth.AuthTokenProvider
+import com.example.ui_rooms.viewModels.RoomsUiState
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 sealed class SplashUiState {
-    data class Authorized(val user: String) : SplashUiState()
-    object Unauthorized : SplashUiState()
-    object None : SplashUiState()
+    data object Authorized : SplashUiState()
+    data object Unauthorized : SplashUiState()
+    data object None : SplashUiState()
 }
 
-class SplashViewModel(
-//    private val getUserUseCase: GetUserUseCase
+@HiltViewModel
+class SplashViewModel @Inject constructor(
+    private val authTokenProvider: AuthTokenProvider
 ) : ViewModel() {
     var uiState = mutableStateOf<SplashUiState>(SplashUiState.None)
         private set
 
     init {
-        getUser()
+        getAuthToken()
     }
 
-    private fun getUser() {
+    private fun getAuthToken() {
         viewModelScope.launch {
-//            val user = viewModelScope.async(Dispatchers.IO) {
-//                getUserUseCase.invoke()
-//            }
-//
-//            uiState.value = user.await()?.let {
-//                val userUiModel = it.mapToUiModel()
-//                SplashUiState.Authorized(userUiModel)
-//            } ?: SplashUiState.Unauthorized
-            uiState.value = SplashUiState.Unauthorized
+            authTokenProvider.authToken.collect { token ->
+                uiState.value =
+                    token?.let { SplashUiState.Authorized } ?: SplashUiState.Unauthorized
+            }
         }
     }
-
-//    companion object {
-//
-//        fun createFactory(repository: AccountRepository) = viewModelFactory {
-//            initializer {
-//                SplashViewModel(
-//                    GetUserUseCase(repository),
-//                )
-//            }
-//        }
-//    }
 }
 
 val LocalSplashState =
