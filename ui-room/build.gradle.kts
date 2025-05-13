@@ -41,8 +41,9 @@ android {
 }
 
 dependencies {
-    implementation(project(":domain-core"))
+
     implementation(project(":domain-room"))
+    implementation(project(":domain-core"))
     implementation(project(":ui-core"))
     api(project(":ui-common-speedcubing"))
 

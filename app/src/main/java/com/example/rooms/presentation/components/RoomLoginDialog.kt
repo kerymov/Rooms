@@ -31,7 +31,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import com.example.rooms.presentation.theme.RoomsTheme
+import com.example.ui_core.theme.RoomsTheme
 
 @Composable
 fun RoomLoginDialog(

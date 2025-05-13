@@ -16,7 +16,7 @@ import com.example.rooms.presentation.navigation.Auth
 import com.example.rooms.presentation.navigation.Main
 import com.example.rooms.presentation.navigation.RootNavContainer
 import com.example.rooms.presentation.navigation.RootViewModel
-import com.example.rooms.presentation.theme.RoomsTheme
+import com.example.ui_core.theme.RoomsTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

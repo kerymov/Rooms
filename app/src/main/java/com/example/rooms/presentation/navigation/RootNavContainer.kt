@@ -26,16 +26,16 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
-import com.example.domain_room.repository.RoomRepository
 import com.example.rooms.R
 import com.example.rooms.presentation.components.BottomNavigationBar
 import com.example.rooms.presentation.components.CenterAlignedTopBar
 import com.example.rooms.presentation.components.TopAppBarInteractionItem
 import com.example.rooms.presentation.components.TopAppBarItem
-import com.example.rooms.presentation.features.utils.sharedViewModel
 import com.example.ui_onboarding.screens.SignInScreen
 import com.example.ui_onboarding.screens.SignUpScreen
 import com.example.ui_onboarding.viewModels.AuthViewModel
+import com.example.ui_profile.screens.ProfileScreen
+import com.example.ui_profile.viewModels.ProfileViewModel
 import com.example.ui_room.models.RoomDetailsUi
 import com.example.ui_room.screens.RoomScreen
 import com.example.ui_room.viewModels.RoomViewModel
@@ -152,22 +152,24 @@ fun RootNavContainer(
                         roomsViewModel = roomsViewModel
                     )
                 }
-//                composable<Main.Profile> {
-//                    rootViewModel.updateTopAppBar(null)
-//
-//                    val profileViewModel = viewModel<ProfileViewModel>(
-//                        factory = ProfileViewModel.createFactory(accountRepository)
-//                    )
-//
-//                    ProfileScreen(
-//                        onSignOut = {
-//                            navController.navigate(Auth) {
-//                                popUpTo(0)
-//                            }
-//                        },
-//                        viewModel = profileViewModel
-//                    )
-//                }
+                composable<Main.Profile> {
+                    val profileViewModel = hiltViewModel<ProfileViewModel>()
+
+                    rootViewModel.updateTopAppBar(
+                        item = TopAppBarItem(
+                            title = stringResource(R.string.profile)
+                        )
+                    )
+
+                    ProfileScreen(
+                        onSignOut = {
+                            navController.navigate(Auth) {
+                                popUpTo(0)
+                            }
+                        },
+                        viewModel = profileViewModel
+                    )
+                }
             }
             navigation<Room>(startDestination = Room.RoomMain()) {
                 composable<Room.RoomMain> { backStackEntry ->
@@ -209,16 +211,6 @@ fun RootNavContainer(
                         )
                     }
                 }
-//                composable<Room.Results> { backStackEntry ->
-//                    val viewModel = backStackEntry.sharedViewModel<RoomViewModel>(
-//                        navController = navController
-//                    )
-//
-//                    ResultsScreen(
-//                        navController = navController,
-//                        roomName = ""
-//                    )
-//                }
             }
         }
     }

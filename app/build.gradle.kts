@@ -56,6 +56,7 @@ dependencies {
 
     implementation(project(":domain-core"))
     implementation(project(":data-core"))
+    implementation(project(":ui-core"))
 
     implementation(project(":domain-onboarding"))
     implementation(project(":data-onboarding"))
@@ -68,6 +69,10 @@ dependencies {
     implementation(project(":domain-room"))
     implementation(project(":data-room"))
     implementation(project(":ui-room"))
+
+    implementation(project(":domain-profile"))
+    implementation(project(":data-profile"))
+    implementation(project(":ui-profile"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.core.splashscreen)

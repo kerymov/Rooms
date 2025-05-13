@@ -14,7 +14,4 @@ interface AccountApi {
 
     @POST("Account/register")
     suspend fun signUp(@Body user: UserSignUpRequest): Response<UserAuthResponse>
-
-//    @GET("Account/results")
-//    suspend fun getResults(): Response<UserResults>
 }

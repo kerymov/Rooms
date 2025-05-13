@@ -16,6 +16,7 @@ kotlin {
 }
 
 dependencies {
+
     implementation(project(":domain-core"))
     api(project(":domain-common-speedcubing"))
 

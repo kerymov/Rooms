@@ -16,6 +16,7 @@ kotlin {
 }
 
 dependencies {
+
     implementation(project(":data-common-speedcubing"))
     implementation(project(":domain-rooms"))
     implementation(project(":domain-core"))
