@@ -9,9 +9,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.rooms.presentation.features.LocalSplashState
-import com.example.rooms.presentation.features.SplashUiState
-import com.example.rooms.presentation.features.SplashViewModel
+import com.example.rooms.presentation.splash.LocalSplashState
+import com.example.rooms.presentation.splash.SplashUiState
+import com.example.rooms.presentation.splash.SplashViewModel
 import com.example.rooms.presentation.navigation.Auth
 import com.example.rooms.presentation.navigation.Main
 import com.example.rooms.presentation.navigation.RootNavContainer

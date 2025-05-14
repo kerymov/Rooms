@@ -1,4 +1,4 @@
-package com.example.rooms.presentation.features
+package com.example.rooms.presentation.utils
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
