@@ -2,9 +2,6 @@ package com.example.ui_room.viewModels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
-import com.example.domain_room.repository.RoomRepository
 import com.example.domain_room.useCases.AskForNewSolveUseCase
 import com.example.domain_room.useCases.GetFinishedSolvesUseCase
 import com.example.domain_room.useCases.GetLeftUsersUseCase
@@ -29,7 +26,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 data class RoomUiState(
     val roomDetails: RoomDetailsUi,
@@ -136,10 +132,10 @@ class RoomViewModel @AssistedInject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             getFinishedSolvesUseCase.invoke()
                 .collect { solve ->
-                    val currentSolves = _uiState.value.solves
+                    val finishedSolves = _uiState.value.solves
                     _uiState.update { uiState ->
                         uiState.copy(
-                            solves = currentSolves + solve.mapToUiModel(),
+                            solves = finishedSolves + solve.mapToUiModel(),
                             currentSolve = solve.mapToUiModel(),
                             isWaitingForNewScramble = false
                         )
@@ -156,9 +152,17 @@ class RoomViewModel @AssistedInject constructor(
                         uiState.copy(
                             currentSolve = uiState.currentSolve?.copy(
                                 results = uiState.currentSolve.results + result.mapToUiModel()
-                            )
+                            ),
+                            solves = uiState.solves.mapIndexed { index, solveUi ->
+                                if (index == uiState.solves.lastIndex) {
+                                    solveUi.copy(results = solveUi.results + result.mapToUiModel())
+                                } else {
+                                    solveUi
+                                }
+                            }
                         )
                     }
+
                 }
         }
     }
@@ -172,23 +176,4 @@ class RoomViewModel @AssistedInject constructor(
     interface Factory {
         fun create(roomDetails: RoomDetailsUi): RoomViewModel
     }
-
-//    companion object {
-//        fun createFactory(roomDetails: RoomDetailsUi, repository: RoomRepository) =
-//            viewModelFactory {
-//                initializer {
-//                    RoomViewModel(
-//                        roomDetails,
-//                        JoinRoomUseCase(repository),
-//                        LeaveRoomUseCase(repository),
-//                        GetNewUsersUseCase(repository),
-//                        GetLeftUsersUseCase(repository),
-//                        GetFinishedSolvesUseCase(repository),
-//                        GetNewResultsUseCase(repository),
-//                        SendSolveResultUseCase(repository),
-//                        AskForNewSolveUseCase(repository)
-//                    )
-//                }
-//            }
-//    }
 }

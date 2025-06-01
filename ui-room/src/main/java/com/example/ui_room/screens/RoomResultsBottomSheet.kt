@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import com.example.ui_core.components.Divider
 import com.example.ui_common_speedcubing.models.PenaltyUi
 import com.example.ui_common_speedcubing.models.ScrambleUi
+import com.example.ui_common_speedcubing.models.SolveUi
 import com.example.ui_room.utils.RESULT_PLACEHOLDER
 import com.example.ui_room.utils.ResultInfo
 import com.example.ui_room.utils.StatisticManager
@@ -54,7 +55,7 @@ fun RoomResultsBottomSheet(
     sheetState: SheetState,
     onDismissRequest: () -> Unit,
     users: List<String>,
-    solves: List<com.example.ui_common_speedcubing.models.SolveUi>,
+    solves: List<SolveUi>,
     modifier: Modifier = Modifier,
     windowInsets: WindowInsets = WindowInsets(0, 0, 0, 0),
 ) = ModalBottomSheet(
@@ -75,14 +76,14 @@ fun RoomResultsBottomSheet(
 @Composable
 private fun Content(
     users: List<String>,
-    solves: List<com.example.ui_common_speedcubing.models.SolveUi>,
+    solves: List<SolveUi>,
     modifier: Modifier = Modifier
 ) = LazyTable(usernames = users, solves = solves, modifier = modifier)
 
 @Composable
 fun LazyTable(
     usernames: List<String>,
-    solves: List<com.example.ui_common_speedcubing.models.SolveUi>,
+    solves: List<SolveUi>,
     modifier: Modifier = Modifier
 ) = Column(modifier = modifier) {
     val leadingColumnModifier = Modifier
@@ -309,7 +310,7 @@ private fun StatisticItem(
 private fun RoomCreatingSheetContentPreview() {
     val users = listOf("User1", "User2", "User3", "Username", "Long Username")
     val solves = List(50) { index ->
-        com.example.ui_common_speedcubing.models.SolveUi(
+        SolveUi(
             solveNumber = index + 1,
             scramble = ScrambleUi("", null),
             results = listOf(

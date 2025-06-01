@@ -11,7 +11,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.tooling.preview.Preview
 import com.example.rooms.presentation.navigation.BottomNavigationItem
+import com.example.ui_core.theme.RoomsTheme
 
 @Composable
 fun BottomNavigationBar(
@@ -57,5 +59,19 @@ fun BottomNavigationBar(
                 alwaysShowLabel = false
             )
         }
+    }
+}
+
+@Preview
+@Composable
+fun PreviewBottomNavigationBar() {
+    RoomsTheme {
+        BottomNavigationBar(
+            items = listOf(
+                BottomNavigationItem.ROOMS,
+                BottomNavigationItem.PROFILE
+            ),
+            onNavItemClick = { }
+        )
     }
 }
