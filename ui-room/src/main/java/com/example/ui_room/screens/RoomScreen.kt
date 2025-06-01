@@ -164,7 +164,7 @@ private fun Content(
             sheetState = resultsSheetState,
             onDismissRequest = { isResultsSheetOpen = false },
             users = state.users,
-            solves = state.solves.reversed(),
+            solves = state.solves,
             modifier = Modifier
                 .fillMaxSize()
                 .defaultBottomSheetPadding()

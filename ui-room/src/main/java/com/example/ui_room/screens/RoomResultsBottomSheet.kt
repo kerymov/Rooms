@@ -39,6 +39,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.ui_core.components.Divider
 import com.example.ui_common_speedcubing.models.PenaltyUi
+import com.example.ui_common_speedcubing.models.ResultUi
 import com.example.ui_common_speedcubing.models.ScrambleUi
 import com.example.ui_common_speedcubing.models.SolveUi
 import com.example.ui_room.utils.RESULT_PLACEHOLDER
@@ -93,7 +94,7 @@ fun LazyTable(
         .padding(horizontal = 4.dp)
         .width(96.dp)
 
-    val tableData = solves.map { solve ->
+    val tableData = solves.reversed().map { solve ->
         usernames.map { username ->
             solve.results.find { it.userName == username }
         }
@@ -148,7 +149,7 @@ fun LazyTable(
             .weight(1f)
             .horizontalScroll(horizontalScrollState)
     ) {
-        itemsIndexed(solves) { index, solve ->
+        itemsIndexed(solves.reversed()) { index, solve ->
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillParentMaxWidth()
@@ -207,7 +208,7 @@ private fun ResultItem(text: String, modifier: Modifier) = Text(
 @Composable
 private fun UserStatistics(
     username: String,
-    results: List<com.example.ui_common_speedcubing.models.ResultUi>
+    results: List<ResultUi>
 ) = Column(
     horizontalAlignment = Alignment.CenterHorizontally,
     modifier = Modifier
@@ -314,27 +315,27 @@ private fun RoomCreatingSheetContentPreview() {
             solveNumber = index + 1,
             scramble = ScrambleUi("", null),
             results = listOf(
-                com.example.ui_common_speedcubing.models.ResultUi(
+                ResultUi(
                     "User1",
                     Random.nextLong(0, 15000),
                     PenaltyUi.NO_PENALTY
                 ),
-                com.example.ui_common_speedcubing.models.ResultUi(
+                ResultUi(
                     "User2",
                     Random.nextLong(15000, 60000),
                     PenaltyUi.NO_PENALTY
                 ),
-                com.example.ui_common_speedcubing.models.ResultUi(
+                ResultUi(
                     "User3",
                     Random.nextLong(15000, 100000),
                     PenaltyUi.PLUS_TWO
                 ),
-                com.example.ui_common_speedcubing.models.ResultUi(
+                ResultUi(
                     "Username",
                     Random.nextLong(0, 100000),
                     PenaltyUi.DNF
                 ),
-                com.example.ui_common_speedcubing.models.ResultUi(
+                ResultUi(
                     "Long Username",
                     Random.nextLong(70000, 100000),
                     PenaltyUi.NO_PENALTY
