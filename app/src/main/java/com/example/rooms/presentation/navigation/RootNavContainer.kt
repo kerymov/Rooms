@@ -12,6 +12,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -31,6 +32,8 @@ import com.example.rooms.presentation.components.BottomNavigationBar
 import com.example.rooms.presentation.components.CenterAlignedTopBar
 import com.example.rooms.presentation.components.TopAppBarInteractionItem
 import com.example.rooms.presentation.components.TopAppBarItem
+import com.example.ui_core.models.UserUi
+import com.example.ui_core.utils.LocalUser
 import com.example.ui_onboarding.screens.SignInScreen
 import com.example.ui_onboarding.screens.SignUpScreen
 import com.example.ui_onboarding.viewModels.AuthViewModel
@@ -46,6 +49,7 @@ import kotlinx.serialization.json.Json
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RootNavContainer(
+    currentUser: UserUi?,
     startNavModule: NavModule,
     rootViewModel: RootViewModel
 ) {
@@ -143,14 +147,16 @@ fun RootNavContainer(
                         )
                     )
 
-                    RoomsScreen(
-                        onRoomLogin = { detailsJson ->
-                            navController.navigate(
-                                route = Room.RoomMain(detailsJson)
-                            )
-                        },
-                        roomsViewModel = roomsViewModel
-                    )
+                    CompositionLocalProvider(LocalUser provides currentUser) {
+                        RoomsScreen(
+                            onRoomLogin = { detailsJson ->
+                                navController.navigate(
+                                    route = Room.RoomMain(detailsJson)
+                                )
+                            },
+                            roomsViewModel = roomsViewModel
+                        )
+                    }
                 }
                 composable<Main.Profile> {
                     val profileViewModel = hiltViewModel<ProfileViewModel>()
@@ -161,14 +167,16 @@ fun RootNavContainer(
                         )
                     )
 
-                    ProfileScreen(
-                        onSignOut = {
-                            navController.navigate(Auth) {
-                                popUpTo(0)
-                            }
-                        },
-                        viewModel = profileViewModel
-                    )
+                    CompositionLocalProvider(LocalUser provides currentUser) {
+                        ProfileScreen(
+                            onSignOut = {
+                                navController.navigate(Auth) {
+                                    popUpTo(0)
+                                }
+                            },
+                            viewModel = profileViewModel
+                        )
+                    }
                 }
             }
             navigation<Room>(startDestination = Room.RoomMain()) {
@@ -177,10 +185,6 @@ fun RootNavContainer(
                     val roomDetails = room.details?.let { Json.decodeFromString<RoomDetailsUi>(it) }
 
                     roomDetails?.let { details ->
-//                        val viewModel = backStackEntry.sharedViewModel<RoomViewModel>(
-//                            navController = navController,
-//                            factory = RoomViewModel.createFactory(details, roomRepository)
-//                        )
                         val viewModel = hiltViewModel<RoomViewModel, RoomViewModel.Factory>(
                             creationCallback = { factory -> factory.create(roomDetails = roomDetails) }
                         )
@@ -205,10 +209,12 @@ fun RootNavContainer(
                             )
                         )
 
-                        RoomScreen(
-                            roomViewModel = viewModel,
-                            modifier = Modifier.fillMaxSize()
-                        )
+                        CompositionLocalProvider(LocalUser provides currentUser) {
+                            RoomScreen(
+                                roomViewModel = viewModel,
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        }
                     }
                 }
             }

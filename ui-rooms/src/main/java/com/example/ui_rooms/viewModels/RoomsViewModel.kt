@@ -2,7 +2,6 @@ package com.example.ui_rooms.viewModels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.domain_core.user.UserProvider
 import com.example.domain_core.utils.BaseResult
 import com.example.domain_rooms.useCases.CreateRoomUseCase
 import com.example.domain_rooms.useCases.DeleteRoomUseCase
@@ -39,7 +38,6 @@ data class RoomsUiState(
     val rooms: List<RoomUi>? = null,
     val currentRoomDetails: RoomDetailsUi? = null,
     val isCreateRoomBottomSheetOpen: Boolean = false,
-    val username: String? = null,
     val loadingState: LoadingState = LoadingState.NONE,
     val error: Error? = null
 )
@@ -50,7 +48,6 @@ class RoomsViewModel @Inject constructor(
     private val createRoomUseCase: CreateRoomUseCase,
     private val loginRoomUseCase: LoginRoomUseCase,
     private val deleteRoomUseCase: DeleteRoomUseCase,
-    private val userProvider: UserProvider
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(RoomsUiState())
@@ -58,17 +55,6 @@ class RoomsViewModel @Inject constructor(
 
     init {
         getRooms()
-        getUsername()
-    }
-
-    private fun getUsername() {
-        viewModelScope.launch(Dispatchers.IO) {
-            userProvider.username.collect { username ->
-                _uiState.update { state ->
-                    state.copy(username = username)
-                }
-            }
-        }
     }
 
     fun getRooms(isRefreshing: Boolean = false) {

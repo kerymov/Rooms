@@ -35,7 +35,9 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             RoomsTheme {
-                CompositionLocalProvider(LocalSplashState provides splashViewModel) {
+                CompositionLocalProvider(
+                    LocalSplashState provides splashViewModel
+                ) {
                     ApplicationManager()
                 }
             }
@@ -56,6 +58,7 @@ private fun ApplicationManager() {
     val rootViewModel = viewModel<RootViewModel>()
 
     RootNavContainer(
+        currentUser = splashState.uiState.value.user,
         startNavModule = startNavModule,
         rootViewModel = rootViewModel
     )

@@ -4,33 +4,36 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.domain_core.auth.AuthTokenProvider
+import com.example.domain_core.user.UserProvider
+import com.example.ui_core.models.UserUi
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-sealed class SplashUiState {
-    data object Authorized : SplashUiState()
+sealed class SplashUiState(open val user: UserUi? = null) {
+    data class Authorized(override val user: UserUi) : SplashUiState(user)
     data object Unauthorized : SplashUiState()
     data object None : SplashUiState()
 }
 
 @HiltViewModel
 class SplashViewModel @Inject constructor(
-    private val authTokenProvider: AuthTokenProvider
+    private val userProvider: UserProvider
 ) : ViewModel() {
     var uiState = mutableStateOf<SplashUiState>(SplashUiState.None)
         private set
 
     init {
-        getAuthToken()
+        getUser()
     }
 
-    private fun getAuthToken() {
+    private fun getUser() {
         viewModelScope.launch {
-            authTokenProvider.authToken.collect { token ->
+            userProvider.username.collect { username ->
                 uiState.value =
-                    token?.let { SplashUiState.Authorized } ?: SplashUiState.Unauthorized
+                    username?.let {
+                        SplashUiState.Authorized(UserUi(it))
+                    } ?: SplashUiState.Unauthorized
             }
         }
     }
