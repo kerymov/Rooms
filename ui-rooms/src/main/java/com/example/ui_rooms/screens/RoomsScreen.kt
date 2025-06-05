@@ -66,6 +66,8 @@ import com.example.ui_rooms.components.RoomLoginDialog
 import com.example.ui_rooms.components.RoomsCreatingBottomSheet
 import com.example.ui_rooms.models.RoomDetailsUi
 import com.example.ui_rooms.models.RoomUi
+import com.example.ui_rooms.viewModels.LoadingState
+import com.example.ui_rooms.viewModels.Error
 import com.example.ui_rooms.viewModels.RoomsUiState
 import com.example.ui_rooms.viewModels.RoomsViewModel
 import kotlinx.serialization.json.Json
@@ -91,7 +93,7 @@ fun RoomsScreen(
     val roomsUiState by roomsViewModel.uiState.collectAsState()
 
     val pullRefreshState = rememberPullRefreshState(
-        refreshing = roomsUiState is RoomsUiState.Refreshing,
+        refreshing = roomsUiState.loadingState == LoadingState.REFRESHING,
         onRefresh = { roomsViewModel.getRooms(isRefreshing = true) }
     )
 
@@ -111,52 +113,50 @@ fun RoomsScreen(
             .fillMaxSize()
             .pullRefresh(pullRefreshState)
     ) {
-        when (val state = roomsUiState) {
-            is RoomsUiState.Error.RoomsFetchingError -> ErrorView(
-                errorMessage = "${state.code}: " + state.message,
+        if (roomsUiState.loadingState == LoadingState.LOADING) {
+            CircularLoadingIndicator()
+        }
+
+        if (roomsUiState.error is Error.RoomsFetchingError) {
+            ErrorView(
+                errorMessage = "${roomsUiState.error?.code}: " + roomsUiState.error?.message,
                 onTryAgainClick = { roomsViewModel.getRooms() }
             )
-            else -> {
-                roomsUiState.rooms?.let { rooms ->
-                    Content(
-                        rooms = rooms.reversed(),
-                        onItemClick = { name, isOpen ->
-                            if (isOpen) {
-                                roomsViewModel.loginRoom(name, null)
-                            } else {
-                                roomNameToLogin = name
-                                shouldShowLoginDialog = true
-                            }
-                        },
-                        onLongItemClick = { itemId ->
-                            isDeleteRoomSheetOpen = true
-                            roomIdToDelete = itemId
-                        },
-                        onCreateNewRoomClick = { roomsViewModel.toggleCreateRoomBottomSheet(isOpen = true) }
-                    )
-                }
-            }
+        }
+
+        if (roomsUiState.error is Error.OtherError) {
+            ErrorCard(
+                text = roomsUiState.error?.message.toString(),
+                modifier = Modifier.align(Alignment.BottomCenter)
+            )
+        }
+
+        roomsUiState.rooms?.let { rooms ->
+            Content(
+                rooms = rooms.reversed(),
+                onItemClick = { name, isOpen ->
+                    if (isOpen) {
+                        roomsViewModel.loginRoom(name, null)
+                    } else {
+                        roomNameToLogin = name
+                        shouldShowLoginDialog = true
+                    }
+                },
+                onLongItemClick = { itemId ->
+                    isDeleteRoomSheetOpen = true
+                    roomIdToDelete = itemId
+                },
+                onCreateNewRoomClick = { roomsViewModel.toggleCreateRoomBottomSheet(isOpen = true) }
+            )
         }
 
         PullRefreshIndicator(
-            refreshing = roomsUiState is RoomsUiState.Refreshing,
+            refreshing = roomsUiState.loadingState == LoadingState.REFRESHING,
             state = pullRefreshState,
             modifier = Modifier.align(Alignment.TopCenter),
             contentColor = MaterialTheme.colorScheme.primary,
             backgroundColor = MaterialTheme.colorScheme.surface
         )
-
-        if (roomsUiState is RoomsUiState.Error.OtherError) {
-            val state = roomsUiState as RoomsUiState.Error
-            ErrorCard(
-                text = state.message.toString(),
-                modifier = Modifier.align(Alignment.BottomCenter)
-            )
-        }
-
-        if (roomsUiState is RoomsUiState.Loading) {
-            CircularLoadingIndicator()
-        }
     }
 
     if (roomsUiState.isCreateRoomBottomSheetOpen) {
@@ -192,9 +192,9 @@ fun RoomsScreen(
     }
 
     if (isDeleteRoomSheetOpen) {
-//        val username = AppSharedPreferences.userName
-//        val roomToDelete = roomsUiState.rooms?.find { it.id == roomIdToDelete }
-//        val isAdministrator = roomToDelete?.administratorName == username
+        val username = roomsUiState.username
+        val roomToDelete = roomsUiState.rooms?.find { it.id == roomIdToDelete }
+        val isAdministrator = roomToDelete?.administratorName == username && username != null
 
         DeleteRoomModalBottomSheet(
             sheetState = deleteRoomSheetState,
@@ -207,7 +207,7 @@ fun RoomsScreen(
                 isDeleteRoomSheetOpen = false
                 roomIdToDelete = null
             },
-            isDeleteButtonEnabled = true,
+            isDeleteButtonEnabled = isAdministrator,
             windowInsets = WindowInsets(0, 0, 0, 0),
             modifier = Modifier.fillMaxWidth()
         )

@@ -4,8 +4,10 @@ import android.content.Context
 import com.example.data_core.mappers.UserMapper
 import com.example.data_core.preferences.PreferencesImpl
 import com.example.data_core.utils.AuthTokenProviderImpl
+import com.example.data_core.utils.UserProviderImpl
 import com.example.domain_core.auth.AuthTokenProvider
 import com.example.domain_core.preferences.Preferences
+import com.example.domain_core.user.UserProvider
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -21,6 +23,12 @@ object DataModule {
     @Singleton
     fun provideAuthTokenProvider(preferences: Preferences): AuthTokenProvider {
         return AuthTokenProviderImpl(preferences)
+    }
+
+    @Provides
+    @Singleton
+    fun provideUserProvider(preferences: Preferences): UserProvider {
+        return UserProviderImpl(preferences)
     }
 
     @Provides
