@@ -82,20 +82,23 @@ class RoomsViewModel @Inject constructor(
                         when (result) {
                             is BaseResult.Success -> state.copy(
                                 rooms = result.data.map { it.mapToUiModel() },
+                                error = null
                             )
 
                             is BaseResult.Error -> state.copy(
                                 error = Error.RoomsFetchingError(
                                     code = result.code,
                                     message = result.message
-                                )
+                                ),
+                                rooms = null
                             )
 
                             is BaseResult.Exception -> state.copy(
-                                error = Error.OtherError(
+                                error = Error.RoomsFetchingError(
                                     code = null,
                                     message = result.message
-                                )
+                                ),
+                                rooms = null
                             )
                         }
                     }
@@ -122,21 +125,24 @@ class RoomsViewModel @Inject constructor(
 
             _uiState.value = when (val result = roomDetailsResult.await()) {
                     is BaseResult.Success -> _uiState.value.copy(
-                        currentRoomDetails = result.data.mapToUiModel()
+                        currentRoomDetails = result.data.mapToUiModel(),
+                        error = null
                     )
 
                     is BaseResult.Error -> _uiState.value.copy(
                         error = Error.OtherError(
                             code = result.code,
                             message = result.message
-                        )
+                        ),
+                        currentRoomDetails = null
                     )
 
                     is BaseResult.Exception -> _uiState.value.copy(
                         error = Error.OtherError(
                             code = null,
                             message = result.message
-                        )
+                        ),
+                        currentRoomDetails = null
                     )
                 }
 
@@ -158,21 +164,24 @@ class RoomsViewModel @Inject constructor(
 
             _uiState.value = when (val result = roomDetailsResult.await()) {
                 is BaseResult.Success -> _uiState.value.copy(
-                    currentRoomDetails = result.data.mapToUiModel()
+                    currentRoomDetails = result.data.mapToUiModel(),
+                    error = null
                 )
 
                 is BaseResult.Error -> _uiState.value.copy(
                     error = Error.OtherError(
                         code = result.code,
                         message = result.message
-                    )
+                    ),
+                    currentRoomDetails = null
                 )
 
                 is BaseResult.Exception -> _uiState.value.copy(
                     error = Error.OtherError(
                         code = null,
                         message = result.message
-                    )
+                    ),
+                    currentRoomDetails = null
                 )
             }
 
@@ -194,7 +203,8 @@ class RoomsViewModel @Inject constructor(
 
             _uiState.value = when (val result = deletionResult.await()) {
                 is BaseResult.Success -> _uiState.value.copy(
-                    rooms = _uiState.value.rooms?.filter { room -> room.id != id } ?: emptyList()
+                    rooms = _uiState.value.rooms?.filter { room -> room.id != id } ?: emptyList(),
+                    error = null
                 )
 
                 is BaseResult.Error -> _uiState.value.copy(
