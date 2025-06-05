@@ -61,7 +61,6 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.lifecycle.viewmodel.savedstate)
-//    implementation(libs.androidx.compose.runtime.livedata)
 
     implementation(libs.dagger.hilt.core)
     implementation(libs.androidx.hilt.navigation.compose)
