@@ -2,11 +2,10 @@ package com.example.ui_profile.viewModels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.domain_core.utils.BaseResult
 import com.example.domain_profile.useCases.GetUserUseCase
 import com.example.domain_profile.useCases.SignOutUseCase
-import com.example.ui_profile.models.UserUi
-import com.example.ui_profile.models.mappers.UserMapper
+import com.example.ui_core.models.UserUi
+import com.example.ui_core.models.mappers.UserMapper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow

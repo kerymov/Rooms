@@ -1,3 +1,3 @@
-package com.example.ui_profile.models
+package com.example.ui_core.models
 
 data class UserUi(val username: String)
