@@ -26,6 +26,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Lock
+import androidx.compose.material.icons.rounded.LockOpen
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
@@ -61,6 +62,7 @@ import com.example.ui_common_speedcubing.models.EventUi
 import com.example.ui_core.components.CircularLoadingIndicator
 import com.example.ui_core.components.ErrorCard
 import com.example.ui_core.theme.RoomsTheme
+import com.example.ui_core.utils.LocalUser
 import com.example.ui_core.utils.defaultBottomSheetPadding
 import com.example.ui_rooms.components.RoomLoginDialog
 import com.example.ui_rooms.components.RoomsCreatingBottomSheet
@@ -71,6 +73,10 @@ import com.example.ui_rooms.viewModels.Error
 import com.example.ui_rooms.viewModels.RoomsUiState
 import com.example.ui_rooms.viewModels.RoomsViewModel
 import kotlinx.serialization.json.Json
+
+private enum class RoomAccessStatus {
+    OPEN, LOCKED, UNLOCKED
+}
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
@@ -192,9 +198,9 @@ fun RoomsScreen(
     }
 
     if (isDeleteRoomSheetOpen) {
-        val username = roomsUiState.username
+        val localUser = LocalUser.current
         val roomToDelete = roomsUiState.rooms?.find { it.id == roomIdToDelete }
-        val isAdministrator = roomToDelete?.administratorName == username && username != null
+        val isAdministrator = roomToDelete?.administratorName == localUser?.username
 
         DeleteRoomModalBottomSheet(
             sheetState = deleteRoomSheetState,
@@ -249,13 +255,18 @@ private fun RoomsGrid(
     items(rooms) { item ->
         val event = EventUi.entries.find { event -> event.id == item.event.id }
             ?: EventUi.THREE_BY_THREE
+        val accessStatus = when {
+            item.isOpen -> RoomAccessStatus.OPEN
+            item.administratorName == LocalUser.current?.username -> RoomAccessStatus.UNLOCKED
+            else -> RoomAccessStatus.LOCKED
+        }
 
         RoomCard(
             name = item.name,
             event = event,
-            isOpen = item.isOpen,
+            accessStatus = accessStatus,
             onClick = {
-                onItemClick(item.name, item.isOpen)
+                onItemClick(item.name, accessStatus != RoomAccessStatus.LOCKED)
             },
             onLongClick = { onLongItemClick(item.id) },
             modifier = Modifier.padding(4.dp)
@@ -268,7 +279,7 @@ private fun RoomsGrid(
 private fun RoomCard(
     name: String,
     event: EventUi,
-    isOpen: Boolean,
+    accessStatus: RoomAccessStatus,
     onClick: () -> Unit,
     onLongClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -299,16 +310,29 @@ private fun RoomCard(
                 .align(Alignment.Center)
         )
 
-        if (!isOpen) {
-            Icon(
-                imageVector = Icons.Rounded.Lock,
-                contentDescription = "Lock",
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier
-                    .padding(8.dp)
-                    .size(24.dp)
-                    .align(Alignment.TopEnd)
-            )
+        val accessIconModifier =  Modifier
+            .padding(8.dp)
+            .size(24.dp)
+            .align(Alignment.TopEnd)
+
+        when (accessStatus) {
+            RoomAccessStatus.LOCKED -> {
+                Icon(
+                    imageVector = Icons.Rounded.Lock,
+                    contentDescription = "Locked",
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = accessIconModifier
+                )
+            }
+            RoomAccessStatus.UNLOCKED -> {
+                Icon(
+                    imageVector = Icons.Rounded.LockOpen,
+                    contentDescription = "Unlocked",
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = accessIconModifier
+                )
+            }
+            RoomAccessStatus.OPEN -> Unit
         }
     }
 
@@ -455,7 +479,7 @@ fun OpenRoomCardPreview() {
         RoomCard(
             name = "Room name",
             event = EventUi.THREE_BY_THREE,
-            isOpen = true,
+            accessStatus = RoomAccessStatus.OPEN,
             onClick = { },
             onLongClick = { }
         )
@@ -469,7 +493,21 @@ fun LockedRoomCardPreview() {
         RoomCard(
             name = "Room name",
             event = EventUi.THREE_BY_THREE,
-            isOpen = false,
+            accessStatus = RoomAccessStatus.LOCKED,
+            onClick = { },
+            onLongClick = { }
+        )
+    }
+}
+
+@Preview(name = "Unlocked room")
+@Composable
+fun UnlockedRoomCardPreview() {
+    RoomsTheme {
+        RoomCard(
+            name = "Room name",
+            event = EventUi.THREE_BY_THREE,
+            accessStatus = RoomAccessStatus.UNLOCKED,
             onClick = { },
             onLongClick = { }
         )
