@@ -23,10 +23,13 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-sealed class Error(open val code: Int?, open val message: String?) {
-    data class RoomsFetchingError(override val code: Int?, override val message: String?) : Error(code, message)
-    data class OtherError(override val code: Int?, override val message: String?): Error(code, message)
+sealed class RoomsStatus {
+    data class Success(val rooms: List<RoomUi>) : RoomsStatus()
+    data class Failure(val error: Error) : RoomsStatus()
+    data object None : RoomsStatus()
 }
+
+data class Error(val code: Int?, val message: String?)
 
 enum class LoadingState {
     NONE,
@@ -35,7 +38,7 @@ enum class LoadingState {
 }
 
 data class RoomsUiState(
-    val rooms: List<RoomUi>? = null,
+    val roomsStatus: RoomsStatus = RoomsStatus.None,
     val currentRoomDetails: RoomDetailsUi? = null,
     val isCreateRoomBottomSheetOpen: Boolean = false,
     val loadingState: LoadingState = LoadingState.NONE,
@@ -69,11 +72,13 @@ class RoomsViewModel @Inject constructor(
                 .catch { e ->
                     _uiState.update { state ->
                         state.copy(
-                            loadingState = LoadingState.NONE,
-                            error = Error.RoomsFetchingError(
-                                code = null,
-                                message = e.message
-                            )
+                            roomsStatus = RoomsStatus.Failure(
+                                error = Error(
+                                    code = null,
+                                    message = e.message
+                                )
+                            ),
+                            loadingState = LoadingState.NONE
                         )
                     }
                 }
@@ -81,20 +86,21 @@ class RoomsViewModel @Inject constructor(
                     _uiState.update { state ->
                         when (result) {
                             is BaseResult.Success -> state.copy(
-                                rooms = result.data.map { it.mapToUiModel() },
+                                roomsStatus = RoomsStatus.Success(
+                                    rooms = result.data.map { it.mapToUiModel() }
+                                ),
+                                error = null
                             )
 
                             is BaseResult.Error -> state.copy(
-                                error = Error.RoomsFetchingError(
-                                    code = result.code,
-                                    message = result.message
+                                roomsStatus = RoomsStatus.Failure(
+                                    error = Error(code = result.code, message = result.message)
                                 )
                             )
 
                             is BaseResult.Exception -> state.copy(
-                                error = Error.OtherError(
-                                    code = null,
-                                    message = result.message
+                                roomsStatus = RoomsStatus.Failure(
+                                    error = Error(code = null, message = result.message)
                                 )
                             )
                         }
@@ -122,21 +128,24 @@ class RoomsViewModel @Inject constructor(
 
             _uiState.value = when (val result = roomDetailsResult.await()) {
                     is BaseResult.Success -> _uiState.value.copy(
-                        currentRoomDetails = result.data.mapToUiModel()
+                        currentRoomDetails = result.data.mapToUiModel(),
+                        error = null
                     )
 
                     is BaseResult.Error -> _uiState.value.copy(
-                        error = Error.OtherError(
+                        error = Error(
                             code = result.code,
                             message = result.message
-                        )
+                        ),
+                        currentRoomDetails = null
                     )
 
                     is BaseResult.Exception -> _uiState.value.copy(
-                        error = Error.OtherError(
+                        error = Error(
                             code = null,
                             message = result.message
-                        )
+                        ),
+                        currentRoomDetails = null
                     )
                 }
 
@@ -158,21 +167,24 @@ class RoomsViewModel @Inject constructor(
 
             _uiState.value = when (val result = roomDetailsResult.await()) {
                 is BaseResult.Success -> _uiState.value.copy(
-                    currentRoomDetails = result.data.mapToUiModel()
+                    currentRoomDetails = result.data.mapToUiModel(),
+                    error = null
                 )
 
                 is BaseResult.Error -> _uiState.value.copy(
-                    error = Error.OtherError(
+                    error = Error(
                         code = result.code,
                         message = result.message
-                    )
+                    ),
+                    currentRoomDetails = null
                 )
 
                 is BaseResult.Exception -> _uiState.value.copy(
-                    error = Error.OtherError(
+                    error = Error(
                         code = null,
                         message = result.message
-                    )
+                    ),
+                    currentRoomDetails = null
                 )
             }
 
@@ -194,18 +206,24 @@ class RoomsViewModel @Inject constructor(
 
             _uiState.value = when (val result = deletionResult.await()) {
                 is BaseResult.Success -> _uiState.value.copy(
-                    rooms = _uiState.value.rooms?.filter { room -> room.id != id } ?: emptyList()
+                    roomsStatus = when(val status = _uiState.value.roomsStatus) {
+                        is RoomsStatus.Success -> RoomsStatus.Success(
+                            rooms = status.rooms.filter { room -> room.id != id }
+                        )
+                        else -> status
+                    },
+                    error = null
                 )
 
                 is BaseResult.Error -> _uiState.value.copy(
-                    error = Error.OtherError(
+                    error = Error(
                         code = result.code,
                         message = result.message
                     )
                 )
 
                 is BaseResult.Exception -> _uiState.value.copy(
-                    error = Error.OtherError(
+                    error = Error(
                         code = null,
                         message = result.message
                     )
