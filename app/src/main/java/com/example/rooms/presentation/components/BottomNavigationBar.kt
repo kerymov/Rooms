@@ -7,45 +7,40 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.rooms.presentation.navigation.BottomNavigationItem
 import com.example.ui_core.theme.RoomsTheme
 
 @Composable
 fun BottomNavigationBar(
-    items: List<BottomNavigationItem>,
+    items: List<Pair<BottomNavigationItem, Boolean>>,
     onNavItemClick: (item: BottomNavigationItem) -> Unit,
 ) {
-    var selectedItemIndex by rememberSaveable { mutableIntStateOf(0) }
-
     NavigationBar(
         containerColor = MaterialTheme.colorScheme.primary,
         contentColor = MaterialTheme.colorScheme.onPrimary,
     ) {
-        items.forEachIndexed { index, item ->
+        items.forEach { item ->
+            val (navItem, isSelected) = item
+
             NavigationBarItem(
-                selected = selectedItemIndex == index,
+                selected = isSelected,
                 icon = {
                     Icon(
-                        imageVector = if (selectedItemIndex == index) {
-                            item.selectedIcon
+                        imageVector = if (isSelected) {
+                            navItem.selectedIcon
                         } else {
-                            item.unselectedIcon
+                            navItem.unselectedIcon
                         },
-                        contentDescription = item.title
+                        contentDescription = navItem.title
                     )
                 },
                 onClick = {
-                    selectedItemIndex = index
-                    onNavItemClick(item)
+                    onNavItemClick(navItem)
                 },
                 label = {
                     Text(
-                        text = item.title,
+                        text = navItem.title,
                         style = MaterialTheme.typography.labelLarge
                     )
                 },
@@ -68,8 +63,8 @@ fun PreviewBottomNavigationBar() {
     RoomsTheme {
         BottomNavigationBar(
             items = listOf(
-                BottomNavigationItem.ROOMS,
-                BottomNavigationItem.PROFILE
+                BottomNavigationItem.ROOMS to true,
+                BottomNavigationItem.PROFILE to false
             ),
             onNavItemClick = { }
         )

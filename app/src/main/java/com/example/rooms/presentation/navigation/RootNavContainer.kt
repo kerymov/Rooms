@@ -21,6 +21,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavDestination.Companion.hierarchy
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -69,9 +70,19 @@ fun RootNavContainer(
                 val bottomNavItems = BottomNavigationItem.entries
 
                 BottomNavigationBar(
-                    items = bottomNavItems,
+                    items = bottomNavItems.map { item ->
+                        item to (currentBackStackEntry?.destination?.hierarchy?.any {
+                            it.hasRoute(item.route::class)
+                        } == true)
+                    },
                     onNavItemClick = { item ->
-                        navController.navigate(route = item.route)
+                        navController.navigate(route = item.route) {
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
                     }
                 )
             }
@@ -106,10 +117,17 @@ fun RootNavContainer(
                     val viewModel = hiltViewModel<AuthViewModel>()
 
                     SignInScreen(
-                        onSignInSuccess = { navController.navigate(Main) },
+                        onSignInSuccess = {
+                            navController.navigate(Main) {
+                                popUpTo(Auth) { inclusive = true }
+                                launchSingleTop = true
+                            }
+                        },
                         onGoToSignUpClick = {
                             viewModel.resetUiState()
-                            navController.navigate(Auth.SignUp)
+                            navController.navigate(Auth.SignUp) {
+                                launchSingleTop = true
+                            }
                         },
                         authViewModel = viewModel
                     )
@@ -120,10 +138,18 @@ fun RootNavContainer(
                     val viewModel = hiltViewModel<AuthViewModel>()
 
                     SignUpScreen(
-                        onSignUpSuccess = { navController.navigate(Main) },
+                        onSignUpSuccess = {
+                            navController.navigate(Main) {
+                                popUpTo(Auth) { inclusive = true }
+                                launchSingleTop = true
+                            }
+                        },
                         onGoToSignInClick = {
                             viewModel.resetUiState()
-                            navController.navigate(Auth.SignIn)
+                            navController.navigate(Auth.SignIn) {
+                                popUpTo(0)
+                                launchSingleTop = true
+                            }
                         },
                         authViewModel = viewModel
                     )
@@ -150,9 +176,9 @@ fun RootNavContainer(
                     CompositionLocalProvider(LocalUser provides currentUser) {
                         RoomsScreen(
                             onRoomLogin = { detailsJson ->
-                                navController.navigate(
-                                    route = Room.RoomMain(detailsJson)
-                                )
+                                navController.navigate(route = Room.RoomMain(detailsJson)) {
+                                    launchSingleTop = true
+                                }
                             },
                             roomsViewModel = roomsViewModel
                         )
@@ -195,9 +221,7 @@ fun RootNavContainer(
                                 navigationItem = TopAppBarInteractionItem(
                                     icon = Icons.AutoMirrored.Filled.ExitToApp,
                                     onClick = {
-                                        navController.navigate(Main.Rooms) {
-                                            popUpTo(0)
-                                        }
+                                        viewModel.toggleExitConfirmationDialog(true)
                                     }
                                 ),
                                 actions = listOf(
@@ -212,6 +236,11 @@ fun RootNavContainer(
                         CompositionLocalProvider(LocalUser provides currentUser) {
                             RoomScreen(
                                 roomViewModel = viewModel,
+                                onExit = {
+                                    navController.navigate(Main.Rooms) {
+                                        popUpTo(0)
+                                    }
+                                },
                                 modifier = Modifier.fillMaxSize()
                             )
                         }

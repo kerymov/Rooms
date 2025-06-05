@@ -31,6 +31,7 @@ data class RoomUiState(
     val roomDetails: RoomDetailsUi,
     val currentSolve: SolveUi? = null,
     val isWaitingForNewScramble: Boolean = true,
+    val isExitConfirmationDialogShown: Boolean = false,
     val users: List<String> = emptyList(),
     val solves: List<SolveUi> = emptyList()
 )
@@ -164,6 +165,12 @@ class RoomViewModel @AssistedInject constructor(
                     }
 
                 }
+        }
+    }
+
+    fun toggleExitConfirmationDialog(isShown: Boolean) {
+        _uiState.update { uiState ->
+            uiState.copy(isExitConfirmationDialogShown = isShown)
         }
     }
 

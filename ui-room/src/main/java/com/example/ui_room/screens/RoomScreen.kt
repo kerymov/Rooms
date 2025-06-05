@@ -1,5 +1,6 @@
 package com.example.ui_room.screens
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -58,6 +59,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.ui_common_speedcubing.models.EventUi
 import com.example.ui_common_speedcubing.models.PenaltyUi
 import com.example.ui_common_speedcubing.models.ScrambleUi
+import com.example.ui_core.components.CustomAlertDialog
+import com.example.ui_core.components.CustomAlertDialogDefaults
 import com.example.ui_core.theme.RoomsTheme
 import com.example.ui_core.utils.FadeSide
 import com.example.ui_core.utils.defaultBottomSheetPadding
@@ -89,9 +92,31 @@ private enum class TimerMode(val label: String) {
 @Composable
 fun RoomScreen(
     modifier: Modifier = Modifier,
+    onExit: () -> Unit,
     roomViewModel: RoomViewModel = viewModel(),
 ) {
     val roomUiState by roomViewModel.uiState.collectAsState()
+
+    BackHandler {
+        roomViewModel.toggleExitConfirmationDialog(true)
+    }
+
+    if (roomUiState.isExitConfirmationDialogShown) {
+        CustomAlertDialog(
+            title = "Leave the room",
+            message = "Do you really want to leave the room?",
+            onDismiss = { roomViewModel.toggleExitConfirmationDialog(false) },
+            onConfirm = {
+                roomViewModel.toggleExitConfirmationDialog(false)
+                onExit()
+            },
+            dismissButtonText = "Cancel",
+            confirmButtonText = "Leave",
+            colors = CustomAlertDialogDefaults.alertColors(
+                confirmButtonColor = MaterialTheme.colorScheme.error
+            )
+        )
+    }
 
     Content(
         state = roomUiState,
