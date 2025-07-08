@@ -9,6 +9,7 @@ import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
 import org.junit.After
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -55,8 +56,8 @@ class SignUpUseCaseTest {
 
         assertTrue(result is BaseResult.Error)
         result as BaseResult.Error
-        assertTrue(result.code == 400)
-        assertTrue(result.message == "Bad Request")
+        assertEquals(result.code, 400)
+        assertEquals(result.message, "Bad Request")
         coVerify(exactly = 1) { repository.signUp(username, password, passwordConfirm) }
     }
 
@@ -66,13 +67,14 @@ class SignUpUseCaseTest {
         val password = "pass"
         val passwordConfirm = "pass"
 
-        coEvery { repository.signUp(any(), any(), any()) } returns BaseResult.Exception("Network error")
+        val errorMessage = "Network error"
+        coEvery { repository.signUp(any(), any(), any()) } returns BaseResult.Exception(errorMessage)
 
         val result = useCase.invoke(username, password, passwordConfirm)
 
         assertTrue(result is BaseResult.Exception)
         result as BaseResult.Exception
-        assertTrue(result.message == "Network error")
+        assertEquals(result.message, errorMessage)
         coVerify(exactly = 1) { repository.signUp(username, password, passwordConfirm) }
     }
 }

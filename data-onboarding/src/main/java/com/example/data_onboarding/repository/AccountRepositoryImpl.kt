@@ -4,12 +4,11 @@ import com.example.data_onboarding.dataSources.LocalAccountDataSource
 import com.example.data_onboarding.dataSources.RemoteAccountDataSource
 import com.example.data_onboarding.models.UserSignInRequest
 import com.example.data_onboarding.models.UserSignUpRequest
-import com.example.data_onboarding.utils.UserMapper
+import com.example.data_onboarding.mappers.UserMapper
 import com.example.domain_core.utils.BaseResult
 import com.example.domain_onboarding.models.User
 import com.example.domain_onboarding.repository.AccountRepository
 import retrofit2.HttpException
-import javax.inject.Inject
 
 class AccountRepositoryImpl(
     private val remoteDataSource: RemoteAccountDataSource,
@@ -76,7 +75,7 @@ class AccountRepositoryImpl(
         localAccountDataSource.saveUser(
             username = user.username,
             authToken = user.token,
-            expiresInt = user.expiresIn
+            expiresIn = user.expiresIn
         )
     }
 }

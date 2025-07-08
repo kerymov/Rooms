@@ -4,7 +4,7 @@ import com.example.data_onboarding.dataSources.LocalAccountDataSource
 import com.example.data_onboarding.dataSources.RemoteAccountDataSource
 import com.example.data_onboarding.repository.AccountRepositoryImpl
 import com.example.data_onboarding.service.AccountApi
-import com.example.data_onboarding.utils.UserMapper
+import com.example.data_onboarding.mappers.UserMapper
 import com.example.domain_core.preferences.Preferences
 import com.example.domain_onboarding.repository.AccountRepository
 import dagger.Module

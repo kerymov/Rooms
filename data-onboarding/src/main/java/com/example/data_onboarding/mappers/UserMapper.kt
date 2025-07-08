@@ -1,4 +1,4 @@
-package com.example.data_onboarding.utils
+package com.example.data_onboarding.mappers
 
 import com.example.data_onboarding.models.UserAuthResponse
 import com.example.domain_onboarding.models.User
@@ -8,7 +8,11 @@ class UserMapper @Inject constructor() {
 
     val mapToDomain: (UserAuthResponse) -> User = {
         with(it) {
-            User(username, token, expiresIn)
+            User(
+                username = requireNotNull(username),
+                token = requireNotNull(token),
+                expiresIn = expiresIn
+            )
         }
     }
 }
