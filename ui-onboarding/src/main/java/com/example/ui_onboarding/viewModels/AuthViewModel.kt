@@ -5,10 +5,12 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.domain_core.utils.BaseResult
+import com.example.domain_core.utils.coroutines.MainImmediateDispatcher
 import com.example.domain_onboarding.repository.AccountRepository
 import com.example.domain_onboarding.useCases.SignInUseCase
 import com.example.domain_onboarding.useCases.SignUpUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -28,6 +30,7 @@ sealed class AuthUiState {
 class AuthViewModel @Inject constructor(
     private val signInUseCase: SignInUseCase,
     private val signUpUseCase: SignUpUseCase,
+    @MainImmediateDispatcher private val dispatcher: CoroutineDispatcher = Dispatchers.Main.immediate
 ): ViewModel() {
     private val _uiState: MutableStateFlow<AuthUiState> = MutableStateFlow(AuthUiState.None)
     val uiState: StateFlow<AuthUiState> = _uiState.asStateFlow()
@@ -37,7 +40,7 @@ class AuthViewModel @Inject constructor(
         password: String,
         passwordConfirm: String
     ) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(context = dispatcher) {
             _uiState.value = AuthUiState.Loading
 
             val result = signUpUseCase.invoke(login, password, passwordConfirm)
@@ -60,7 +63,7 @@ class AuthViewModel @Inject constructor(
         login: String,
         password: String
     ) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(context = dispatcher) {
             _uiState.value = AuthUiState.Loading
 
             val result = signInUseCase.invoke(login, password)
