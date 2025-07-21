@@ -92,13 +92,13 @@ private fun Content(
             .verticalScroll(rememberScrollState())
     ) {
         UserInfo(username)
-        Section(
-            title = "Results",
-            buttons = listOf(
-                ProfileButton("Records") { onRecordsClick() },
-                ProfileButton("All results") { onAllResultsClick() }
-            )
-        )
+//        Section(
+//            title = "Results",
+//            buttons = listOf(
+//                ProfileButton("Records") { onRecordsClick() },
+//                ProfileButton("All results") { onAllResultsClick() }
+//            )
+//        )
         Section(
             title = "Account",
             buttons = listOf(

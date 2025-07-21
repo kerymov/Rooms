@@ -18,6 +18,11 @@ kotlin {
 dependencies {
     implementation(project(":domain-core"))
 
+    implementation(libs.kotlinx.coroutines.core)
+
     implementation(libs.dagger.hilt.core)
     ksp(libs.dagger.hilt.compiler)
+
+    testImplementation(libs.junit)
+    testImplementation(libs.mockk)
 }

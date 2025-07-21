@@ -5,6 +5,6 @@ data class UserAuthResponse(
     val expiresIn: Int,
     val isSuccess: Boolean,
     val statusCode: Int,
-    val token: String,
-    val username: String
+    val token: String?,
+    val username: String?
 )

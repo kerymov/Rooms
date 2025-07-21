@@ -37,6 +37,15 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.1"
     }
+    packaging {
+        resources {
+            with(excludes) {
+                add("/META-INF/{AL2.0,LGPL2.1}")
+                add("META-INF/LICENSE.md")
+                add("META-INF/LICENSE-notice.md")
+            }
+        }
+    }
 }
 
 dependencies {
@@ -67,6 +76,12 @@ dependencies {
     ksp(libs.dagger.hilt.compiler)
 
     testImplementation(libs.junit)
+    testImplementation(libs.mockk)
+    testImplementation(libs.turbine)
+    testImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.mockk.android)
     androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
+    debugImplementation(libs.androidx.compose.ui.test.manifest)
 }

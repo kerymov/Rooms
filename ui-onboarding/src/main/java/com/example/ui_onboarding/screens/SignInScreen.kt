@@ -33,6 +33,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -87,7 +90,9 @@ fun SignInScreen(
     }
 
     if (uiState is AuthUiState.Loading) {
-        CircularLoadingIndicator()
+        CircularLoadingIndicator(
+            modifier = Modifier.testTag("loading_indicator")
+        )
     }
 
     val usernameTextFieldHandler = TextFieldHandler(
@@ -158,7 +163,8 @@ private fun SignInView(
                 detectTapGestures(onTap = {
                     focusManager.clearFocus()
                 })
-            },
+            }
+            .testTag("sign_in_background"),
         contentAlignment = Alignment.Center
     ) {
         Content(
@@ -173,7 +179,9 @@ private fun SignInView(
         if (!errorMessage.isNullOrBlank()) {
             ErrorCard(
                 text = errorMessage,
-                modifier = Modifier.align(Alignment.BottomCenter)
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .testTag("error_card")
             )
         }
     }
@@ -196,7 +204,7 @@ private fun Content(
         .padding(20.dp)
         .verticalScroll(rememberScrollState())
 ) {
-    Logo()
+    Logo(Modifier.testTag("logo"))
 
     Spacer(modifier = Modifier.height(64.dp))
 
@@ -228,7 +236,16 @@ private fun TextFields(
         onValueChange = usernameTextFieldHandler.onValueChange,
         placeholderText = Field.USERNAME.placeholder,
         isError = Field.USERNAME in invalidFields,
-        imeAction = ImeAction.Next
+        imeAction = ImeAction.Next,
+        modifier = Modifier
+            .testTag("username_field")
+            .semantics {
+                contentDescription = if (Field.USERNAME in invalidFields) {
+                    "Username field with error"
+                } else {
+                    "Username field"
+                }
+            }
     )
 
     PasswordTextField(
@@ -238,7 +255,16 @@ private fun TextFields(
         onValueVisibilityChange = passwordTextFieldHandler.onVisibilityChange,
         placeholderText = Field.PASSWORD.placeholder,
         isError = Field.PASSWORD in invalidFields,
-        imeAction = ImeAction.Done
+        imeAction = ImeAction.Done,
+        modifier = Modifier
+            .testTag("password_field")
+            .semantics {
+                contentDescription = if (Field.PASSWORD in invalidFields) {
+                    "Password field with error"
+                } else {
+                    "Password field"
+                }
+            }
     )
 }
 
@@ -257,7 +283,9 @@ private fun Buttons(
             contentColor = MaterialTheme.colorScheme.onPrimary
         ),
         onClick = onSignInClick,
-        modifier = Modifier.size(height = 48.dp, width = 184.dp)
+        modifier = Modifier
+            .size(height = 48.dp, width = 184.dp)
+            .testTag("sign_in_button")
     ) {
         Text(
             text = "Sign in",
@@ -267,7 +295,8 @@ private fun Buttons(
     }
     Spacer(modifier = Modifier.height(12.dp))
     TextButton(
-        onClick = onGoToSignUpClick
+        onClick = onGoToSignUpClick,
+        modifier = Modifier.testTag("go_to_sign_up_button")
     ) {
         Text(
             text = "Go to sign up",

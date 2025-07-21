@@ -4,13 +4,16 @@ import com.example.data_onboarding.dataSources.LocalAccountDataSource
 import com.example.data_onboarding.dataSources.RemoteAccountDataSource
 import com.example.data_onboarding.repository.AccountRepositoryImpl
 import com.example.data_onboarding.service.AccountApi
-import com.example.data_onboarding.utils.UserMapper
+import com.example.data_onboarding.mappers.UserMapper
 import com.example.domain_core.preferences.Preferences
+import com.example.domain_core.utils.coroutines.IoDispatcher
 import com.example.domain_onboarding.repository.AccountRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import retrofit2.Retrofit
 import javax.inject.Singleton
 
@@ -23,12 +26,14 @@ object OnboardingModule {
     fun provideAccountRepository(
         localDataSource: LocalAccountDataSource,
         remoteDataSource: RemoteAccountDataSource,
-        mapper: UserMapper
+        mapper: UserMapper,
+        @IoDispatcher dispatcher: CoroutineDispatcher = Dispatchers.IO
     ): AccountRepository {
         return AccountRepositoryImpl(
             remoteDataSource = remoteDataSource,
             localAccountDataSource = localDataSource,
-            mapper = mapper
+            mapper = mapper,
+            dispatcher = dispatcher
         )
     }
 

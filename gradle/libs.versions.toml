@@ -3,7 +3,9 @@ agp = "8.7.0-rc01"
 kotlin = "1.9.0"
 coreKtx = "1.13.1"
 junit = "4.13.2"
-junitVersion = "1.1.5"
+junitVersion = "1.2.1"
+mockk = "1.13.3"
+turbine = "1.0.0"
 espressoCore = "3.5.1"
 kotlinxCoroutinesCore = "1.9.0"
 lifecycleRuntimeKtx = "2.8.2"
@@ -32,6 +34,9 @@ materialVersion = "1.12.0"
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "coreSplashscreen" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
+mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
+mockk-android = { group = "io.mockk", name = "mockk-android", version.ref = "mockk" }
+turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 androidx-compose-runtime = { group = "androidx.compose.runtime", name = "runtime" }
@@ -63,6 +68,7 @@ material = { group = "com.google.android.material", name = "material", version.r
 
 #Coroutines
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutinesCore" }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinxCoroutinesCore" }
 
 #Network
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
@@ -76,6 +82,7 @@ signalr = { module = "com.microsoft.signalr:signalr", version.ref = "signalr" }
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
 
 #DI
+javax-inject = { module = "javax.inject:javax.inject", version = "1" }
 dagger-hilt-core = { group = "com.google.dagger", name = "hilt-core", version.ref = "dagger-hilt" }
 dagger-hilt-compiler = { group = "com.google.dagger", name = "hilt-compiler", version.ref = "dagger-hilt" }
 dagger-hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "dagger-hilt" }
