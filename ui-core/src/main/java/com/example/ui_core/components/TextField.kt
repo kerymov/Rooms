@@ -29,7 +29,8 @@ fun PasswordTextField(
     onValueVisibilityChange: () -> Unit,
     placeholderText: String,
     isError: Boolean,
-    imeAction: ImeAction = ImeAction.Default
+    imeAction: ImeAction = ImeAction.Default,
+    modifier: Modifier = Modifier
 ) = BaseTextField(
     value = value,
     onValueChange = onValueChange,
@@ -41,6 +42,7 @@ fun PasswordTextField(
     keyboardType = KeyboardType.Password,
     imeAction = imeAction,
     visualTransformation = if (isValueVisible) VisualTransformation.None else PasswordVisualTransformation(),
+    modifier = modifier
 )
 
 @Composable
@@ -54,7 +56,8 @@ fun BaseTextField(
     onTrailingIconClick: () -> Unit = { },
     imeAction: ImeAction = ImeAction.Default,
     keyboardType: KeyboardType = KeyboardType.Text,
-    visualTransformation: VisualTransformation = VisualTransformation.None
+    visualTransformation: VisualTransformation = VisualTransformation.None,
+    modifier: Modifier = Modifier
 ) = OutlinedTextField(
     value = value,
     onValueChange = onValueChange,
@@ -94,5 +97,5 @@ fun BaseTextField(
     visualTransformation = visualTransformation,
     singleLine = true,
     isError = isError,
-    modifier = Modifier.fillMaxWidth()
+    modifier = modifier.fillMaxWidth()
 )

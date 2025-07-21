@@ -10,12 +10,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 
 @Composable
-fun CircularLoadingIndicator() {
+fun CircularLoadingIndicator(modifier: Modifier = Modifier) {
     Dialog(
         onDismissRequest = { },
     ) {
         CircularProgressIndicator(
-            modifier = Modifier.size(56.dp),
+            modifier = modifier.size(56.dp),
             color = MaterialTheme.colorScheme.background,
             trackColor = MaterialTheme.colorScheme.primary,
             strokeCap = StrokeCap.Round,
