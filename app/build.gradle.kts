@@ -7,11 +7,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.rooms"
+    namespace = "com.kerymov.rooms"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.rooms"
+        applicationId = "com.kerymov.rooms"
         minSdk = 26
         targetSdk = 34
         versionCode = 1

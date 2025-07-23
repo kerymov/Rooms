@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.data_profile"
+    namespace = "com.kerymov.data_profile"
     compileSdk = 34
 
     defaultConfig {

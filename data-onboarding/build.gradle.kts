@@ -7,7 +7,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.data_onboarding"
+    namespace = "com.kerymov.data_onboarding"
     compileSdk = 34
 
     defaultConfig {

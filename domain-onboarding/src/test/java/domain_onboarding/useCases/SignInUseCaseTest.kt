@@ -1,8 +1,8 @@
 package domain_onboarding.useCases
 
-import com.example.domain_core.utils.BaseResult
-import com.example.domain_onboarding.repository.AccountRepository
-import com.example.domain_onboarding.useCases.SignInUseCase
+import com.kerymov.domain_core.utils.BaseResult
+import com.kerymov.domain_onboarding.repository.AccountRepository
+import com.kerymov.domain_onboarding.useCases.SignInUseCase
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.clearAllMocks

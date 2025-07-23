@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.ui_room"
+    namespace = "com.kerymov.ui_room"
     compileSdk = 34
 
     defaultConfig {

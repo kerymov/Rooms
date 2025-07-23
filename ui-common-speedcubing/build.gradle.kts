@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.ui_common_speedcubing"
+    namespace = "com.kerymov.ui_common_speedcubing"
     compileSdk = 34
 
     defaultConfig {

@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.data_core"
+    namespace = "com.kerymov.data_core"
     compileSdk = 34
 
     defaultConfig {

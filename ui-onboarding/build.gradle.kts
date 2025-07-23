@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.ui_onboarding"
+    namespace = "com.kerymov.ui_onboarding"
     compileSdk = 34
 
     defaultConfig {
