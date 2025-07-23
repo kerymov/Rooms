@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "83101651967",
+    "project_id": "rooms-379c3",
+    "storage_bucket": "rooms-379c3.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:83101651967:android:355d27dc981e410f6c4dca",
+        "android_client_info": {
+          "package_name": "com.kerymov.rooms"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC8IC_Ua6cPbLB3xuMyRul9HZr7MCPOjuw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
