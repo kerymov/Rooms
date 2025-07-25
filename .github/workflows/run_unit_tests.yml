@@ -1,0 +1,22 @@
+name: PR Unit Tests
+
+on:
+  pull_request:
+    branches:
+      - 'div'
+      - 'main'
+
+jobs:
+  unit-test:
+    name: Run Unit Tests on PR
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'gradle'
+
+      - name: Run Unit Tests
+        run: ./gradlew test
