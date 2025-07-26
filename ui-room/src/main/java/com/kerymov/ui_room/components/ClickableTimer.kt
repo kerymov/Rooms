@@ -23,6 +23,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.style.TextAlign
@@ -84,11 +85,12 @@ fun ClickableTimer(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
-            .pointerInput(Unit) {
+            .alpha(if (isEnabled) 1f else 0.7f)
+            .pointerInput(isEnabled) {
+                if (!isEnabled) return@pointerInput
+
                 detectTapGestures(
                     onPress = { _ ->
-                        if (!isEnabled) return@detectTapGestures
-
                         isTimerPressed = true
                         timerColor = preparationColor
                         val pressStartTime = System.currentTimeMillis()

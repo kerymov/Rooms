@@ -3,7 +3,6 @@ package com.kerymov.ui_room.screens
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -58,6 +57,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kerymov.ui_common_speedcubing.models.EventUi
 import com.kerymov.ui_common_speedcubing.models.PenaltyUi
+import com.kerymov.ui_common_speedcubing.models.ResultUi
 import com.kerymov.ui_common_speedcubing.models.ScrambleUi
 import com.kerymov.ui_core.components.CustomAlertDialog
 import com.kerymov.ui_core.components.CustomAlertDialogDefaults
@@ -159,6 +159,7 @@ private fun Content(
         )
         TimerZone(
             timerMode = timerMode,
+            isTimerEnabled = !state.isWaitingForNewScramble,
             isSelectModeMenuShown = isTimerModeSheetOpen,
             onChangeTimerModeClick = {
                 isTimerModeSheetOpen = !isTimerModeSheetOpen
@@ -200,7 +201,7 @@ private fun Content(
 @Composable
 private fun CurrentSolveResults(
     users: List<String>,
-    results: List<com.kerymov.ui_common_speedcubing.models.ResultUi>,
+    results: List<ResultUi>,
     onShowResults: () -> Unit,
     modifier: Modifier = Modifier
 ) = Row(
@@ -290,7 +291,6 @@ private fun ResultPill(
     )
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun ScrambleZone(
     scramble: ScrambleUi?,
@@ -390,13 +390,12 @@ private fun PageIndicator(
 @Composable
 private fun TimerZone(
     timerMode: TimerMode,
+    isTimerEnabled: Boolean,
     isSelectModeMenuShown: Boolean,
     onChangeTimerModeClick: () -> Unit,
     onSendResultClick: (Long, PenaltyUi) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var isTimerEnabled by rememberSaveable { mutableStateOf(true) }
-
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
@@ -449,7 +448,6 @@ private fun TimerZone(
                     },
                     onStop = {
                         timer.stop()
-                        isTimerEnabled = false
                     },
                     onDismiss = timer::reset,
                     onSendResultClick = {
@@ -460,7 +458,6 @@ private fun TimerZone(
                             } ?: PenaltyUi.NO_PENALTY
                         )
                         timer.reset()
-                        isTimerEnabled = true
                     },
                     onPlusTwoClick = { timer.managePlusTwoPenalty() },
                     onDnfClick = { timer.manageDnfPenalty() },
@@ -598,7 +595,7 @@ private fun PreviewRoomScreenContent() {
                     solveNumber = 2,
                     scramble = ScrambleUi(scramble = scramble, image = image),
                     results = listOf(
-                        com.kerymov.ui_common_speedcubing.models.ResultUi(
+                        ResultUi(
                             "admin",
                             9830,
                             PenaltyUi.PLUS_TWO
