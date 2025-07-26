@@ -103,14 +103,8 @@ fun RoomsScreen(
     )
 
     LaunchedEffect(key1 = roomsUiState.currentRoomDetails) {
-        val roomDetails = roomsUiState.currentRoomDetails
-        if (roomDetails != null) {
-            val roomDetailsJson = Json.encodeToString(
-                serializer = RoomDetailsUi.serializer(),
-                value = roomDetails
-            )
-            onRoomLogin(roomDetailsJson)
-        }
+        val roomDetailsJson = roomsViewModel.encodeRoomDetailsToString()
+        roomDetailsJson?.let(onRoomLogin)
     }
 
     Box(

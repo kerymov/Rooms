@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.Json
 import javax.inject.Inject
 
 sealed class RoomsStatus {
@@ -238,5 +239,23 @@ class RoomsViewModel @Inject constructor(
 
     fun toggleCreateRoomBottomSheet(isOpen: Boolean) {
         _uiState.update { state -> state.copy(isCreateRoomBottomSheetOpen = isOpen) }
+    }
+
+    fun encodeRoomDetailsToString(): String? {
+        _uiState.value.currentRoomDetails?.let { roomDetails ->
+            try {
+                val roomDetailsJson = Json.encodeToString(
+                    serializer = RoomDetailsUi.serializer(),
+                    value = roomDetails
+                )
+
+                return roomDetailsJson
+            } catch (e: Exception) {
+                _uiState.update {
+                    it.copy(error = Error(null, "An error has occurred"))
+                }
+                return null
+            }
+        } ?: return null
     }
 }
