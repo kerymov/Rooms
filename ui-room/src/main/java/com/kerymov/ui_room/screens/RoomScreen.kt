@@ -414,7 +414,7 @@ private fun TimerZone(
                 enabled = isTimerEnabled,
                 colors = ButtonDefaults.textButtonColors(
                     contentColor = MaterialTheme.colorScheme.onPrimary,
-                    disabledContentColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f)
+                    disabledContentColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.5f)
                 )
             ) {
                 Text(
@@ -473,6 +473,7 @@ private fun TimerZone(
                             PenaltyUi.NO_PENALTY
                         )
                     },
+                    isEnabled = isTimerEnabled,
                     modifier = Modifier.fillMaxSize()
                 )
             }

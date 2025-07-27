@@ -85,7 +85,7 @@ fun ClickableTimer(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
-            .alpha(if (isEnabled) 1f else 0.7f)
+            .alpha(if (isEnabled) 1f else 0.5f)
             .pointerInput(isEnabled) {
                 if (!isEnabled) return@pointerInput
 
