@@ -1,27 +1,48 @@
 package com.kerymov.ui_room.components
 
-import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.geometry.center
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.inset
 import androidx.compose.ui.graphics.drawscope.translate
+import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.kerymov.ui_common_speedcubing.models.EventUi
+import com.kerymov.ui_common_speedcubing.models.ScrambleUi
 import com.kerymov.ui_core.theme.BlueCube
 import com.kerymov.ui_core.theme.GreenCube
 import com.kerymov.ui_core.theme.OrangeCube
 import com.kerymov.ui_core.theme.RedCube
 import com.kerymov.ui_core.theme.WhiteCube
 import com.kerymov.ui_core.theme.YellowCube
-import com.kerymov.ui_common_speedcubing.models.EventUi
-import com.kerymov.ui_common_speedcubing.models.ScrambleUi
+import com.kerymov.ui_room.utils.CanvasContentScale
+import com.kerymov.ui_room.utils.calculateContentZoom
+
+private interface Drawable {
+    val offset: Offset
+}
+
+private data class DrawableFace(
+    val face: ScrambleUi.Face, override val offset: Offset
+) : Drawable
 
 private enum class ImageColor(val id: Int, val value: Color) {
     RED(0, RedCube),
@@ -34,7 +55,9 @@ private enum class ImageColor(val id: Int, val value: Color) {
 
 private const val FACES_IN_ROW = 4
 private const val FACES_IN_COLUMN = 3
-private val SPACE_BETWEEN_FACES = 2.dp
+private const val ASPECT_RATIO = FACES_IN_COLUMN.toFloat() / FACES_IN_ROW.toFloat()
+private val PIECE_SIDE_LENGTH = 40.dp
+private val SPACE_BETWEEN_FACES = 4.dp
 private val SPACE_INSIDE_FACE = 2.dp
 private val FACE_INSET = 2.dp
 
@@ -51,111 +74,120 @@ internal fun ScrambleImageCanvas(
     val yellowFace = image.faces.getOrNull(ImageColor.YELLOW.id)
     val blueFace = image.faces.getOrNull(ImageColor.BLUE.id)
 
-    Canvas(modifier = modifier) {
-        val faceSideLength = if (size.height < size.width) {
-            (size.height - SPACE_BETWEEN_FACES.toPx() * 2) / FACES_IN_COLUMN.toFloat()
-        } else {
-            (size.width - SPACE_BETWEEN_FACES.toPx() * 3) / FACES_IN_ROW.toFloat()
-        }
+    val piecesInRow = event.id
 
-        val piecesInRow = event.id
-        val faceInsets = FACE_INSET.toPx() * 2
-        val faceInnerSpaces = SPACE_INSIDE_FACE.toPx() * (piecesInRow - 1)
-        val pieceSideLength = (faceSideLength - faceInsets - faceInnerSpaces) / piecesInRow.toFloat()
+    val defaultWidth = PIECE_SIDE_LENGTH * piecesInRow +
+            SPACE_INSIDE_FACE * (piecesInRow - 1) * 4f +
+            FACE_INSET * 2f * 4f +
+            SPACE_BETWEEN_FACES * 3f
+    val defaultHeight = defaultWidth * ASPECT_RATIO
 
-        val faceSize = Size(faceSideLength, faceSideLength)
-        val pieceSize = Size(pieceSideLength, pieceSideLength)
+    Box(
+        modifier = modifier
+            .defaultMinSize(defaultWidth, defaultHeight)
+            .padding(horizontal = 8.dp, vertical = 4.dp)
+            .drawBehind {
+                val contentRect = Rect(
+                    offset = Offset.Zero,
+                    size = Size(defaultWidth.toPx(), defaultHeight.toPx())
+                )
+                val matrix = Matrix().apply {
+                    translate(size.center.x, size.center.y)
+                    val zoom = calculateContentZoom(
+                        canvasSize = size,
+                        contentSize = contentRect.size,
+                        contentScale = CanvasContentScale.CENTER_FIT
+                    )
+                    scale(zoom, zoom)
+                    translate(-contentRect.center.x, -contentRect.center.y)
+                }
 
-        val redFaceOffset = Offset(
-            (faceSize.width + SPACE_BETWEEN_FACES.toPx()) * 2f,
-            faceSize.height + SPACE_BETWEEN_FACES.toPx()
-        )
-        val whiteFaceOffset = Offset(
-            faceSize.width + SPACE_BETWEEN_FACES.toPx(),
-            0f
-        )
-        val greenFaceOffset = Offset(
-            faceSize.width + SPACE_BETWEEN_FACES.toPx(),
-            faceSize.height + SPACE_BETWEEN_FACES.toPx()
-        )
-        val orangeFaceOffset = Offset(
-            0f,
-            faceSize.height + SPACE_BETWEEN_FACES.toPx()
-        )
-        val yellowFaceOffset = Offset(
-            faceSize.width + SPACE_BETWEEN_FACES.toPx(),
-            (faceSize.height + SPACE_BETWEEN_FACES.toPx()) * 2f
-        )
-        val blueFaceOffset = Offset(
-            (faceSize.width + SPACE_BETWEEN_FACES.toPx()) * 3f,
-            faceSize.height + SPACE_BETWEEN_FACES.toPx()
-        )
+                val transformedSpaceBetweenFaces = SPACE_BETWEEN_FACES.toPx()
+                val transformedSpaceInsideFace = SPACE_INSIDE_FACE.toPx()
+                val transformedFaceInsent = FACE_INSET.toPx()
 
-        whiteFace?.let {
-            drawFace(
-                face = it,
-                faceSize = faceSize,
-                pieceSize = pieceSize,
-                offset = whiteFaceOffset
-            )
-        }
-        orangeFace?.let {
-            drawFace(
-                face = it,
-                faceSize = faceSize,
-                pieceSize = pieceSize,
-                offset = orangeFaceOffset
-            )
-        }
-        greenFace?.let {
-            drawFace(
-                face = it,
-                faceSize = faceSize,
-                pieceSize = pieceSize,
-                offset = greenFaceOffset
-            )
-        }
-        redFace?.let {
-            drawFace(
-                face = it,
-                faceSize = faceSize,
-                pieceSize = pieceSize,
-                offset = redFaceOffset
-            )
-        }
-        blueFace?.let {
-            drawFace(
-                face = it,
-                faceSize = faceSize,
-                pieceSize = pieceSize,
-                offset = blueFaceOffset
-            )
-        }
-        yellowFace?.let {
-            drawFace(
-                face = it,
-                faceSize = faceSize,
-                pieceSize = pieceSize,
-                offset = yellowFaceOffset
-            )
-        }
-    }
+                val faceSideLength =
+                    (contentRect.height - transformedSpaceBetweenFaces * 2) / FACES_IN_COLUMN.toFloat()
+
+                val faceInsets = transformedFaceInsent * 2
+                val faceInnerSpaces = transformedSpaceInsideFace * (piecesInRow - 1)
+                val pieceSideLength =
+                    (faceSideLength - faceInsets - faceInnerSpaces) / piecesInRow.toFloat()
+
+                val faceSize = Size(faceSideLength, faceSideLength)
+                val pieceSize = Size(pieceSideLength, pieceSideLength)
+
+                val redFaceOffset = Offset(
+                    (faceSize.width + transformedSpaceBetweenFaces) * 2f,
+                    faceSize.height + transformedSpaceBetweenFaces
+                )
+                val whiteFaceOffset = Offset(
+                    faceSize.width + transformedSpaceBetweenFaces,
+                    0f
+                )
+                val greenFaceOffset = Offset(
+                    faceSize.width + transformedSpaceBetweenFaces,
+                    faceSize.height + transformedSpaceBetweenFaces
+                )
+                val orangeFaceOffset = Offset(
+                    0f,
+                    faceSize.height + transformedSpaceBetweenFaces
+                )
+                val yellowFaceOffset = Offset(
+                    faceSize.width + transformedSpaceBetweenFaces,
+                    (faceSize.height + transformedSpaceBetweenFaces) * 2f
+                )
+                val blueFaceOffset = Offset(
+                    (faceSize.width + transformedSpaceBetweenFaces) * 3f,
+                    faceSize.height + transformedSpaceBetweenFaces
+                )
+
+                val drawableFaces = listOfNotNull(
+                    redFace?.let { DrawableFace(it, redFaceOffset) },
+                    whiteFace?.let { DrawableFace(it, whiteFaceOffset) },
+                    greenFace?.let { DrawableFace(it, greenFaceOffset) },
+                    orangeFace?.let { DrawableFace(it, orangeFaceOffset) },
+                    yellowFace?.let { DrawableFace(it, yellowFaceOffset) },
+                    blueFace?.let { DrawableFace(it, blueFaceOffset) }
+                )
+
+                withTransform(
+                    transformBlock = {
+                        transform(matrix)
+                    },
+                    drawBlock = {
+                        drawableFaces.forEach {
+                            drawFace(
+                                face = it.face,
+                                faceSize = faceSize,
+                                pieceSize = pieceSize,
+                                faceInset = transformedFaceInsent,
+                                spaceInsideFace = transformedSpaceInsideFace,
+                                offset = it.offset
+                            )
+                        }
+                    }
+                )
+            }
+    )
 }
 
 private fun DrawScope.drawFace(
     face: ScrambleUi.Face,
     faceSize: Size,
     pieceSize: Size,
+    faceInset: Float,
+    spaceInsideFace: Float,
     offset: Offset
 ) {
     translate(left = offset.x, top = offset.y) {
         drawRect(color = Color.Black, size = faceSize)
 
-        inset(vertical = FACE_INSET.toPx(), horizontal = FACE_INSET.toPx()) {
+        inset(vertical = faceInset, horizontal = faceInset) {
             face.colors.forEachIndexed { rowIndex, row ->
                 row.forEachIndexed { columnIndex, colorId ->
-                    val leftOffset = (pieceSize.width + SPACE_INSIDE_FACE.toPx()) * columnIndex.toFloat()
-                    val topOffset = (pieceSize.height  + SPACE_INSIDE_FACE.toPx()) * rowIndex.toFloat()
+                    val leftOffset = (pieceSize.width + spaceInsideFace) * columnIndex.toFloat()
+                    val topOffset = (pieceSize.height  + spaceInsideFace) * rowIndex.toFloat()
                     val topLeftOffset = Offset(x = leftOffset, y = topOffset)
 
                     drawRect(color = colorId.toColor(), size = pieceSize, topLeft = topLeftOffset)
@@ -167,7 +199,7 @@ private fun DrawScope.drawFace(
 
 private fun Int.toColor() = ImageColor.entries.find { it.id == this }?.value ?: Color.Gray
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 private fun ScrambleImageCanvasWidePreview() {
     ScrambleImageCanvas(
@@ -175,7 +207,7 @@ private fun ScrambleImageCanvasWidePreview() {
         event = EventUi.THREE_BY_THREE,
         modifier = Modifier
             .fillMaxWidth()
-            .height(240.dp)
+            .aspectRatio(4/3f)
     )
 }
 
@@ -186,8 +218,8 @@ private fun ScrambleImageCanvasHighPreview() {
         image = image,
         event = EventUi.THREE_BY_THREE,
         modifier = Modifier
-            .width(180.dp)
-            .height(320.dp)
+            .width(250.dp)
+            .height(400.dp)
     )
 }
 
