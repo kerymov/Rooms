@@ -3,6 +3,7 @@ package com.kerymov.ui_rooms.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -161,6 +162,7 @@ fun RoomsCreatingBottomSheet(
         )
 
         Divider(
+            orientation = Orientation.Horizontal,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 16.dp)
@@ -203,6 +205,7 @@ fun RoomsCreatingBottomSheet(
         }
 
         Divider(
+            orientation = Orientation.Horizontal,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 16.dp, bottom = 12.dp)
