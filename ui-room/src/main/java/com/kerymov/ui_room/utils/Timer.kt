@@ -11,8 +11,8 @@ import kotlinx.coroutines.launch
 
 enum class TimerState {
     IDLE,
-    READY_TO_START,
-    ACTIVE
+    ACTIVE,
+    STOPPED
 }
 
 enum class Penalty {
@@ -39,7 +39,7 @@ class Timer {
     private var lastTimestamp = 0L
 
     fun start() {
-        if (state == TimerState.READY_TO_START) return
+        if (state == TimerState.ACTIVE) return
 
         coroutineScope.launch {
             lastTimestamp = System.currentTimeMillis()
@@ -55,7 +55,8 @@ class Timer {
     }
 
     fun stop() {
-        state = TimerState.READY_TO_START
+        coroutineScope.cancel()
+        state = TimerState.STOPPED
     }
 
     fun reset() {
@@ -68,31 +69,31 @@ class Timer {
         penalty = Penalty.NO_PENALTY
     }
 
-    fun managePlusTwoPenalty() = when (penalty) {
-        Penalty.NO_PENALTY, Penalty.DNF -> {
-            penalty = Penalty.PLUS_TWO
-            addTwoSeconds()
-        }
+    fun setPlusTwoPenalty() {
+        if (penalty == Penalty.PLUS_TWO) return
 
-        Penalty.PLUS_TWO -> {
-            penalty = Penalty.NO_PENALTY
-            subtractTwoSeconds()
-        }
+        penalty = Penalty.PLUS_TWO
+        addTwoSeconds()
     }
 
-    fun manageDnfPenalty() = when (penalty) {
-        Penalty.NO_PENALTY -> {
-            penalty = Penalty.DNF
+    fun setDnfPenalty() {
+        when (penalty) {
+            Penalty.DNF -> return
+            Penalty.PLUS_TWO -> subtractTwoSeconds()
+            Penalty.NO_PENALTY -> Unit
         }
 
-        Penalty.PLUS_TWO -> {
-            penalty = Penalty.DNF
-            subtractTwoSeconds()
+        penalty = Penalty.DNF
+    }
+
+    fun removePenalty() {
+        when (penalty) {
+            Penalty.NO_PENALTY -> return
+            Penalty.PLUS_TWO -> subtractTwoSeconds()
+            Penalty.DNF -> Unit
         }
 
-        Penalty.DNF -> {
-            penalty = Penalty.NO_PENALTY
-        }
+        penalty = Penalty.NO_PENALTY
     }
 
     private fun addTwoSeconds() {
