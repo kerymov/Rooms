@@ -3,13 +3,9 @@ package com.kerymov.ui_room.components
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.defaultMinSize
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.requiredSizeIn
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -55,7 +51,7 @@ private enum class ImageColor(val id: Int, val value: Color) {
 
 private const val FACES_IN_ROW = 4
 private const val FACES_IN_COLUMN = 3
-private const val ASPECT_RATIO = FACES_IN_COLUMN.toFloat() / FACES_IN_ROW.toFloat()
+private const val ASPECT_RATIO = FACES_IN_ROW.toFloat() / FACES_IN_COLUMN.toFloat()
 private val PIECE_SIDE_LENGTH = 40.dp
 private val SPACE_BETWEEN_FACES = 4.dp
 private val SPACE_INSIDE_FACE = 2.dp
@@ -76,20 +72,22 @@ internal fun ScrambleImageCanvas(
 
     val piecesInRow = event.id
 
-    val defaultWidth = PIECE_SIDE_LENGTH * piecesInRow +
-            SPACE_INSIDE_FACE * (piecesInRow - 1) * 4f +
-            FACE_INSET * 2f * 4f +
-            SPACE_BETWEEN_FACES * 3f
-    val defaultHeight = defaultWidth * ASPECT_RATIO
-
     Box(
         modifier = modifier
-            .defaultMinSize(defaultWidth, defaultHeight)
+            .requiredSizeIn(92.dp, 69.dp)
+            .defaultMinSize(92.dp, 69.dp)
+            .aspectRatio(ASPECT_RATIO)
             .padding(horizontal = 8.dp, vertical = 4.dp)
             .drawBehind {
+                val contentWidth = PIECE_SIDE_LENGTH.toPx() * piecesInRow +
+                        SPACE_INSIDE_FACE.toPx() * (piecesInRow - 1) * 4f +
+                        FACE_INSET.toPx() * 2f * 4f +
+                        SPACE_BETWEEN_FACES.toPx() * 3f
+                val contentHeight = contentWidth / ASPECT_RATIO
+
                 val contentRect = Rect(
                     offset = Offset.Zero,
-                    size = Size(defaultWidth.toPx(), defaultHeight.toPx())
+                    size = Size(contentWidth, contentHeight)
                 )
                 val matrix = Matrix().apply {
                     translate(size.center.x, size.center.y)
@@ -199,15 +197,13 @@ private fun DrawScope.drawFace(
 
 private fun Int.toColor() = ImageColor.entries.find { it.id == this }?.value ?: Color.Gray
 
-@Preview(showBackground = true)
+@Preview(showSystemUi = true)
 @Composable
 private fun ScrambleImageCanvasWidePreview() {
     ScrambleImageCanvas(
         image = image,
         event = EventUi.THREE_BY_THREE,
         modifier = Modifier
-            .fillMaxWidth()
-            .aspectRatio(4/3f)
     )
 }
 
@@ -218,8 +214,7 @@ private fun ScrambleImageCanvasHighPreview() {
         image = image,
         event = EventUi.THREE_BY_THREE,
         modifier = Modifier
-            .width(250.dp)
-            .height(400.dp)
+            .fillMaxWidth()
     )
 }
 
