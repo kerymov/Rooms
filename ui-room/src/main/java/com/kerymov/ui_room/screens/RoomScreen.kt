@@ -72,21 +72,17 @@ import com.kerymov.ui_room.components.ScrambleImageCanvas
 import com.kerymov.ui_room.models.RoomDetailsUi
 import com.kerymov.ui_room.models.SettingsUi
 import com.kerymov.ui_room.utils.RESULT_PLACEHOLDER
-import com.kerymov.ui_room.utils.Timer
-import com.kerymov.ui_room.utils.TimerState
+import com.kerymov.ui_room.utils.TimerRunner
+import com.kerymov.ui_room.utils.TimerRunnerState
 import com.kerymov.ui_room.utils.formatRawStringTimeToMills
 import com.kerymov.ui_room.utils.resultInWcaNotation
 import com.kerymov.ui_room.viewModels.RoomUiState
 import com.kerymov.ui_room.viewModels.RoomViewModel
+import com.kerymov.ui_room.viewModels.TimerMode
 
 private enum class Page {
     SCRAMBLE,
     SCRAMBLE_IMAGE
-}
-
-private enum class TimerMode(val label: String) {
-    TIMER("Timer"),
-    TYPING("Typing")
 }
 
 @Composable
@@ -120,7 +116,9 @@ fun RoomScreen(
 
     Content(
         state = roomUiState,
-        onSolveResultSend = roomViewModel::sendSolveResult,
+        onSolveResultSend = { _, _ ->
+            roomViewModel.sendSolveResult()
+        },
         modifier = modifier
     )
 }
@@ -435,34 +433,34 @@ private fun TimerZone(
 
         when (timerMode) {
             TimerMode.TIMER -> {
-                val timer = remember { Timer() }
+                val timerRunner = remember { TimerRunner() }
 
-                ClickableTimer(
-                    formattedTime = timer.formattedTime,
-                    penalty = timer.penalty,
-                    isEnabled = isTimerEnabled,
-                    isActive = timer.state == TimerState.ACTIVE,
-                    onStart = {
-                        timer.reset()
-                        timer.start()
-                    },
-                    onStop = {
-                        timer.stop()
-                    },
-                    onDismiss = timer::reset,
-                    onSendResultClick = {
-                        onSendResultClick(
-                            timer.timeInMills,
-                            PenaltyUi.entries.find {
-                                it.ordinal == timer.penalty.ordinal
-                            } ?: PenaltyUi.NO_PENALTY
-                        )
-                        timer.reset()
-                    },
-                    onPlusTwoClick = { timer.managePlusTwoPenalty() },
-                    onDnfClick = { timer.manageDnfPenalty() },
-                    modifier = Modifier.fillMaxSize()
-                )
+//                ClickableTimer(
+//                    formattedTime = timerRunner.formattedTime,
+//                    penalty = timerRunner.penalty,
+//                    isEnabled = isTimerEnabled,
+//                    isActive = timerRunner.state == TimerRunnerState.ACTIVE,
+//                    onStart = {
+//                        timerRunner.reset()
+//                        timerRunner.start()
+//                    },
+//                    onStop = {
+//                        timerRunner.stop()
+//                    },
+//                    onDismiss = timerRunner::reset,
+//                    onSendResultClick = {
+//                        onSendResultClick(
+//                            timerRunner.timeInMills,
+//                            PenaltyUi.entries.find {
+//                                it.ordinal == timerRunner.penalty.ordinal
+//                            } ?: PenaltyUi.NO_PENALTY
+//                        )
+//                        timerRunner.reset()
+//                    },
+//                    onPlusTwoClick = { timerRunner.setPlusTwoPenalty() },
+//                    onDnfClick = { timerRunner.setDnfPenalty() },
+//                    modifier = Modifier.fillMaxSize()
+//                )
             }
 
             TimerMode.TYPING -> {
@@ -605,10 +603,13 @@ private fun PreviewRoomScreenContent() {
                 ),
                 isWaitingForNewScramble = false,
                 users = listOf("admin"),
-                solves = emptyList()
+                solves = emptyList(),
+                timerMode = TimerMode.TIMER
             ),
             onSolveResultSend = { _, _ -> },
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
+                .background(color = MaterialTheme.colorScheme.background)
         )
     }
 }
