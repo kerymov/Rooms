@@ -38,36 +38,37 @@ private enum class TimeRange(val originalTextOffset: Int, val transformedTextOff
     UNDER_TEN_HOURS(originalTextOffset = 7, transformedTextOffset = 10)
 }
 
-internal class TimerOffsetMapping: OffsetMapping {
+internal class TimerOffsetMapping(
+    private val originalText: String,
+    private val transformedText: String
+) : OffsetMapping {
     override fun originalToTransformed(offset: Int): Int {
-        val timeRange = TimeRange.entries.find { it.originalTextOffset == offset }
-        val transformedTextOffset = timeRange?.transformedTextOffset ?: 0
-
-        return transformedTextOffset
+        return transformedText.length
     }
 
     override fun transformedToOriginal(offset: Int): Int {
-        val timeRange = TimeRange.entries.find { it.transformedTextOffset == offset }
-        val originalTextOffset = timeRange?.originalTextOffset ?: 0
-
-        return originalTextOffset
+        return originalText.length
     }
 }
 
-internal class TimerVisualTransformation: VisualTransformation {
+internal class TimerVisualTransformation : VisualTransformation {
     override fun filter(text: AnnotatedString): TransformedText {
+        val filtered = text.text.filter { it.isDigit() }
         val trimmed =
-            if (text.text.length >= MAX_TIME_LENGTH) {
-                text.text.substring(0..< MAX_TIME_LENGTH)
+            if (filtered.length >= MAX_TIME_LENGTH) {
+                filtered.substring(0..<MAX_TIME_LENGTH)
             } else {
-                text.text
+                filtered
             }
 
         val formattedText = trimmed.formatStringTimeToStopwatchPattern()
 
         return TransformedText(
             text = AnnotatedString(text = formattedText),
-            offsetMapping = TimerOffsetMapping()
+            offsetMapping = TimerOffsetMapping(
+                originalText = text.text,
+                transformedText = formattedText
+            )
         )
     }
 }
@@ -136,14 +137,14 @@ internal fun String.formatTimeToMills(): Long {
 }
 
 internal fun resultInWcaNotation(time: Long, penalty: PenaltyUi): String {
-    return when(penalty) {
+    return when (penalty) {
         PenaltyUi.PLUS_TWO -> time.formatTimeFromMills() + "+"
         PenaltyUi.DNF -> "DNF(${time.formatTimeFromMills()})"
         else -> time.formatTimeFromMills()
     }
 }
 
-internal fun StatisticInfo.toWcaNotation(): String = when(this) {
+internal fun StatisticInfo.toWcaNotation(): String = when (this) {
     is Completed -> time.formatTimeFromMills()
     is DnfSingle -> "DNF"
     is DnfAverage -> "DNF"
