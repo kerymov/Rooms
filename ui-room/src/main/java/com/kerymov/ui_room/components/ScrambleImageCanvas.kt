@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSizeIn
 import androidx.compose.runtime.Composable
@@ -197,16 +198,6 @@ private fun DrawScope.drawFace(
 
 private fun Int.toColor() = ImageColor.entries.find { it.id == this }?.value ?: Color.Gray
 
-@Preview(showSystemUi = true)
-@Composable
-private fun ScrambleImageCanvasWidePreview() {
-    ScrambleImageCanvas(
-        image = image,
-        event = EventUi.THREE_BY_THREE,
-        modifier = Modifier
-    )
-}
-
 @Preview
 @Composable
 private fun ScrambleImageCanvasHighPreview() {
@@ -215,6 +206,16 @@ private fun ScrambleImageCanvasHighPreview() {
         event = EventUi.THREE_BY_THREE,
         modifier = Modifier
             .fillMaxWidth()
+    )
+}
+
+@Preview
+@Composable
+private fun ScrambleImageCanvasWidePreview() {
+    ScrambleImageCanvas(
+        image = image,
+        event = EventUi.THREE_BY_THREE,
+        modifier = Modifier.height(72.dp)
     )
 }
 
