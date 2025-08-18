@@ -1,5 +1,8 @@
 package com.kerymov.ui_room.utils
 
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.platform.TextToolbar
+import androidx.compose.ui.platform.TextToolbarStatus
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TransformedText
@@ -70,6 +73,21 @@ internal class TimerVisualTransformation : VisualTransformation {
                 transformedText = formattedText
             )
         )
+    }
+}
+
+object EmptyTextToolbar: TextToolbar {
+    override val status: TextToolbarStatus = TextToolbarStatus.Hidden
+
+    override fun hide() {  }
+
+    override fun showMenu(
+        rect: Rect,
+        onCopyRequested: (() -> Unit)?,
+        onPasteRequested: (() -> Unit)?,
+        onCutRequested: (() -> Unit)?,
+        onSelectAllRequested: (() -> Unit)?,
+    ) {
     }
 }
 
