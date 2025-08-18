@@ -3,6 +3,8 @@ package com.kerymov.ui_room.viewModels
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.kerymov.domain_common_speedcubing.utils.PenaltyManager
+import com.kerymov.ui_common_speedcubing.utils.TimerPenaltyManager
 import com.kerymov.domain_room.useCases.AskForNewSolveUseCase
 import com.kerymov.domain_room.useCases.GetFinishedSolvesUseCase
 import com.kerymov.domain_room.useCases.GetLeftUsersUseCase
@@ -11,12 +13,14 @@ import com.kerymov.domain_room.useCases.GetNewUsersUseCase
 import com.kerymov.domain_room.useCases.JoinRoomUseCase
 import com.kerymov.domain_room.useCases.LeaveRoomUseCase
 import com.kerymov.domain_room.useCases.SendSolveResultUseCase
+import com.kerymov.ui_common_speedcubing.mappers.mapToDomainModel
 import com.kerymov.ui_common_speedcubing.mappers.mapToUiModel
 import com.kerymov.ui_common_speedcubing.models.PenaltyUi
 import com.kerymov.ui_common_speedcubing.models.SolveUi
 import com.kerymov.ui_room.mappers.mapToDomainModel
 import com.kerymov.ui_room.models.NewSolveResultUi
 import com.kerymov.ui_room.models.RoomDetailsUi
+import com.kerymov.ui_room.utils.MAX_TIME_LENGTH
 import com.kerymov.ui_room.utils.TimerRunner
 import com.kerymov.ui_room.utils.TimerRunnerState
 import com.kerymov.ui_room.utils.formatRawStringTimeToMills
@@ -29,24 +33,26 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+@Immutable
 enum class TimerMode(val label: String) {
     TIMER("Timer"),
     TYPING("Typing")
 }
 
-sealed class TimerState(
-    open val timeInMilliseconds: Long,
-    open val penalty: PenaltyUi
-) {
-    abstract fun setPenalty(penalty: PenaltyUi): TimerState
+@Immutable
+sealed interface TimerState {
+    val timeInMilliseconds: Long
+    val penalty: PenaltyUi
 }
 
 @Immutable
@@ -55,43 +61,21 @@ data class Timer(
     override val penalty: PenaltyUi = PenaltyUi.NO_PENALTY,
     val formattedTime: String = timeInMilliseconds.formatTimeFromMills(),
     val runnerState: TimerRunnerState = TimerRunnerState.IDLE
-) : TimerState(timeInMilliseconds, penalty) {
+) : TimerState, PenaltyManager by TimerPenaltyManager() {
 
-    override fun setPenalty(penalty: PenaltyUi): Timer {
-        val timeWithPenalty = when (penalty) {
-            PenaltyUi.NO_PENALTY -> removePenalty()
-            PenaltyUi.PLUS_TWO -> setPlusTwoPenalty()
-            PenaltyUi.DNF -> setDnfPenalty()
-        }
+    fun setPenalty(newPenalty: PenaltyUi): Timer {
+        val timeWithPenalty = updateTimeWithPenalty(
+            time = timeInMilliseconds,
+            currentPenalty = penalty.mapToDomainModel(),
+            newPenalty = newPenalty.mapToDomainModel()
+        )
 
         return this.copy(
-            penalty = penalty,
             timeInMilliseconds = timeWithPenalty,
-            formattedTime = timeWithPenalty.formatTimeFromMills()
+            formattedTime = timeWithPenalty.formatTimeFromMills(),
+            penalty = newPenalty,
         )
     }
-
-    private fun setPlusTwoPenalty(): Long {
-        if (penalty == PenaltyUi.PLUS_TWO) return timeInMilliseconds
-
-        return addTwoSeconds()
-    }
-
-    private fun setDnfPenalty(): Long {
-        if (penalty == PenaltyUi.PLUS_TWO) return subtractTwoSeconds()
-
-        return timeInMilliseconds
-    }
-
-    private fun removePenalty(): Long {
-        if (penalty == PenaltyUi.PLUS_TWO) return subtractTwoSeconds()
-
-        return timeInMilliseconds
-    }
-
-    private fun addTwoSeconds() = timeInMilliseconds + 2000L
-
-    private fun subtractTwoSeconds() = timeInMilliseconds - 2000L
 }
 
 @Immutable
@@ -100,13 +84,16 @@ data class Typing(
     val formattedTime: String = inputTimeText.formatStringTimeToStopwatchPattern(),
     val isInEditingMode: Boolean = false,
     override val penalty: PenaltyUi = PenaltyUi.NO_PENALTY,
-) : TimerState(inputTimeText.formatRawStringTimeToMills(), penalty) {
+) : TimerState {
+
+    override val timeInMilliseconds: Long
+        get() = inputTimeText.formatRawStringTimeToMills()
 
     fun toggleEditing(isEditing: Boolean): Typing {
         return this.copy(isInEditingMode = isEditing)
     }
 
-    override fun setPenalty(penalty: PenaltyUi): Typing {
+    fun setPenalty(penalty: PenaltyUi): Typing {
         return this.copy(penalty = penalty)
     }
 }
@@ -304,11 +291,18 @@ class RoomViewModel @AssistedInject constructor(
     }
 
     fun updateTypingInputTimeText(value: String) {
+        val filtered = value.filter { it.isDigit() }
+        val trimmed = if (filtered.length >= MAX_TIME_LENGTH) {
+            filtered.substring(0..<MAX_TIME_LENGTH)
+        } else {
+            filtered
+        }
+
         _uiState.update {
             it.copy(
                 typingState = _uiState.value.typingState.copy(
-                    inputTimeText = value,
-                    formattedTime = value.formatStringTimeToStopwatchPattern()
+                    inputTimeText = trimmed,
+                    formattedTime = trimmed.formatStringTimeToStopwatchPattern()
                 )
             )
         }
@@ -343,17 +337,26 @@ class RoomViewModel @AssistedInject constructor(
     }
 
     fun toggleTimerMode(mode: TimerMode) {
+        _uiState.update { state ->
+            state.copy(timerMode = mode)
+        }
+        resetTimerAndTypingStates()
+        toggleActionButtonsVisibility(false)
+
+        if (mode == TimerMode.TIMER) {
+            getTimerRunnerState()
+        }
+    }
+
+    private fun resetTimerAndTypingStates() {
+        timerJob?.cancel()
+        resetTimer()
+
         _uiState.update { uiState ->
             uiState.copy(
-                timerMode = mode,
                 timerState = Timer(),
                 typingState = Typing()
             )
-        }
-
-        timerJob?.cancel()
-        if (mode == TimerMode.TIMER) {
-            getTimerRunnerState()
         }
     }
 
