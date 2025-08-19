@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -23,13 +22,9 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material.icons.rounded.LockOpen
-import androidx.compose.material.pullrefresh.PullRefreshIndicator
-import androidx.compose.material.pullrefresh.pullRefresh
-import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -41,6 +36,9 @@ import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.contentColorFor
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.Indicator
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -63,21 +61,18 @@ import com.kerymov.ui_core.components.CircularLoadingIndicator
 import com.kerymov.ui_core.components.ErrorCard
 import com.kerymov.ui_core.theme.RoomsTheme
 import com.kerymov.ui_core.utils.LocalUser
-import com.kerymov.ui_core.utils.defaultBottomSheetPadding
 import com.kerymov.ui_rooms.components.RoomLoginDialog
 import com.kerymov.ui_rooms.components.RoomsCreatingBottomSheet
-import com.kerymov.ui_rooms.models.RoomDetailsUi
 import com.kerymov.ui_rooms.models.RoomUi
 import com.kerymov.ui_rooms.viewModels.LoadingState
 import com.kerymov.ui_rooms.viewModels.RoomsStatus
 import com.kerymov.ui_rooms.viewModels.RoomsViewModel
-import kotlinx.serialization.json.Json
 
 private enum class RoomAccessStatus {
     OPEN, LOCKED, UNLOCKED
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RoomsScreen(
     modifier: Modifier = Modifier,
@@ -97,20 +92,29 @@ fun RoomsScreen(
 
     val roomsUiState by roomsViewModel.uiState.collectAsState()
 
-    val pullRefreshState = rememberPullRefreshState(
-        refreshing = roomsUiState.loadingState == LoadingState.REFRESHING,
-        onRefresh = { roomsViewModel.getRooms(isRefreshing = true) }
-    )
+    val pullToRefreshState = rememberPullToRefreshState()
 
     LaunchedEffect(key1 = roomsUiState.currentRoomDetails) {
         val roomDetailsJson = roomsViewModel.encodeRoomDetailsToString()
         roomDetailsJson?.let(onRoomLogin)
     }
 
-    Box(
+    PullToRefreshBox(
+        isRefreshing = roomsUiState.loadingState == LoadingState.REFRESHING,
+        onRefresh = { roomsViewModel.getRooms(isRefreshing = true) },
+        state = pullToRefreshState,
+        contentAlignment = Alignment.TopCenter,
+        indicator = {
+            Indicator(
+                isRefreshing = roomsUiState.loadingState == LoadingState.REFRESHING,
+                state = pullToRefreshState,
+                color = MaterialTheme.colorScheme.primary,
+                containerColor = MaterialTheme.colorScheme.background,
+                modifier = Modifier.align(Alignment.TopCenter)
+            )
+        },
         modifier = modifier
             .fillMaxSize()
-            .pullRefresh(pullRefreshState)
     ) {
         when (val roomsStatus = roomsUiState.roomsStatus) {
             is RoomsStatus.Success -> {
@@ -144,14 +148,6 @@ fun RoomsScreen(
             CircularLoadingIndicator()
         }
 
-        PullRefreshIndicator(
-            refreshing = roomsUiState.loadingState == LoadingState.REFRESHING,
-            state = pullRefreshState,
-            modifier = Modifier.align(Alignment.TopCenter),
-            contentColor = MaterialTheme.colorScheme.primary,
-            backgroundColor = MaterialTheme.colorScheme.surface
-        )
-
         if (roomsUiState.error != null) {
             ErrorCard(
                 text = roomsUiState.error?.message.toString(),
@@ -168,9 +164,7 @@ fun RoomsScreen(
                 roomsViewModel.createRoom(roomName, roomPassword, roomSettings)
                 roomsViewModel.toggleCreateRoomBottomSheet(isOpen = false)
             },
-            modifier = Modifier
-                .fillMaxSize()
-                .defaultBottomSheetPadding()
+            modifier = Modifier.fillMaxSize()
         )
     }
 
@@ -209,7 +203,6 @@ fun RoomsScreen(
                 roomIdToDelete = null
             },
             isDeleteButtonEnabled = isAdministrator,
-            windowInsets = WindowInsets(0, 0, 0, 0),
             modifier = Modifier.fillMaxWidth()
         )
     }
@@ -431,14 +424,12 @@ private fun DeleteRoomModalBottomSheet(
     onDeleteClick: () -> Unit,
     isDeleteButtonEnabled: Boolean,
     modifier: Modifier = Modifier,
-    windowInsets: WindowInsets = BottomSheetDefaults.windowInsets
 ) = ModalBottomSheet(
     sheetState = sheetState,
     onDismissRequest = onDismissRequest,
     containerColor = MaterialTheme.colorScheme.background,
     dragHandle = { BottomSheetDefaults.DragHandle(color = MaterialTheme.colorScheme.primary) },
     modifier = modifier,
-    windowInsets = windowInsets,
 ) {
     Column(
         modifier = modifier
