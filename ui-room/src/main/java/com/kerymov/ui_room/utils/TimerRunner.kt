@@ -21,7 +21,7 @@ enum class TimerRunnerState {
 @ViewModelScoped
 class TimerRunner @Inject constructor() {
 
-    private var coroutineScope = CoroutineScope(Dispatchers.Main)
+    private var coroutineScope = CoroutineScope(Dispatchers.Default)
 
     private val _timerStateFlow = MutableStateFlow(TimerRunnerState.IDLE)
     val timerStateFlow: StateFlow<TimerRunnerState> = _timerStateFlow.asStateFlow()
@@ -55,7 +55,7 @@ class TimerRunner @Inject constructor() {
 
     fun reset() {
         coroutineScope.cancel()
-        coroutineScope = CoroutineScope(Dispatchers.Main)
+        coroutineScope = CoroutineScope(Dispatchers.Default)
         _timeInMillsFlow.update { 0L }
         lastTimestamp = 0L
         _timerStateFlow.update { TimerRunnerState.IDLE }
