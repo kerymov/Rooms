@@ -48,7 +48,9 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -58,19 +60,26 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalTextToolbar
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -125,7 +134,7 @@ fun RoomScreen(
     topAppBarHeight: Dp,
     roomViewModel: RoomViewModel = viewModel(),
 ) {
-    val roomUiState by roomViewModel.uiState.collectAsState()
+    val roomUiState = roomViewModel.uiState.collectAsState()
 
     val resultsSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
@@ -133,7 +142,15 @@ fun RoomScreen(
         roomViewModel.toggleExitConfirmationDialog(true)
     }
 
-    if (roomUiState.isExitConfirmationDialogShown) {
+    val isExitConfirmationDialogShown by remember {
+        derivedStateOf { roomUiState.value.isExitConfirmationDialogShown }
+    }
+
+    val isResultsSheetOpen by remember {
+        derivedStateOf { roomUiState.value.isResultsSheetOpen }
+    }
+
+    if (isExitConfirmationDialogShown) {
         CustomAlertDialog(
             title = "Leave the room",
             message = "Do you really want to leave the room?",
@@ -150,14 +167,14 @@ fun RoomScreen(
         )
     }
 
-    if (roomUiState.isResultsSheetOpen) {
+    if (isResultsSheetOpen) {
         RoomResultsBottomSheet(
             sheetState = resultsSheetState,
             onDismissRequest = {
                 roomViewModel.toggleResultsSheet(false)
             },
-            users = roomUiState.users,
-            solves = roomUiState.solves,
+            users = roomUiState.value.users,
+            solves = roomUiState.value.solves,
             modifier = Modifier
                 .fillMaxSize()
                 .defaultBottomSheetPadding()
@@ -185,7 +202,7 @@ fun RoomScreen(
 
 @Composable
 private fun Content(
-    state: RoomUiState,
+    state: State<RoomUiState>,
     onTimerStart: () -> Unit,
     onTimerStop: () -> Unit,
     onTimerReset: () -> Unit,
@@ -210,23 +227,41 @@ private fun Content(
     val preparationColor = Color.Red
     val readyTimerColor = Color.Green
     val disabledTimerColor = MaterialTheme.colorScheme.onBackground.copy(0.5f)
-    var timerColor by remember { mutableStateOf(defaultTimerColor) }
+    val timerColor = remember { mutableStateOf(defaultTimerColor) }
 
-    val isTimerEnabled = !state.isWaitingForNewScramble &&
-            state.timerState.runnerState != TimerRunnerState.STOPPED
-    val isTimerActive = state.timerState.runnerState == TimerRunnerState.ACTIVE
-
+    val timerFormattedTime = remember {
+        derivedStateOf { state.value.timerState.formattedTime }
+    }
+    val timerPenalty = remember {
+        derivedStateOf { state.value.timerState.penalty }
+    }
+    val isTimerEnabled by remember {
+        derivedStateOf {
+            !state.value.isWaitingForNewScramble && state.value.timerState.runnerState != TimerRunnerState.STOPPED
+        }
+    }
+    val isTimerActive by remember {
+        derivedStateOf {
+            state.value.timerState.runnerState == TimerRunnerState.ACTIVE
+        }
+    }
+    val timerMode by remember {
+        derivedStateOf { state.value.timerMode }
+    }
     var isTimerPressed by rememberSaveable { mutableStateOf(false) }
     val timerPreparationCoroutineScope = rememberCoroutineScope()
 
+    val typingState = remember {
+        derivedStateOf { state.value.typingState }
+    }
     val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
     val keyboard = LocalSoftwareKeyboardController.current
 
     val resultsListState = rememberLazyListState()
 
-    LaunchedEffect(state.timerState.runnerState) {
-        onToggleTopAppBarVisibility(state.timerState.runnerState != TimerRunnerState.ACTIVE)
+    LaunchedEffect(isTimerActive) {
+        onToggleTopAppBarVisibility(!isTimerActive)
     }
 
     Box(
@@ -235,30 +270,30 @@ private fun Content(
             .pointerInput(
                 isTimerEnabled,
                 isTimerActive,
-                state.timerMode,
-                state.typingState
+                timerMode,
+                typingState
             ) {
                 if (!isTimerEnabled) return@pointerInput
 
                 detectTapGestures(
                     onPress = { _ ->
-                        if (isTimerActive || state.timerMode == TimerMode.TYPING) return@detectTapGestures
+                        if (isTimerActive || timerMode == TimerMode.TYPING) return@detectTapGestures
 
                         isTimerPressed = true
-                        timerColor = preparationColor
+                        timerColor.value = preparationColor
                         val pressStartTime = System.currentTimeMillis()
 
                         val preparationJob = timerPreparationCoroutineScope.launch {
                             delay(500)
                             if (isTimerPressed) {
-                                timerColor = readyTimerColor
+                                timerColor.value = readyTimerColor
                             }
                         }
 
                         try {
                             awaitRelease()
 
-                            timerColor = defaultTimerColor
+                            timerColor.value = defaultTimerColor
                             preparationJob.cancel()
 
                             val pressingDuration = System.currentTimeMillis() - pressStartTime
@@ -272,7 +307,7 @@ private fun Content(
                         }
                     },
                     onTap = {
-                        when (state.timerMode) {
+                        when (timerMode) {
                             TimerMode.TIMER -> {
                                 if (!isTimerActive) return@detectTapGestures
 
@@ -280,7 +315,7 @@ private fun Content(
                             }
 
                             TimerMode.TYPING -> {
-                                onToggleTypingEditingMode(!state.typingState.isInEditingMode)
+                                onToggleTypingEditingMode(!typingState.value.isInEditingMode)
                             }
                         }
                     },
@@ -289,13 +324,13 @@ private fun Content(
             .padding(start = 12.dp, end = 12.dp, top = 4.dp, bottom = 8.dp)
     ) {
         LaunchedEffect(
-            state.timerState.runnerState,
-            state.typingState,
-            state.timerMode
+            state.value.timerState.runnerState,
+            typingState,
+            timerMode
         ) {
-            when(state.timerMode) {
-                TimerMode.TIMER -> onToggleActionButtonsVisibility(state.timerState.runnerState == TimerRunnerState.STOPPED)
-                TimerMode.TYPING -> onToggleActionButtonsVisibility(!state.typingState.isInEditingMode && state.typingState.inputTimeText.isNotBlank())
+            when(timerMode) {
+                TimerMode.TIMER -> onToggleActionButtonsVisibility(state.value.timerState.runnerState == TimerRunnerState.STOPPED)
+                TimerMode.TYPING -> onToggleActionButtonsVisibility(!typingState.value.isInEditingMode && typingState.value.inputTimeText.isNotBlank())
             }
         }
 
@@ -327,9 +362,9 @@ private fun Content(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     ModeSwitch(
-                        checked = state.timerMode == TimerMode.TYPING,
+                        checked = timerMode == TimerMode.TYPING,
                         onCheckedChange = {
-                            val mode = if (state.timerMode == TimerMode.TYPING) {
+                            val mode = if (timerMode == TimerMode.TYPING) {
                                 TimerMode.TIMER
                             } else {
                                 TimerMode.TYPING
@@ -340,14 +375,21 @@ private fun Content(
                         rightIcon = IconSource.Vector(Icons.Rounded.Keyboard),
                         leftContentDescription = "Manual Mode",
                         rightContentDescription = "Timer Mode",
-                        enabled = !isTimerActive && !state.typingState.isInEditingMode,
+                        enabled = !isTimerActive && !typingState.value.isInEditingMode,
                         modifier = Modifier
                             .height(48.dp)
                     )
 
+                    val users = remember {
+                        derivedStateOf { state.value.users }
+                    }
+                    val currentSolveResults = remember {
+                        derivedStateOf { state.value.currentSolve?.results }
+                    }
+
                     CurrentSolveResults(
-                        users = state.users,
-                        results = state.currentSolve?.results ?: emptyList(),
+                        users = users.value,
+                        results = currentSolveResults.value ?: emptyList(),
                         listState = resultsListState,
                         onShowResultsClick = { onShowResultsClick(true) },
                         modifier = Modifier
@@ -370,8 +412,8 @@ private fun Content(
                     }
             ) {
                 ScrambleView(
-                    scramble = state.currentSolve?.scramble,
-                    isWaitingForNewScramble = state.isWaitingForNewScramble,
+                    scramble = state.value.currentSolve?.scramble,
+                    isWaitingForNewScramble = state.value.isWaitingForNewScramble,
                 )
             }
 
@@ -385,17 +427,20 @@ private fun Content(
                         end.linkTo(parent.end)
                     }
             ) {
-                when (state.timerMode) {
+                when (timerMode) {
                     TimerMode.TIMER -> TimerSolveView(
-                        formattedTime = state.timerState.formattedTime,
-                        penalty = state.timerState.penalty,
-                        textColor = if (!state.isWaitingForNewScramble) timerColor else disabledTimerColor
+                        formattedTime = timerFormattedTime,
+                        penalty = timerPenalty,
+                        textColor = if (!state.value.isWaitingForNewScramble) timerColor.value else disabledTimerColor,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(64.dp)
                     )
 
                     TimerMode.TYPING -> {
-                        LaunchedEffect(state.typingState.isInEditingMode) {
+                        LaunchedEffect(typingState.value.isInEditingMode) {
                             keyboard?.let {
-                                if (state.typingState.isInEditingMode) {
+                                if (typingState.value.isInEditingMode) {
                                     focusRequester.requestFocus()
                                     focusRequester.captureFocus()
                                     it.show()
@@ -407,21 +452,21 @@ private fun Content(
                         }
 
                         TypingSolveView(
-                            formattedTime = state.typingState.formattedTime,
-                            rawInputTime = state.typingState.inputTimeText,
+                            formattedTime = typingState.value.formattedTime,
+                            rawInputTime = typingState.value.inputTimeText,
                             onTimeChange = {
                                 val newText = it.filter { symbol -> symbol.isDigit() }
                                 if (newText.length <= MAX_TIME_LENGTH) onTypingTimeTextChange(it)
                             },
-                            isEditing = state.typingState.isInEditingMode,
+                            isEditing = typingState.value.isInEditingMode,
                             onDone = {
                                 onToggleTypingEditingMode(false)
                             },
-                            penalty = state.typingState.penalty,
-                            textColor = if (state.isWaitingForNewScramble || state.typingState.inputTimeText.isBlank()) {
+                            penalty = typingState.value.penalty,
+                            textColor = if (state.value.isWaitingForNewScramble || typingState.value.inputTimeText.isBlank()) {
                                 disabledTimerColor
                             } else {
-                                timerColor
+                                timerColor.value
                             },
                             focusManager = focusManager,
                             modifier = Modifier.focusRequester(focusRequester)
@@ -431,7 +476,7 @@ private fun Content(
             }
 
             AnimatedVisibility(
-                visible = state.isActionButtonsVisible,
+                visible = state.value.isActionButtonsVisible,
                 enter = visibilityEnterTransition,
                 exit = visibilityExitTransition,
                 modifier = Modifier
@@ -445,9 +490,9 @@ private fun Content(
                     }
             ) {
                 SolveManagementButtons(
-                    penalty = when(state.timerMode) {
-                        TimerMode.TIMER -> state.timerState.penalty
-                        TimerMode.TYPING -> state.typingState.penalty
+                    penalty = when(timerMode) {
+                        TimerMode.TIMER -> state.value.timerState.penalty
+                        TimerMode.TYPING -> typingState.value.penalty
                     },
                     onPenaltyChange = { penalty ->
                         onUpdatePenalty(penalty)
@@ -485,8 +530,8 @@ private fun Content(
                             .weight(1f)
                     ) {
                         ScrambleImageCanvas(
-                            image = state.currentSolve?.scramble?.image ?: ScrambleUi.Image(listOf()),
-                            event = state.roomDetails.settings.event,
+                            image = state.value.currentSolve?.scramble?.image ?: ScrambleUi.Image(listOf()),
+                            event = state.value.roomDetails.settings.event,
                             modifier = Modifier.fillMaxWidth()
                         )
                     }
@@ -499,7 +544,7 @@ private fun Content(
                         val localUser = LocalUser.current
 
                         UserStatistics(
-                            results = state.solves.flatMap { solve ->
+                            results = state.value.solves.flatMap { solve ->
                                 solve.results.filter { it.userName == localUser?.username }
                             },
                             modifier = Modifier.fillMaxWidth()
@@ -513,21 +558,48 @@ private fun Content(
 
 @Composable
 private fun TimerSolveView(
-    formattedTime: String,
+    formattedTime: State<String>,
+    penalty: State<PenaltyUi>,
     modifier: Modifier = Modifier,
-    penalty: PenaltyUi = PenaltyUi.NO_PENALTY,
-    textColor: Color = MaterialTheme.colorScheme.onPrimary,
-) = Text(
-    text = when (penalty) {
-        PenaltyUi.DNF -> "DNF"
-        PenaltyUi.PLUS_TWO -> "$formattedTime+"
-        PenaltyUi.NO_PENALTY -> formattedTime
-    },
-    style = MaterialTheme.typography.displayMedium,
-    color = textColor,
-    textAlign = TextAlign.Center,
-    modifier = modifier
-)
+    textColor: Color = MaterialTheme.colorScheme.onBackground,
+    textStyle: TextStyle = MaterialTheme.typography.displayMedium
+) {
+    val textMeasurer = rememberTextMeasurer()
+
+    Box(
+        modifier = modifier
+            .drawWithCache {
+                val timeWithPenalty = when (penalty.value) {
+                    PenaltyUi.DNF -> "DNF"
+                    PenaltyUi.PLUS_TWO -> "${formattedTime.value}+"
+                    PenaltyUi.NO_PENALTY -> formattedTime.value
+                }
+
+                val textResult = textMeasurer.measure(
+                    text = timeWithPenalty,
+                    style = textStyle
+                )
+
+                onDrawBehind {
+                    drawText(
+                        textMeasurer = textMeasurer,
+                        text = AnnotatedString(
+                            text = timeWithPenalty,
+                            spanStyle = SpanStyle(
+                                color = textColor
+                            )
+                        ),
+                        style = textStyle,
+                        maxLines = 1,
+                        topLeft = Offset(
+                            x = (size.width - textResult.size.width) / 2,
+                            y = (size.height - textResult.size.height) / 2
+                        ),
+                    )
+                }
+            }
+    )
+}
 
 @Composable
 private fun TypingSolveView(
@@ -820,54 +892,59 @@ private fun PreviewRoomScreenContent() {
     )
 
     RoomsTheme {
-        Content(
-            state = RoomUiState(
-                roomDetails = RoomDetailsUi(
-                    id = "Test",
-                    name = "Test",
-                    password = "",
-                    administratorName = "admin",
-                    cachedScrambles = emptyList(),
-                    connectedUserNames = listOf("admin"),
-                    wasOnceConnectedUserNames = listOf("admin"),
-                    solves = emptyList(),
-                    settings = SettingsUi(event = EventUi.THREE_BY_THREE)
-                ),
-                currentSolve = SolveUi(
-                    solveNumber = 2,
-                    scramble = ScrambleUi(scramble = scramble, image = image),
-                    results = listOf(
-                        ResultUi(
-                            "admin",
-                            9830,
-                            PenaltyUi.PLUS_TWO
-                        ),
-                        ResultUi(
-                            "user",
-                            10023,
-                            PenaltyUi.NO_PENALTY
-                        ),
-                        ResultUi(
-                            "username",
-                            9830,
-                            PenaltyUi.DNF
-                        ),
-                        ResultUi(
-                            "long username",
-                            2155,
-                            PenaltyUi.NO_PENALTY
-                        ),
-                        ResultUi(
-                            "guest",
-                            1030,
-                            PenaltyUi.DNF
+        val roomUiState = remember {
+            mutableStateOf(
+                RoomUiState(
+                    roomDetails = RoomDetailsUi(
+                        id = "Test",
+                        name = "Test",
+                        password = "",
+                        administratorName = "admin",
+                        cachedScrambles = emptyList(),
+                        connectedUserNames = listOf("admin"),
+                        wasOnceConnectedUserNames = listOf("admin"),
+                        solves = emptyList(),
+                        settings = SettingsUi(event = EventUi.THREE_BY_THREE)
+                    ),
+                    currentSolve = SolveUi(
+                        solveNumber = 2,
+                        scramble = ScrambleUi(scramble = scramble, image = image),
+                        results = listOf(
+                            ResultUi(
+                                "admin",
+                                9830,
+                                PenaltyUi.PLUS_TWO
+                            ),
+                            ResultUi(
+                                "user",
+                                10023,
+                                PenaltyUi.NO_PENALTY
+                            ),
+                            ResultUi(
+                                "username",
+                                9830,
+                                PenaltyUi.DNF
+                            ),
+                            ResultUi(
+                                "long username",
+                                2155,
+                                PenaltyUi.NO_PENALTY
+                            ),
+                            ResultUi(
+                                "guest",
+                                1030,
+                                PenaltyUi.DNF
+                            )
                         )
-                    )
-                ),
-                isWaitingForNewScramble = false,
-                users = listOf("admin", "user", "username", "long username", "guest"),
-                solves = emptyList()
-            ),
+                    ),
+                    isWaitingForNewScramble = false,
+                    users = listOf("admin", "user", "username", "long username", "guest"),
+                    solves = emptyList()
+                )
+            )
+        }
+        Content(
+            state = roomUiState,
             onTimerStart = { },
             onTimerStop = { },
             onTimerReset = { },
