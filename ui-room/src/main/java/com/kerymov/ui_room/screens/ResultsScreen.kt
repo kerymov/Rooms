@@ -39,12 +39,12 @@ fun ResultsScreen(
     navController: NavController,
     modifier: Modifier = Modifier
 ) {
-    ChangeSystemBarsColors(
-        systemBarColor = MaterialTheme.colorScheme.background,
-        isAppearanceLightStatusBars = true,
-        navigationBarColor = MaterialTheme.colorScheme.background,
-        isAppearanceLightNavigationBars = true
-    )
+//    ChangeSystemBarsColors(
+//        systemBarColor = MaterialTheme.colorScheme.background,
+//        isAppearanceLightStatusBars = true,
+//        navigationBarColor = MaterialTheme.colorScheme.background,
+//        isAppearanceLightNavigationBars = true
+//    )
 
     Scaffold(
         topBar = {

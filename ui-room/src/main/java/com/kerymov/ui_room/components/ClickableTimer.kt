@@ -23,9 +23,11 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
@@ -33,17 +35,18 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
+import com.kerymov.ui_common_speedcubing.models.PenaltyUi
 import com.kerymov.ui_core.components.ActionButton
 import com.kerymov.ui_core.theme.ChangeSystemBarsColors
+import com.kerymov.ui_core.utils.IconSource
 import com.kerymov.ui_room.R
-import com.kerymov.ui_room.utils.Penalty
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
 fun ClickableTimer(
     formattedTime: String,
-    penalty: Penalty,
+    penalty: PenaltyUi,
     isEnabled: Boolean,
     isActive: Boolean,
     onStart: () -> Unit,
@@ -84,11 +87,12 @@ fun ClickableTimer(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
-            .pointerInput(Unit) {
+            .alpha(if (isEnabled) 1f else 0.5f)
+            .pointerInput(isEnabled) {
+                if (!isEnabled) return@pointerInput
+
                 detectTapGestures(
                     onPress = { _ ->
-                        if (!isEnabled) return@detectTapGestures
-
                         isTimerPressed = true
                         timerColor = preparationColor
                         val pressStartTime = System.currentTimeMillis()
@@ -128,7 +132,7 @@ fun ClickableTimer(
                 .padding(bottom = 48.dp)
         ) {
             Text(
-                text = if (penalty == Penalty.DNF) "DNF" else formattedTime,
+                text = if (penalty == PenaltyUi.DNF) "DNF" else formattedTime,
                 style = MaterialTheme.typography.displayLarge,
                 color = timerColor,
                 textAlign = TextAlign.Center
@@ -141,19 +145,17 @@ fun ClickableTimer(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 ActionButton(
-                    icon = R.drawable.did_not_finish,
+                    iconSource = IconSource.Resource(R.drawable.did_not_finish),
                     contentDescription = "DNF",
-                    isSelected = penalty == Penalty.DNF,
                     onClick = onDnfClick
                 )
                 ActionButton(
-                    icon = R.drawable.exposure_plus_2,
+                    iconSource = IconSource.Resource(R.drawable.exposure_plus_2),
                     contentDescription = "Plus 2",
-                    isSelected = penalty == Penalty.PLUS_TWO,
                     onClick = onPlusTwoClick
                 )
                 ActionButton(
-                    icon = Icons.AutoMirrored.Rounded.Send,
+                    iconSource = IconSource.Vector(Icons.AutoMirrored.Rounded.Send),
                     contentDescription = "Send",
                     onClick = {
                         isActionButtonsVisible = false
@@ -205,4 +207,26 @@ private fun ActiveTimerOverlay(
             color = MaterialTheme.colorScheme.onPrimary
         )
     }
+}
+
+@Preview
+@Composable
+private fun ClickableTimerPreview() {
+    var isEnabled by remember { mutableStateOf(true) }
+    var isActive by remember { mutableStateOf(false) }
+    var penalty by remember { mutableStateOf(PenaltyUi.NO_PENALTY) }
+
+    ClickableTimer(
+        formattedTime = "00:00.00",
+        penalty = penalty,
+        isEnabled = isEnabled,
+        isActive = isActive,
+        onStart = { isActive = true },
+        onDismiss = { isActive = false },
+        onStop = { isActive = false },
+        onSendResultClick = {},
+        onPlusTwoClick = { penalty = PenaltyUi.PLUS_TWO },
+        onDnfClick = { penalty = PenaltyUi.DNF },
+        modifier = Modifier.fillMaxSize()
+    )
 }

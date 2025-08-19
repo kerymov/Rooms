@@ -39,6 +39,7 @@ data class TopAppBarItem(
 @Composable
 fun CenterAlignedTopBar(
     item: TopAppBarItem,
+    modifier: Modifier = Modifier,
     scrollBehaviour: TopAppBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(),
 ) {
     val containerColor = MaterialTheme.colorScheme.background
@@ -79,7 +80,8 @@ fun CenterAlignedTopBar(
             titleContentColor = currentContentColor,
             actionIconContentColor = currentContentColor
         ),
-        scrollBehavior = scrollBehaviour
+        scrollBehavior = scrollBehaviour,
+        modifier = modifier
     )
 }
 

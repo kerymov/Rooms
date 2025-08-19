@@ -14,6 +14,7 @@ import androidx.compose.material.icons.automirrored.rounded.Send
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -26,11 +27,15 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.kerymov.ui_core.theme.RoomsTheme
 import com.kerymov.ui_room.R
 import com.kerymov.ui_room.utils.MAX_TIME_LENGTH
 import com.kerymov.ui_room.utils.TimerVisualTransformation
@@ -38,6 +43,7 @@ import com.kerymov.ui_room.utils.TimerVisualTransformation
 @Composable
 fun ManualTypingTimer(
     modifier: Modifier,
+    isEnabled: Boolean,
     onSendResultClick: (String) -> Unit
 ) = Column(
     verticalArrangement = Arrangement.Center,
@@ -86,7 +92,9 @@ fun ManualTypingTimer(
         enabled = false,
         singleLine = true,
         textStyle = MaterialTheme.typography.displayMedium.copy(textAlign = TextAlign.Center),
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .alpha(if(isEnabled) 1f else 0.7f)
     )
 
     NumberKeyboard(
@@ -94,7 +102,8 @@ fun ManualTypingTimer(
             if (time.isEmpty() && it == "0") return@NumberKeyboard
             if (time.length < MAX_TIME_LENGTH) time += it
         },
-        onBackspaceClick = { time = time.dropLast(1) }
+        onBackspaceClick = { time = time.dropLast(1) },
+        isEnabled = isEnabled
     )
 }
 
@@ -102,6 +111,7 @@ fun ManualTypingTimer(
 private fun NumberKeyboard(
     onButtonClick: (String) -> Unit,
     onBackspaceClick: () -> Unit,
+    isEnabled: Boolean,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -113,33 +123,38 @@ private fun NumberKeyboard(
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            KeyboardNumberButton(text = "1", onClick = onButtonClick)
-            KeyboardNumberButton(text = "2", onClick = onButtonClick)
-            KeyboardNumberButton(text = "3", onClick = onButtonClick)
+            KeyboardNumberButton(text = "1", onClick = onButtonClick, isEnabled = isEnabled)
+            KeyboardNumberButton(text = "2", onClick = onButtonClick, isEnabled = isEnabled)
+            KeyboardNumberButton(text = "3", onClick = onButtonClick, isEnabled = isEnabled)
         }
         Row(
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            KeyboardNumberButton(text = "4", onClick = onButtonClick)
-            KeyboardNumberButton(text = "5", onClick = onButtonClick)
-            KeyboardNumberButton(text = "6", onClick = onButtonClick)
+            KeyboardNumberButton(text = "4", onClick = onButtonClick, isEnabled = isEnabled)
+            KeyboardNumberButton(text = "5", onClick = onButtonClick, isEnabled = isEnabled)
+            KeyboardNumberButton(text = "6", onClick = onButtonClick, isEnabled = isEnabled)
         }
         Row(
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            KeyboardNumberButton(text = "7", onClick = onButtonClick)
-            KeyboardNumberButton(text = "8", onClick = onButtonClick)
-            KeyboardNumberButton(text = "9", onClick = onButtonClick)
+            KeyboardNumberButton(text = "7", onClick = onButtonClick, isEnabled = isEnabled)
+            KeyboardNumberButton(text = "8", onClick = onButtonClick, isEnabled = isEnabled)
+            KeyboardNumberButton(text = "9", onClick = onButtonClick, isEnabled = isEnabled)
         }
         Row(
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Box(modifier = Modifier.size(56.dp))
-            KeyboardNumberButton(text = "0", onClick = onButtonClick)
-            KeyboardIconButton(icon = R.drawable.backspace, onClick = onBackspaceClick)
+            KeyboardNumberButton(text = "0", onClick = onButtonClick, isEnabled = isEnabled)
+            KeyboardIconButton(
+                icon = R.drawable.backspace,
+                contentDescription = "Backspace",
+                onClick = onBackspaceClick,
+                isEnabled = isEnabled
+            )
         }
     }
 }
@@ -148,6 +163,7 @@ private fun NumberKeyboard(
 private fun KeyboardNumberButton(
     text: String,
     onClick: (String) -> Unit,
+    isEnabled: Boolean,
     modifier: Modifier = Modifier
 ) = TextButton(
     onClick = { onClick(text) },
@@ -155,8 +171,11 @@ private fun KeyboardNumberButton(
     contentPadding = PaddingValues(12.dp),
     colors = ButtonDefaults.buttonColors(
         containerColor = MaterialTheme.colorScheme.surfaceTint,
-        contentColor = MaterialTheme.colorScheme.onPrimary
+        contentColor = MaterialTheme.colorScheme.onPrimary,
+        disabledContentColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.5f),
+        disabledContainerColor = MaterialTheme.colorScheme.surfaceTint.copy(alpha = 0.5f)
     ),
+    enabled = isEnabled,
     modifier = modifier.size(64.dp)
 ) {
     Text(
@@ -168,16 +187,34 @@ private fun KeyboardNumberButton(
 @Composable
 private fun KeyboardIconButton(
     @DrawableRes icon: Int,
+    contentDescription: String,
     onClick: () -> Unit,
+    isEnabled: Boolean,
     modifier: Modifier = Modifier
 ) = IconButton(
     onClick = onClick,
+    colors = IconButtonDefaults.iconButtonColors(
+        contentColor = MaterialTheme.colorScheme.onPrimary,
+        disabledContentColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.5f)
+    ),
+    enabled = isEnabled,
     modifier = modifier.size(64.dp)
 ) {
     Icon(
         imageVector = ImageVector.vectorResource(icon),
-        contentDescription = "Backspace",
-        tint = MaterialTheme.colorScheme.onPrimary,
+        contentDescription = contentDescription,
         modifier = Modifier.size(36.dp)
     )
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFF14386A)
+@Composable
+private fun ManualTypingTimerPreview() {
+    RoomsTheme {
+        ManualTypingTimer(
+            modifier = Modifier.fillMaxWidth(),
+            isEnabled = true,
+            onSendResultClick = {}
+        )
+    }
 }

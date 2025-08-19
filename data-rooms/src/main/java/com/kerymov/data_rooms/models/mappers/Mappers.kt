@@ -43,8 +43,8 @@ fun LoginRoomDetailsDto.mapToDomainModel(): RoomDetails {
         name = this.name,
         administratorName = this.administratorName,
         cachedScrambles = listOf(),
-        connectedUserNames = this.connectedUserNames,
-        wasOnceConnectedUserNames = this.wasOnceConnectedUserNames,
+        connectedUserNames = this.connectedUserNames.filterNotNull(),
+        wasOnceConnectedUserNames = this.wasOnceConnectedUserNames.filterNotNull(),
         password = null,
         solves = this.solves.map { it.mapToDomainModel() },
         settings = this.settings.mapToDomainModel()
