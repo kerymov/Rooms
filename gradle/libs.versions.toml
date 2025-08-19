@@ -14,6 +14,7 @@ coreSplashscreen = "1.0.1"
 material = "1.6.8"
 navigationCompose = "2.8.3"
 composeBom = "2024.06.00"
+constraintLayoutCompose = "1.1.1"
 kotlinxSerializationJson = "1.6.0"
 retrofit = "2.11.0"
 converter-gson = "2.11.0"
@@ -59,6 +60,7 @@ androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", versi
 #UI
 androidx-compose-ui = { group = "androidx.compose.ui", name = "ui" }
 androidx-compose-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
+androidx-constraintlayout-compose = { group = "androidx.constraintlayout", name = "constraintlayout-compose", version.ref = "constraintLayoutCompose" }
 androidx-compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
 androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
 androidx-compose-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }

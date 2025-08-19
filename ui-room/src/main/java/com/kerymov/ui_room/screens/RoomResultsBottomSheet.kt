@@ -2,6 +2,7 @@ package com.kerymov.ui_room.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -11,7 +12,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -37,17 +37,18 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.kerymov.ui_core.components.Divider
 import com.kerymov.ui_common_speedcubing.models.PenaltyUi
 import com.kerymov.ui_common_speedcubing.models.ResultUi
 import com.kerymov.ui_common_speedcubing.models.ScrambleUi
 import com.kerymov.ui_common_speedcubing.models.SolveUi
+import com.kerymov.ui_core.components.Divider
+import com.kerymov.ui_core.theme.RoomsTheme
+import com.kerymov.ui_room.components.StatisticItem
 import com.kerymov.ui_room.utils.RESULT_PLACEHOLDER
 import com.kerymov.ui_room.utils.ResultInfo
 import com.kerymov.ui_room.utils.StatisticManager
 import com.kerymov.ui_room.utils.resultInWcaNotation
 import com.kerymov.ui_room.utils.toWcaNotation
-import com.kerymov.ui_core.theme.RoomsTheme
 import kotlin.random.Random
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -239,9 +240,11 @@ private fun UserStatistics(
             Spacer(Modifier.width(2.dp))
             StatisticItem(label = "worst", value = statistic.worstTime.toWcaNotation(), modifier = defaultRowModifier)
         }
-        Divider(modifier = Modifier
-            .padding(vertical = 8.dp)
-            .fillMaxWidth()
+        Divider(
+            orientation = Orientation.Horizontal,
+            modifier = Modifier
+                .padding(vertical = 8.dp)
+                .fillMaxWidth()
         )
         Row(
             horizontalArrangement = Arrangement.SpaceEvenly,
@@ -252,9 +255,11 @@ private fun UserStatistics(
             Spacer(Modifier.width(2.dp))
             StatisticItem(label = "ao12", value = statistic.averageOfTwelve.toWcaNotation(), modifier = defaultRowModifier)
         }
-        Divider(modifier = Modifier
-            .padding(vertical = 8.dp)
-            .fillMaxWidth()
+        Divider(
+            orientation = Orientation.Horizontal,
+            modifier = Modifier
+                .padding(vertical = 8.dp)
+                .fillMaxWidth()
         )
         Row(
             horizontalArrangement = Arrangement.SpaceEvenly,
@@ -277,32 +282,6 @@ private fun UserStatistics(
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.primary)
             .padding(vertical = 8.dp, horizontal = 12.dp)
-    )
-}
-
-@Composable
-private fun StatisticItem(
-    label: String,
-    value: String,
-    modifier: Modifier = Modifier
-) = Column(
-    horizontalAlignment = Alignment.CenterHorizontally,
-    modifier = modifier
-) {
-    Text(
-        text = label,
-        style = MaterialTheme.typography.bodySmall,
-        color = MaterialTheme.colorScheme.outlineVariant,
-        maxLines = 1,
-        overflow = TextOverflow.Ellipsis
-    )
-    Spacer(modifier = Modifier.height(2.dp))
-    Text(
-        text = value,
-        style = MaterialTheme.typography.bodyMedium,
-        color = MaterialTheme.colorScheme.onBackground,
-        maxLines = 1,
-        overflow = TextOverflow.Ellipsis
     )
 }
 

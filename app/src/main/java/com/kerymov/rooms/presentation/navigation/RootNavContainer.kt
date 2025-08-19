@@ -1,11 +1,15 @@
 package com.kerymov.rooms.presentation.navigation
 
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ExitToApp
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Groups
+import androidx.compose.material.icons.automirrored.rounded.ExitToApp
+import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.Timeline
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -15,9 +19,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -40,8 +51,8 @@ import com.kerymov.ui_onboarding.screens.SignUpScreen
 import com.kerymov.ui_onboarding.viewModels.AuthViewModel
 import com.kerymov.ui_profile.screens.ProfileScreen
 import com.kerymov.ui_profile.viewModels.ProfileViewModel
-import com.kerymov.ui_room.models.RoomDetailsUi
 import com.kerymov.ui_room.screens.RoomScreen
+import com.kerymov.ui_room.models.RoomDetailsUi
 import com.kerymov.ui_room.viewModels.RoomViewModel
 import com.kerymov.ui_rooms.screens.RoomsScreen
 import com.kerymov.ui_rooms.viewModels.RoomsViewModel
@@ -58,6 +69,12 @@ fun RootNavContainer(
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
 
     val scaffoldState by rootViewModel.scaffoldState.collectAsState()
+
+    val density = LocalDensity.current
+
+    val isTopAppBarVisible = remember { mutableStateOf(true) }
+    val topAppBarHeight = remember { mutableStateOf(0.dp) }
+    val statusBarHeight = WindowInsets.statusBars.getTop(density)
     val topAppBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
     Scaffold(
@@ -89,10 +106,17 @@ fun RootNavContainer(
         },
         topBar = {
             scaffoldState.topAppBar?.let {
-                CenterAlignedTopBar(
-                    item = it,
-                    scrollBehaviour = topAppBarScrollBehavior
-                )
+                if (isTopAppBarVisible.value) {
+                    CenterAlignedTopBar(
+                        item = it,
+                        scrollBehaviour = topAppBarScrollBehavior,
+                        modifier = Modifier.onSizeChanged { size ->
+                            topAppBarHeight.value = with(density) {
+                                size.height.toDp() - statusBarHeight.toDp()
+                            }
+                        }
+                    )
+                }
             }
         },
         containerColor = MaterialTheme.colorScheme.background,
@@ -166,7 +190,7 @@ fun RootNavContainer(
                             title = stringResource(R.string.rooms),
                             actions = listOf(
                                 TopAppBarInteractionItem(
-                                    icon = Icons.Filled.Add,
+                                    icon = Icons.Rounded.Add,
                                     onClick = { roomsViewModel.toggleCreateRoomBottomSheet(isOpen = true) }
                                 )
                             )
@@ -219,15 +243,17 @@ fun RootNavContainer(
                             item = TopAppBarItem(
                                 title = "${details.name} - ${details.settings.event.shortName}",
                                 navigationItem = TopAppBarInteractionItem(
-                                    icon = Icons.AutoMirrored.Filled.ExitToApp,
+                                    icon = Icons.AutoMirrored.Rounded.ExitToApp,
                                     onClick = {
                                         viewModel.toggleExitConfirmationDialog(true)
                                     }
                                 ),
                                 actions = listOf(
                                     TopAppBarInteractionItem(
-                                        icon = Icons.Filled.Groups,
-                                        onClick = { }
+                                        icon = Icons.Rounded.Timeline,
+                                        onClick = {
+                                            viewModel.toggleResultsSheet(true)
+                                        }
                                     )
                                 ),
                             )
@@ -240,6 +266,11 @@ fun RootNavContainer(
                                     navController.navigate(Main.Rooms) {
                                         popUpTo(0)
                                     }
+                                },
+                                topAppBarHeight = topAppBarHeight.value,
+                                isTopAppBarVisible = isTopAppBarVisible.value,
+                                onTopAppBarVisibilityChange = { isVisible ->
+                                    isTopAppBarVisible.value = isVisible
                                 },
                                 modifier = Modifier.fillMaxSize()
                             )

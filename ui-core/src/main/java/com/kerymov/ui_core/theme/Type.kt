@@ -14,6 +14,13 @@ val roboto = FontFamily(
     Font(R.font.roboto_bold, FontWeight.Bold)
 )
 
+val rubik = FontFamily(
+    Font(R.font.rubik_regular, FontWeight.Normal),
+    Font(R.font.rubik_medium, FontWeight.Medium),
+    Font(R.font.rubik_semibold, FontWeight.SemiBold),
+    Font(R.font.rubik_bold, FontWeight.Bold)
+)
+
 val helveticaNeue = FontFamily(
     Font(R.font.helvetica_neue_regular, FontWeight.Normal),
     Font(R.font.helvetica_neue_medium, FontWeight.Medium),
@@ -29,7 +36,7 @@ val Typography = Typography(
         letterSpacing = (-0.25).sp
     ),
     displayMedium = TextStyle(
-        fontFamily = helveticaNeue,
+        fontFamily = rubik,
         fontWeight = FontWeight.Medium,
         fontSize = 45.sp,
         lineHeight = 52.sp,
@@ -71,7 +78,7 @@ val Typography = Typography(
         letterSpacing = 0.5.sp
     ),
     bodyMedium = TextStyle(
-        fontFamily = roboto,
+        fontFamily = rubik,
         fontWeight = FontWeight.Medium,
         fontSize = 14.sp,
         lineHeight = 20.sp,
@@ -92,3 +99,21 @@ val Typography = Typography(
         letterSpacing = 0.1.sp
     )
 )
+
+val Typography.scramble: TextStyle
+    get() = TextStyle(
+        fontFamily = rubik,
+        fontWeight = FontWeight.Medium,
+        fontSize = 16.sp,
+        lineHeight = 20.sp,
+        letterSpacing = 0.15.sp
+    )
+
+val Typography.time: TextStyle
+    get() = TextStyle(
+        fontFamily = helveticaNeue,
+        fontWeight = FontWeight.Medium,
+        fontSize = 14.sp,
+        lineHeight = 20.sp,
+        letterSpacing = 0.1.sp
+    )

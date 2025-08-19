@@ -29,10 +29,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.kerymov.ui_core.theme.RoomsTheme
 import com.kerymov.ui_room.R
 import com.kerymov.ui_room.utils.MAX_TIME_LENGTH
 import com.kerymov.ui_room.utils.TimerVisualTransformation
@@ -202,4 +205,16 @@ private fun KeyboardIconButton(
         contentDescription = contentDescription,
         modifier = Modifier.size(36.dp)
     )
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFF14386A)
+@Composable
+private fun ManualTypingTimerPreview() {
+    RoomsTheme {
+        ManualTypingTimer(
+            modifier = Modifier.fillMaxWidth(),
+            isEnabled = true,
+            onSendResultClick = {}
+        )
+    }
 }
