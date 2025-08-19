@@ -101,7 +101,6 @@ import com.kerymov.ui_core.theme.scramble
 import com.kerymov.ui_core.utils.FadeSide
 import com.kerymov.ui_core.utils.IconSource
 import com.kerymov.ui_core.utils.LocalUser
-import com.kerymov.ui_core.utils.defaultBottomSheetPadding
 import com.kerymov.ui_core.utils.fadingEdge
 import com.kerymov.ui_room.components.InfoCard
 import com.kerymov.ui_room.components.ScrambleImageCanvas
@@ -175,9 +174,7 @@ fun RoomScreen(
             },
             users = roomUiState.value.users,
             solves = roomUiState.value.solves,
-            modifier = Modifier
-                .fillMaxSize()
-                .defaultBottomSheetPadding()
+            modifier = Modifier.fillMaxSize()
         )
     }
 
