@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -15,11 +16,16 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowForward
+import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -30,12 +36,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.kerymov.ui_core.components.CustomAlertDialog
 import com.kerymov.ui_core.components.CustomAlertDialogDefaults
 import com.kerymov.ui_core.components.Divider
+import com.kerymov.ui_core.components.TopAppBarInteractionItem
+import com.kerymov.ui_core.components.TopAppBarItem
+import com.kerymov.ui_core.components.TopBar
 import com.kerymov.ui_profile.viewModels.ProfileViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
     onSignOut: () -> Unit,
@@ -46,30 +57,48 @@ fun ProfileScreen(
 
     var shouldShowLogOutDialog by rememberSaveable { mutableStateOf(false) }
 
-    Content(
-        username = uiState.user?.username ?: "user",
-        onRecordsClick = { },
-        onAllResultsClick = { },
-        onSignOutClick = { shouldShowLogOutDialog = true },
-        modifier = modifier,
-    )
+    val topAppBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
-    if (shouldShowLogOutDialog) {
-        CustomAlertDialog(
-            title = "Sign out",
-            message = "Do you really want to sign out?",
-            dismissButtonText = "Cancel",
-            confirmButtonText = "Sign out",
-            onDismiss = { shouldShowLogOutDialog = false },
-            onConfirm = {
-                viewModel.signOut()
-                shouldShowLogOutDialog = false
-                onSignOut()
-            },
-            colors = CustomAlertDialogDefaults.alertColors(
-                confirmButtonColor = MaterialTheme.colorScheme.error
+    Scaffold(
+        topBar = {
+            TopBar(
+                item = TopAppBarItem(
+                    title = "Profile"
+                ),
+                scrollBehaviour = topAppBarScrollBehavior,
+                modifier = Modifier.fillMaxWidth()
             )
+        },
+        contentWindowInsets = WindowInsets(0.dp),
+        containerColor = MaterialTheme.colorScheme.background,
+        contentColor = contentColorFor(MaterialTheme.colorScheme.background),
+        modifier = Modifier.fillMaxSize()
+    ) { contentPadding ->
+        Content(
+            username = uiState.user?.username ?: "user",
+            onRecordsClick = { },
+            onAllResultsClick = { },
+            onSignOutClick = { shouldShowLogOutDialog = true },
+            modifier = modifier.padding(contentPadding),
         )
+
+        if (shouldShowLogOutDialog) {
+            CustomAlertDialog(
+                title = "Sign out",
+                message = "Do you really want to sign out?",
+                dismissButtonText = "Cancel",
+                confirmButtonText = "Sign out",
+                onDismiss = { shouldShowLogOutDialog = false },
+                onConfirm = {
+                    viewModel.signOut()
+                    shouldShowLogOutDialog = false
+                    onSignOut()
+                },
+                colors = CustomAlertDialogDefaults.alertColors(
+                    confirmButtonColor = MaterialTheme.colorScheme.error
+                )
+            )
+        }
     }
 }
 

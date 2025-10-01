@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -23,6 +24,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material.icons.rounded.LockOpen
 import androidx.compose.material3.BottomSheetDefaults
@@ -32,9 +34,12 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.contentColorFor
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.Indicator
@@ -51,6 +56,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -59,8 +67,12 @@ import androidx.compose.ui.unit.dp
 import com.kerymov.ui_common_speedcubing.models.EventUi
 import com.kerymov.ui_core.components.CircularLoadingIndicator
 import com.kerymov.ui_core.components.ErrorCard
+import com.kerymov.ui_core.components.TopAppBarInteractionItem
+import com.kerymov.ui_core.components.TopAppBarItem
+import com.kerymov.ui_core.components.TopBar
 import com.kerymov.ui_core.theme.RoomsTheme
 import com.kerymov.ui_core.utils.LocalUser
+import com.kerymov.ui_rooms.R
 import com.kerymov.ui_rooms.components.RoomLoginDialog
 import com.kerymov.ui_rooms.components.RoomsCreatingBottomSheet
 import com.kerymov.ui_rooms.models.RoomUi
@@ -92,6 +104,7 @@ fun RoomsScreen(
 
     val roomsUiState by roomsViewModel.uiState.collectAsState()
 
+    val topAppBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val pullToRefreshState = rememberPullToRefreshState()
 
     LaunchedEffect(key1 = roomsUiState.currentRoomDetails) {
@@ -99,121 +112,147 @@ fun RoomsScreen(
         roomDetailsJson?.let(onRoomLogin)
     }
 
-    PullToRefreshBox(
-        isRefreshing = roomsUiState.loadingState == LoadingState.REFRESHING,
-        onRefresh = { roomsViewModel.getRooms(isRefreshing = true) },
-        state = pullToRefreshState,
-        contentAlignment = Alignment.TopCenter,
-        indicator = {
-            Indicator(
-                isRefreshing = roomsUiState.loadingState == LoadingState.REFRESHING,
-                state = pullToRefreshState,
-                color = MaterialTheme.colorScheme.primary,
-                containerColor = MaterialTheme.colorScheme.background,
-                modifier = Modifier.align(Alignment.TopCenter)
+    Scaffold(
+        topBar = {
+            TopBar(
+                item = TopAppBarItem(
+                    title = "Rooms",
+                    actions = listOf(
+                        TopAppBarInteractionItem(
+                            icon = Icons.Rounded.Add,
+                            onClick = { roomsViewModel.toggleCreateRoomBottomSheet(isOpen = true) }
+                        )
+                    )
+                ),
+                scrollBehaviour = topAppBarScrollBehavior,
+                modifier = Modifier.fillMaxWidth()
             )
         },
-        modifier = modifier
-            .fillMaxSize()
-    ) {
-        when (val roomsStatus = roomsUiState.roomsStatus) {
-            is RoomsStatus.Success -> {
-                Content(
-                    rooms = roomsStatus.rooms.reversed(),
-                    onItemClick = { name, isOpen ->
-                        if (isOpen) {
-                            roomsViewModel.loginRoom(name, null)
-                        } else {
-                            roomNameToLogin = name
-                            shouldShowLoginDialog = true
-                        }
-                    },
-                    onLongItemClick = { itemId ->
-                        isDeleteRoomSheetOpen = true
-                        roomIdToDelete = itemId
-                    },
-                    onCreateNewRoomClick = { roomsViewModel.toggleCreateRoomBottomSheet(isOpen = true) }
+        contentWindowInsets = WindowInsets(0.dp),
+        containerColor = MaterialTheme.colorScheme.background,
+        contentColor = contentColorFor(MaterialTheme.colorScheme.background),
+        modifier = Modifier.fillMaxSize()
+    ) { contentPadding ->
+        PullToRefreshBox(
+            isRefreshing = roomsUiState.loadingState == LoadingState.REFRESHING,
+            onRefresh = { roomsViewModel.getRooms(isRefreshing = true) },
+            state = pullToRefreshState,
+            contentAlignment = Alignment.TopCenter,
+            indicator = {
+                Indicator(
+                    isRefreshing = roomsUiState.loadingState == LoadingState.REFRESHING,
+                    state = pullToRefreshState,
+                    color = MaterialTheme.colorScheme.primary,
+                    containerColor = MaterialTheme.colorScheme.background,
+                    modifier = Modifier.align(Alignment.TopCenter)
+                )
+            },
+            modifier = modifier
+                .padding(contentPadding)
+                .fillMaxSize()
+        ) {
+            when (val roomsStatus = roomsUiState.roomsStatus) {
+                is RoomsStatus.Success -> {
+                    Content(
+                        rooms = roomsStatus.rooms.reversed(),
+                        onItemClick = { name, isOpen ->
+                            if (isOpen) {
+                                roomsViewModel.loginRoom(name, null)
+                            } else {
+                                roomNameToLogin = name
+                                shouldShowLoginDialog = true
+                            }
+                        },
+                        onLongItemClick = { itemId ->
+                            isDeleteRoomSheetOpen = true
+                            roomIdToDelete = itemId
+                        },
+                        onCreateNewRoomClick = { roomsViewModel.toggleCreateRoomBottomSheet(isOpen = true) },
+                        topAppBarScrollBehavior = topAppBarScrollBehavior
+                    )
+                }
+                is RoomsStatus.Failure -> {
+                    ErrorView(
+                        errorMessage = "${roomsUiState.error?.code}: " + roomsUiState.error?.message,
+                        onTryAgainClick = { roomsViewModel.getRooms() }
+                    )
+                }
+                RoomsStatus.None -> Unit
+            }
+
+            if (roomsUiState.loadingState == LoadingState.LOADING) {
+                CircularLoadingIndicator()
+            }
+
+            if (roomsUiState.error != null) {
+                ErrorCard(
+                    text = roomsUiState.error?.message.toString(),
+                    modifier = Modifier.align(Alignment.BottomCenter)
                 )
             }
-            is RoomsStatus.Failure -> {
-                ErrorView(
-                    errorMessage = "${roomsUiState.error?.code}: " + roomsUiState.error?.message,
-                    onTryAgainClick = { roomsViewModel.getRooms() }
-                )
-            }
-            RoomsStatus.None -> Unit
         }
 
-        if (roomsUiState.loadingState == LoadingState.LOADING) {
-            CircularLoadingIndicator()
-        }
-
-        if (roomsUiState.error != null) {
-            ErrorCard(
-                text = roomsUiState.error?.message.toString(),
-                modifier = Modifier.align(Alignment.BottomCenter)
+        if (roomsUiState.isCreateRoomBottomSheetOpen) {
+            RoomsCreatingBottomSheet(
+                sheetState = createRoomSheetState,
+                onDismissRequest = { roomsViewModel.toggleCreateRoomBottomSheet(isOpen = false) },
+                onCreateClick = { roomName, roomPassword, roomSettings ->
+                    roomsViewModel.createRoom(roomName, roomPassword, roomSettings)
+                    roomsViewModel.toggleCreateRoomBottomSheet(isOpen = false)
+                },
+                modifier = Modifier.fillMaxSize()
             )
         }
-    }
 
-    if (roomsUiState.isCreateRoomBottomSheetOpen) {
-        RoomsCreatingBottomSheet(
-            sheetState = createRoomSheetState,
-            onDismissRequest = { roomsViewModel.toggleCreateRoomBottomSheet(isOpen = false) },
-            onCreateClick = { roomName, roomPassword, roomSettings ->
-                roomsViewModel.createRoom(roomName, roomPassword, roomSettings)
-                roomsViewModel.toggleCreateRoomBottomSheet(isOpen = false)
-            },
-            modifier = Modifier.fillMaxSize()
-        )
-    }
+        if (shouldShowLoginDialog) {
+            RoomLoginDialog(
+                title = roomNameToLogin,
+                password = roomPasswordToLogin,
+                onPasswordChange = { roomPasswordToLogin = it },
+                onCancelClick = {
+                    roomNameToLogin = ""
+                    roomPasswordToLogin = ""
+                    isLoginError = false
+                    shouldShowLoginDialog = false
+                },
+                onLoginClick = {
+                    shouldShowLoginDialog = false
+                    roomsViewModel.loginRoom(name = roomNameToLogin, password = roomPasswordToLogin)
+                }
+            )
+        }
 
-    if (shouldShowLoginDialog) {
-        RoomLoginDialog(
-            title = roomNameToLogin,
-            password = roomPasswordToLogin,
-            onPasswordChange = { roomPasswordToLogin = it },
-            onCancelClick = {
-                roomNameToLogin = ""
-                roomPasswordToLogin = ""
-                isLoginError = false
-                shouldShowLoginDialog = false
-            },
-            onLoginClick = {
-                shouldShowLoginDialog = false
-                roomsViewModel.loginRoom(name = roomNameToLogin, password = roomPasswordToLogin)
-            }
-        )
-    }
+        if (isDeleteRoomSheetOpen) {
+            val localUser = LocalUser.current
+            val roomToDelete = (roomsUiState.roomsStatus as? RoomsStatus.Success)?.rooms?.find { it.id == roomIdToDelete }
+            val isAdministrator = roomToDelete?.administratorName == localUser?.username
 
-    if (isDeleteRoomSheetOpen) {
-        val localUser = LocalUser.current
-        val roomToDelete = (roomsUiState.roomsStatus as? RoomsStatus.Success)?.rooms?.find { it.id == roomIdToDelete }
-        val isAdministrator = roomToDelete?.administratorName == localUser?.username
-
-        DeleteRoomModalBottomSheet(
-            sheetState = deleteRoomSheetState,
-            onDismissRequest = {
-                isDeleteRoomSheetOpen = false
-                roomIdToDelete = null
-            },
-            onDeleteClick = {
-                roomsViewModel.deleteRoom(roomIdToDelete ?: "")
-                isDeleteRoomSheetOpen = false
-                roomIdToDelete = null
-            },
-            isDeleteButtonEnabled = isAdministrator,
-            modifier = Modifier.fillMaxWidth()
-        )
+            DeleteRoomModalBottomSheet(
+                sheetState = deleteRoomSheetState,
+                onDismissRequest = {
+                    isDeleteRoomSheetOpen = false
+                    roomIdToDelete = null
+                },
+                onDeleteClick = {
+                    roomsViewModel.deleteRoom(roomIdToDelete ?: "")
+                    isDeleteRoomSheetOpen = false
+                    roomIdToDelete = null
+                },
+                isDeleteButtonEnabled = isAdministrator,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun Content(
     rooms: List<RoomUi>,
     onItemClick: (name: String, isOpen: Boolean) -> Unit,
     onLongItemClick: (id: String) -> Unit,
-    onCreateNewRoomClick: () -> Unit
+    onCreateNewRoomClick: () -> Unit,
+    topAppBarScrollBehavior: TopAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(),
 ) = Box(
     modifier = Modifier.fillMaxSize()
 ) {
@@ -225,7 +264,9 @@ private fun Content(
         RoomsGrid(
             rooms = rooms,
             onItemClick = onItemClick,
-            onLongItemClick = onLongItemClick
+            onLongItemClick = onLongItemClick,
+            modifier = Modifier
+                .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection)
         )
     }
 }
@@ -234,13 +275,14 @@ private fun Content(
 private fun RoomsGrid(
     rooms: List<RoomUi>,
     onItemClick: (name: String, isOpen: Boolean) -> Unit,
-    onLongItemClick: (id: String) -> Unit
+    onLongItemClick: (id: String) -> Unit,
+    modifier: Modifier = Modifier
 ) = LazyVerticalGrid(
     columns = GridCells.Adaptive(148.dp),
-    contentPadding = PaddingValues(horizontal = 20.dp, vertical = 12.dp),
-    modifier = Modifier.fillMaxSize()
+    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
+    modifier = modifier.fillMaxSize()
 ) {
-    items(rooms) { item ->
+    items(rooms, key = { it.id }) { item ->
         val event = EventUi.entries.find { event -> event.id == item.event.id }
             ?: EventUi.THREE_BY_THREE
         val accessStatus = when {
