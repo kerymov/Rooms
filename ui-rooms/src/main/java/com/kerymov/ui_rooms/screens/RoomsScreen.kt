@@ -72,7 +72,7 @@ import com.kerymov.ui_core.components.TopAppBarItem
 import com.kerymov.ui_core.components.TopBar
 import com.kerymov.ui_core.theme.RoomsTheme
 import com.kerymov.ui_core.utils.LocalUser
-import com.kerymov.ui_rooms.R
+import com.kerymov.ui_core.R
 import com.kerymov.ui_rooms.components.RoomLoginDialog
 import com.kerymov.ui_rooms.components.RoomsCreatingBottomSheet
 import com.kerymov.ui_rooms.models.RoomUi
@@ -119,7 +119,7 @@ fun RoomsScreen(
                     title = "Rooms",
                     actions = listOf(
                         TopAppBarInteractionItem(
-                            icon = Icons.Rounded.Add,
+                            icon = ImageVector.vectorResource(R.drawable.ic_add),
                             onClick = { roomsViewModel.toggleCreateRoomBottomSheet(isOpen = true) }
                         )
                     )

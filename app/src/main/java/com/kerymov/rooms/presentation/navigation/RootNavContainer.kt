@@ -10,6 +10,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavDestination.Companion.hasRoute
@@ -21,7 +23,9 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import com.kerymov.rooms.R
 import com.kerymov.rooms.presentation.components.BottomNavigationBar
+import com.kerymov.rooms.presentation.components.BottomNavigationItem
 import com.kerymov.ui_core.models.UserUi
 import com.kerymov.ui_core.utils.LocalUser
 import com.kerymov.ui_onboarding.screens.SignInScreen
@@ -52,7 +56,20 @@ fun RootNavContainer(
             } == true
 
             if (shouldShowBottomNavigation) {
-                val bottomNavItems = BottomNavigationItem.entries
+                val bottomNavItems = listOf(
+                    BottomNavigationItem(
+                        title = "Rooms",
+                        route = Main.Rooms,
+                        selectedIcon = ImageVector.vectorResource(id = R.drawable.home_filled),
+                        unselectedIcon = ImageVector.vectorResource(id = R.drawable.home),
+                    ),
+                    BottomNavigationItem(
+                        title = "Profile",
+                        route = Main.Profile,
+                        selectedIcon = ImageVector.vectorResource(id = R.drawable.profile_filled),
+                        unselectedIcon = ImageVector.vectorResource(id = R.drawable.profile),
+                    ),
+                )
 
                 BottomNavigationBar(
                     items = bottomNavItems.map { item ->
@@ -88,8 +105,6 @@ fun RootNavContainer(
                 startDestination = Auth.SignIn
             ) {
                 composable<Auth.SignIn> { backStackEntry ->
-                    rootViewModel.updateTopAppBar(null)
-
                     val viewModel = hiltViewModel<AuthViewModel>()
 
                     SignInScreen(
@@ -109,8 +124,6 @@ fun RootNavContainer(
                     )
                 }
                 composable<Auth.SignUp> { backStackEntry ->
-                    rootViewModel.updateTopAppBar(null)
-
                     val viewModel = hiltViewModel<AuthViewModel>()
 
                     SignUpScreen(

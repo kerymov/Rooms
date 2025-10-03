@@ -5,6 +5,11 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.outlined.AccountCircle
+import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalRippleConfiguration
@@ -15,15 +20,26 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.kerymov.rooms.presentation.navigation.BottomNavigationItem
+import com.kerymov.rooms.presentation.navigation.Main
+import com.kerymov.rooms.presentation.navigation.Screen
 import com.kerymov.ui_core.components.Divider
 import com.kerymov.ui_core.theme.RoomsTheme
+
+@Immutable
+data class BottomNavigationItem(
+    val title: String,
+    val route: Screen,
+    val selectedIcon: ImageVector,
+    val unselectedIcon: ImageVector
+)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -91,8 +107,18 @@ fun PreviewBottomNavigationBar() {
     RoomsTheme {
         BottomNavigationBar(
             items = listOf(
-                BottomNavigationItem.ROOMS to true,
-                BottomNavigationItem.PROFILE to false
+                BottomNavigationItem(
+                    title = "Rooms",
+                    route = Main.Rooms,
+                    selectedIcon = Icons.Filled.Home,
+                    unselectedIcon = Icons.Outlined.Home,
+                ) to true,
+                BottomNavigationItem(
+                    title = "Profile",
+                    route = Main.Profile,
+                    selectedIcon = Icons.Filled.AccountCircle,
+                    unselectedIcon = Icons.Outlined.AccountCircle,
+                ) to false
             ),
             onNavItemClick = { }
         )
