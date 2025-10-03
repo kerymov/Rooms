@@ -9,10 +9,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -59,14 +59,12 @@ fun RoomResultsBottomSheet(
     users: List<String>,
     solves: List<SolveUi>,
     modifier: Modifier = Modifier,
-    windowInsets: WindowInsets = WindowInsets(0, 0, 0, 0),
 ) = ModalBottomSheet(
     sheetState = sheetState,
     onDismissRequest = onDismissRequest,
     dragHandle = { BottomSheetDefaults.DragHandle(color = MaterialTheme.colorScheme.primary) },
     containerColor = MaterialTheme.colorScheme.background,
-    windowInsets = windowInsets,
-    modifier = modifier
+    modifier = modifier.statusBarsPadding()
 ) {
     Content(
         users = users,

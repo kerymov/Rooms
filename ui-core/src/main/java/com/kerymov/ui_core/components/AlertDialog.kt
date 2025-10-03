@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
 data class CustomAlertDialogColors(
+    val containerColor: Color,
     val titleTextColor: Color,
     val messageTextColor: Color,
     val confirmButtonColor: Color,
@@ -18,11 +19,13 @@ object CustomAlertDialogDefaults {
 
     @Composable
     fun alertColors(
+        containerColor: Color = MaterialTheme.colorScheme.surface,
         titleTextColor: Color = MaterialTheme.colorScheme.onBackground,
         messageTextColor: Color = MaterialTheme.colorScheme.onBackground,
         confirmButtonColor: Color = MaterialTheme.colorScheme.onBackground,
-        dismissButtonColor: Color = MaterialTheme.colorScheme.onBackground
+        dismissButtonColor: Color = MaterialTheme.colorScheme.onBackground,
     ) = CustomAlertDialogColors(
+        containerColor = containerColor,
         titleTextColor = titleTextColor,
         messageTextColor = messageTextColor,
         confirmButtonColor = confirmButtonColor,
@@ -74,5 +77,6 @@ fun CustomAlertDialog(
                 color = colors.dismissButtonColor
             )
         }
-    }
+    },
+    containerColor = colors.containerColor
 )

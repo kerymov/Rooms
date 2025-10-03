@@ -20,10 +20,12 @@ import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
@@ -37,10 +39,14 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.selection.DisableSelection
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.ExitToApp
+import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Keyboard
+import androidx.compose.material.icons.rounded.Timeline
 import androidx.compose.material.icons.rounded.Timer
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.contentColorFor
@@ -96,12 +102,14 @@ import com.kerymov.ui_common_speedcubing.models.SolveUi
 import com.kerymov.ui_core.components.CustomAlertDialog
 import com.kerymov.ui_core.components.CustomAlertDialogDefaults
 import com.kerymov.ui_core.components.Divider
+import com.kerymov.ui_core.components.TopAppBarInteractionItem
+import com.kerymov.ui_core.components.TopAppBarItem
+import com.kerymov.ui_core.components.TopBar
 import com.kerymov.ui_core.theme.RoomsTheme
 import com.kerymov.ui_core.theme.scramble
 import com.kerymov.ui_core.utils.FadeSide
 import com.kerymov.ui_core.utils.IconSource
 import com.kerymov.ui_core.utils.LocalUser
-import com.kerymov.ui_core.utils.defaultBottomSheetPadding
 import com.kerymov.ui_core.utils.fadingEdge
 import com.kerymov.ui_room.components.InfoCard
 import com.kerymov.ui_room.components.ScrambleImageCanvas
@@ -129,9 +137,6 @@ import kotlinx.coroutines.launch
 fun RoomScreen(
     modifier: Modifier = Modifier,
     onExit: () -> Unit,
-    isTopAppBarVisible: Boolean,
-    onTopAppBarVisibilityChange: (Boolean) -> Unit,
-    topAppBarHeight: Dp,
     roomViewModel: RoomViewModel = viewModel(),
 ) {
     val roomUiState = roomViewModel.uiState.collectAsState()
@@ -175,29 +180,60 @@ fun RoomScreen(
             },
             users = roomUiState.value.users,
             solves = roomUiState.value.solves,
-            modifier = Modifier
-                .fillMaxSize()
-                .defaultBottomSheetPadding()
+            modifier = Modifier.fillMaxSize()
         )
     }
 
-    Content(
-        state = roomUiState,
-        onTimerStart = roomViewModel::startTimer,
-        onTimerStop = roomViewModel::stopTimer,
-        onTimerReset = roomViewModel::resetTimer,
-        onTypingTimeTextChange = roomViewModel::updateTypingInputTimeText,
-        onToggleTypingEditingMode = roomViewModel::toggleTypingEditingMode,
-        onUpdatePenalty = roomViewModel::updatePenalty,
-        onSendResultClick = roomViewModel::sendSolveResult,
-        onShowResultsClick = roomViewModel::toggleResultsSheet,
-        onToggleTimerMode = roomViewModel::toggleTimerMode,
-        onToggleActionButtonsVisibility = roomViewModel::toggleActionButtonsVisibility,
-        onToggleTopAppBarVisibility = onTopAppBarVisibilityChange,
-        modifier = modifier
-            .padding(top = if (isTopAppBarVisible) 0.dp else topAppBarHeight)
-            .fillMaxSize()
-    )
+    Scaffold(
+        topBar = {
+            if (roomUiState.value.timerState.runnerState == TimerRunnerState.ACTIVE) {
+//                Spacer(modifier = Modifier.height(topAppBarHeight))
+            } else {
+                TopBar(
+                    item = TopAppBarItem(
+                        title = "${roomUiState.value.roomDetails.name} - ${roomUiState.value.roomDetails.settings.event.shortName}",
+                        navigationItem = TopAppBarInteractionItem(
+                            icon = Icons.AutoMirrored.Rounded.ExitToApp,
+                            onClick = {
+                                roomViewModel.toggleExitConfirmationDialog(true)
+                            }
+                        ),
+                        actions = listOf(
+                            TopAppBarInteractionItem(
+                                icon = Icons.Rounded.Timeline,
+                                onClick = {
+                                    roomViewModel.toggleResultsSheet(true)
+                                }
+                            )
+                        ),
+                    ),
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        },
+        contentWindowInsets = WindowInsets(0.dp),
+        containerColor = MaterialTheme.colorScheme.background,
+        contentColor = contentColorFor(MaterialTheme.colorScheme.background),
+        modifier = Modifier.fillMaxSize()
+    ) { contentPadding ->
+        Content(
+            state = roomUiState,
+            onTimerStart = roomViewModel::startTimer,
+            onTimerStop = roomViewModel::stopTimer,
+            onTimerReset = roomViewModel::resetTimer,
+            onTypingTimeTextChange = roomViewModel::updateTypingInputTimeText,
+            onToggleTypingEditingMode = roomViewModel::toggleTypingEditingMode,
+            onUpdatePenalty = roomViewModel::updatePenalty,
+            onSendResultClick = roomViewModel::sendSolveResult,
+            onShowResultsClick = roomViewModel::toggleResultsSheet,
+            onToggleTimerMode = roomViewModel::toggleTimerMode,
+            onToggleActionButtonsVisibility = roomViewModel::toggleActionButtonsVisibility,
+            modifier = modifier
+                .padding(contentPadding)
+                .navigationBarsPadding()
+                .fillMaxSize()
+        )
+    }
 }
 
 @Composable
@@ -213,7 +249,6 @@ private fun Content(
     onSendResultClick: () -> Unit,
     onToggleTimerMode: (mode: TimerMode) -> Unit,
     onToggleActionButtonsVisibility: (isVisible: Boolean) -> Unit,
-    onToggleTopAppBarVisibility: (isVisible: Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val visibilityEnterTransition = fadeIn(
@@ -259,10 +294,6 @@ private fun Content(
     val keyboard = LocalSoftwareKeyboardController.current
 
     val resultsListState = rememberLazyListState()
-
-    LaunchedEffect(isTimerActive) {
-        onToggleTopAppBarVisibility(!isTimerActive)
-    }
 
     Box(
         modifier = modifier
@@ -325,7 +356,7 @@ private fun Content(
     ) {
         LaunchedEffect(
             state.value.timerState.runnerState,
-            typingState,
+            state.value.typingState.isInEditingMode,
             timerMode
         ) {
             when(timerMode) {
@@ -955,7 +986,6 @@ private fun PreviewRoomScreenContent() {
             onSendResultClick = { },
             onToggleTimerMode = { },
             onToggleActionButtonsVisibility = { },
-            onToggleTopAppBarVisibility = { },
             modifier = Modifier.fillMaxSize()
         )
     }

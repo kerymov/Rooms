@@ -2,7 +2,7 @@ package com.kerymov.rooms.presentation.navigation
 
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
-import com.kerymov.rooms.presentation.components.TopAppBarItem
+import com.kerymov.ui_core.components.TopAppBarItem
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
