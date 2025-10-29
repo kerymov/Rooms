@@ -1,5 +1,6 @@
 package com.kerymov.data_room.di
 
+import com.kerymov.data_core.mappers.NetworkResultMapper
 import com.kerymov.data_room.dataSources.RemoteRoomDataSource
 import com.kerymov.data_room.repository.RoomRepositoryImpl
 import com.kerymov.data_room.services.RoomService
@@ -19,8 +20,14 @@ object RoomModule {
 
     @Provides
     @Singleton
-    fun provideRoomRepository(remoteRoomsDataSource: RemoteRoomDataSource): RoomRepository {
-        return RoomRepositoryImpl(remoteDataSource = remoteRoomsDataSource)
+    fun provideRoomRepository(
+        remoteRoomsDataSource: RemoteRoomDataSource,
+        networkResultMapper: NetworkResultMapper
+    ): RoomRepository {
+        return RoomRepositoryImpl(
+            remoteDataSource = remoteRoomsDataSource,
+            networkResultMapper = networkResultMapper
+        )
     }
 
     @Provides

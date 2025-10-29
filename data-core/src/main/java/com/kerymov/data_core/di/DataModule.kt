@@ -1,6 +1,7 @@
 package com.kerymov.data_core.di
 
 import android.content.Context
+import com.kerymov.data_core.mappers.NetworkResultMapper
 import com.kerymov.data_core.mappers.UserMapper
 import com.kerymov.data_core.preferences.PreferencesImpl
 import com.kerymov.data_core.utils.AuthTokenProviderImpl
@@ -44,5 +45,11 @@ object DataModule {
     @Singleton
     fun provideUserMapper(): UserMapper {
         return UserMapper()
+    }
+
+    @Provides
+    @Singleton
+    fun provideNetworkResultMapper(): NetworkResultMapper {
+        return NetworkResultMapper()
     }
 }

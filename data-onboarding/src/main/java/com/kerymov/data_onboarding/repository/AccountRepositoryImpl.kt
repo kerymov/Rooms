@@ -5,14 +5,15 @@ import com.kerymov.data_onboarding.dataSources.RemoteAccountDataSource
 import com.kerymov.data_onboarding.models.UserSignInRequest
 import com.kerymov.data_onboarding.models.UserSignUpRequest
 import com.kerymov.data_onboarding.mappers.UserMapper
+import com.kerymov.domain_core.exceptions.CommonException
 import com.kerymov.domain_core.utils.BaseResult
 import com.kerymov.domain_core.utils.coroutines.IoDispatcher
+import com.kerymov.domain_onboarding.exceptions.AuthException
 import com.kerymov.domain_onboarding.models.User
 import com.kerymov.domain_onboarding.repository.AccountRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import retrofit2.HttpException
 
 class AccountRepositoryImpl(
     private val remoteDataSource: RemoteAccountDataSource,
@@ -29,21 +30,34 @@ class AccountRepositoryImpl(
                 val response = remoteDataSource.signIn(userSignInRequest)
                 val body = response.body()
                 if (response.isSuccessful && body != null) {
-                    if (body.errorMessage == null) {
+                    if (body.isSuccess) {
                         val user = mapper.mapToDomain(body)
                         saveUser(user)
 
                         BaseResult.Success(Unit)
                     } else {
-                        BaseResult.Error(code = body.statusCode, message = body.errorMessage)
+                        when (body.errorMessage) {
+                            "Invalid username", "Invalid password" -> BaseResult.Error(
+                                exception = AuthException.InvalidCredentialsException
+                            )
+
+                            else -> BaseResult.Error(
+                                exception = CommonException.UnknownException
+                            )
+                        }
                     }
                 } else {
-                    BaseResult.Error(code = response.code(), message = response.message())
+                    BaseResult.Error(
+                        exception = CommonException.BackendException(
+                            statusCode = response.code(),
+                            message = response.message()
+                        )
+                    )
                 }
-            } catch (e: HttpException) {
-                BaseResult.Error(code = e.code(), message = e.message())
-            } catch (e: Throwable) {
-                BaseResult.Exception(e.message)
+            } catch (e: Exception) {
+                BaseResult.Error(
+                    exception = CommonException.ConnectionException(e)
+                )
             }
         }
     }
@@ -61,21 +75,33 @@ class AccountRepositoryImpl(
                 val body = response.body()
 
                 if (response.isSuccessful && body != null) {
-                    if (body.errorMessage == null) {
+                    if (body.isSuccess) {
                         val user = mapper.mapToDomain(body)
                         saveUser(user)
 
                         BaseResult.Success(Unit)
                     } else {
-                        BaseResult.Error(code = body.statusCode, message = body.errorMessage)
+                        when (body.errorMessage) {
+                            "Provided username already registered" -> BaseResult.Error(
+                                exception = AuthException.UserAlreadyExistsException
+                            )
+                            else -> BaseResult.Error(
+                                exception = CommonException.UnknownException
+                            )
+                        }
                     }
                 } else {
-                    BaseResult.Error(code = response.code(), message = response.message())
+                    BaseResult.Error(
+                        exception = CommonException.BackendException(
+                            statusCode = response.code(),
+                            message = response.message()
+                        )
+                    )
                 }
-            } catch (e: HttpException) {
-                BaseResult.Error(code = e.code(), message = e.message())
-            } catch (e: Throwable) {
-                BaseResult.Exception(e.message)
+            } catch (e: Exception) {
+                BaseResult.Error(
+                    exception = CommonException.ConnectionException(e)
+                )
             }
         }
     }

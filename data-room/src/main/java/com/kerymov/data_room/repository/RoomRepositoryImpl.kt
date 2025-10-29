@@ -2,6 +2,7 @@ package com.kerymov.data_room.repository
 
 import com.kerymov.data_common_speedcubing.mappers.mapToDomainModel
 import com.kerymov.data_common_speedcubing.models.ScrambleDto
+import com.kerymov.data_core.mappers.NetworkResultMapper
 import com.kerymov.data_room.models.mappers.mapToDto
 import com.kerymov.data_room.dataSources.RemoteRoomDataSource
 import com.kerymov.domain_common_speedcubing.models.Scramble
@@ -11,12 +12,12 @@ import com.kerymov.domain_room.models.NewSolveResult
 import com.kerymov.domain_room.models.User
 import com.kerymov.domain_core.utils.BaseResult
 import com.kerymov.domain_room.repository.RoomRepository
-import com.kerymov.network_core.utils.NetworkResult
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 class RoomRepositoryImpl(
-    private val remoteDataSource: RemoteRoomDataSource
+    private val remoteDataSource: RemoteRoomDataSource,
+    private val networkResultMapper: NetworkResultMapper
 ) : RoomRepository {
 
     override fun joinRoom(roomName: String, onComplete: () -> Unit) = remoteDataSource.joinRoom(roomName, onComplete)
@@ -40,14 +41,11 @@ class RoomRepositoryImpl(
     }
 
     override suspend fun getScramble(puzzle: Int): BaseResult<Scramble> {
-        return remoteDataSource.getScramble(puzzle).toBaseResult()
-    }
-}
+        val networkResult = remoteDataSource.getScramble(puzzle)
+        val baseResult = networkResultMapper.mapToBaseResult(networkResult) { scrambleDto ->
+            scrambleDto.mapToDomainModel()
+        }
 
-private fun NetworkResult<ScrambleDto>.toBaseResult(): BaseResult<Scramble> {
-    return when(this) {
-        is NetworkResult.Success -> BaseResult.Success(data.mapToDomainModel())
-        is NetworkResult.Error -> BaseResult.Error(code, message)
-        is NetworkResult.Exception -> BaseResult.Exception(e.message)
+        return baseResult
     }
 }

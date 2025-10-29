@@ -1,29 +1,33 @@
 package com.kerymov.data_rooms.repository
 
+import com.kerymov.data_core.mappers.NetworkResultMapper
 import com.kerymov.data_rooms.dataSources.RemoteRoomsDataSource
-import com.kerymov.data_rooms.models.RoomDto
 import com.kerymov.data_rooms.models.mappers.mapToDomainModel
 import com.kerymov.data_rooms.models.mappers.mapToDto
 import com.kerymov.data_rooms.models.requests.CreateRoomRequest
 import com.kerymov.data_rooms.models.requests.LoginRoomRequest
-import com.kerymov.data_rooms.models.responses.CreateRoomResponse
-import com.kerymov.data_rooms.models.responses.LoginRoomResponse
+import com.kerymov.domain_core.exceptions.CommonException
 import com.kerymov.domain_core.utils.BaseResult
+import com.kerymov.domain_rooms.exceptions.RoomsException
 import com.kerymov.domain_rooms.models.Room
 import com.kerymov.domain_rooms.models.RoomDetails
 import com.kerymov.domain_rooms.models.RoomSettings
 import com.kerymov.domain_rooms.repository.RoomsRepository
-import com.kerymov.network_core.utils.NetworkResult
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlin.collections.map
 
 class RoomsRepositoryImpl(
-    private val remoteDataSource: RemoteRoomsDataSource
+    private val remoteDataSource: RemoteRoomsDataSource,
+    private val networkResultMapper: NetworkResultMapper
 ) : RoomsRepository {
 
     override val allRooms: Flow<BaseResult<List<Room>>> = remoteDataSource.allRooms
-        .map { it.mapToRoom() }
+        .map { networkResult ->
+            networkResultMapper.mapToBaseResult(networkResult) { roomDtos ->
+                roomDtos.map { roomDto -> roomDto.mapToDomainModel() }
+            }
+        }
 
     override suspend fun createRoom(
         name: String,
@@ -36,7 +40,31 @@ class RoomsRepositoryImpl(
             settings = settings.mapToDto()
         )
 
-        return remoteDataSource.createRoom(createRoomRequest).mapToCreateRoomDetails()
+        val networkResult = remoteDataSource.createRoom(createRoomRequest)
+        val baseResult = networkResultMapper.mapAlwaysSuccessfulResponseToBaseResult(
+            networkResult = networkResult,
+            transform = { response ->
+                response.roomDetails.mapToDomainModel()
+            },
+            handleDomainError = { result ->
+                when (result.data.errorMessage) {
+                    "Room with provided name already exists" -> BaseResult.Error(
+                        RoomsException.RoomWithSameNameAlreadyExistsException
+                    )
+                    "Invalid room name" -> BaseResult.Error(
+                        RoomsException.InvalidRoomNameException
+                    )
+                    "Invalid room password" -> BaseResult.Error(
+                        RoomsException.InvalidRoomPasswordException
+                    )
+                    else -> BaseResult.Error(
+                        CommonException.UnknownException
+                    )
+                }
+            }
+        )
+
+        return baseResult
     }
 
     override suspend fun loginRoom(
@@ -47,63 +75,24 @@ class RoomsRepositoryImpl(
             roomPassword = password
         )
 
-        return remoteDataSource.loginRoom(loginRoomRequest).mapToLoginRoomDetails()
+        val networkResult = remoteDataSource.loginRoom(loginRoomRequest)
+        val baseResult = networkResultMapper.mapAlwaysSuccessfulResponseToBaseResult(
+            networkResult = networkResult,
+            transform = { response ->
+                response.roomDetails.mapToDomainModel()
+            },
+            handleDomainError = {
+                BaseResult.Error(RoomsException.RoomPasswordIsWrongException)
+            }
+        )
+
+        return baseResult
     }
 
     override suspend fun deleteRoom(id: String): BaseResult<Boolean> {
-        return remoteDataSource.deleteRoom(id).mapToBaseResult()
-    }
-}
+        val networkResult = remoteDataSource.deleteRoom(id)
+        val baseResult = networkResultMapper.mapToBaseResult(networkResult) { it }
 
-fun NetworkResult<List<RoomDto>>.mapToRoom(): BaseResult<List<Room>> {
-    return when (this) {
-        is NetworkResult.Success -> {
-            val rooms = data.map { roomDto -> roomDto.mapToDomainModel() }
-
-            BaseResult.Success(rooms)
-        }
-
-        is NetworkResult.Error -> BaseResult.Error(code, message)
-        is NetworkResult.Exception -> BaseResult.Exception(e.message)
-    }
-}
-
-fun NetworkResult<CreateRoomResponse>.mapToCreateRoomDetails(): BaseResult<RoomDetails> {
-    return when (this) {
-        is NetworkResult.Success -> {
-            if (data.isSuccess) {
-                val roomDetails = data.roomDetails.mapToDomainModel()
-
-                BaseResult.Success(roomDetails)
-            } else {
-                BaseResult.Error(code = data.statusCode, message = data.errorMessage)
-            }
-        }
-        is NetworkResult.Error -> BaseResult.Error(code, message)
-        is NetworkResult.Exception -> BaseResult.Exception(e.message)
-    }
-}
-
-fun NetworkResult<LoginRoomResponse>.mapToLoginRoomDetails(): BaseResult<RoomDetails> {
-    return when (this) {
-        is NetworkResult.Success -> {
-            if (data.isSuccess) {
-                val roomDetails = data.roomDetails.mapToDomainModel()
-
-                BaseResult.Success(roomDetails)
-            } else {
-                BaseResult.Error(code = data.statusCode, message = data.errorMessage)
-            }
-        }
-        is NetworkResult.Error -> BaseResult.Error(code, message)
-        is NetworkResult.Exception -> BaseResult.Exception(e.message)
-    }
-}
-
-fun NetworkResult<Boolean>.mapToBaseResult(): BaseResult<Boolean> {
-    return when (this) {
-        is NetworkResult.Success -> BaseResult.Success(data)
-        is NetworkResult.Error -> BaseResult.Error(code, message)
-        is NetworkResult.Exception -> BaseResult.Exception(e.message)
+        return baseResult
     }
 }
