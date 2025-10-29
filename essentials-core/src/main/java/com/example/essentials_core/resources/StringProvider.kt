@@ -1,0 +1,3 @@
+package com.example.essentials_core.resources
+
+interface StringProvider

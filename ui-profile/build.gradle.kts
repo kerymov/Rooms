@@ -40,7 +40,7 @@ android {
 }
 
 dependencies {
-
+    implementation(project(":essentials-core"))
     implementation(project(":domain-profile"))
     implementation(project(":domain-core"))
     implementation(project(":ui-core"))

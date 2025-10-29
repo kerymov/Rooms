@@ -41,7 +41,10 @@ include(":ui-common-speedcubing")
 include(":domain-core")
 include(":data-core")
 include(":ui-core")
-include(":network-core")
+
 include(":domain-profile")
 include(":data-profile")
 include(":ui-profile")
+
+include(":network-core")
+include(":essentials-core")

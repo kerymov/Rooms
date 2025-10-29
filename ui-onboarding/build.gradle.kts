@@ -49,7 +49,7 @@ android {
 }
 
 dependencies {
-
+    implementation(project(":essentials-core"))
     implementation(project(":domain-core"))
     implementation(project(":domain-onboarding"))
     implementation(project(":ui-core"))

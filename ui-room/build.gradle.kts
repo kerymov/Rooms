@@ -41,7 +41,7 @@ android {
 }
 
 dependencies {
-
+    implementation(project(":essentials-core"))
     implementation(project(":domain-room"))
     implementation(project(":domain-core"))
     implementation(project(":ui-core"))

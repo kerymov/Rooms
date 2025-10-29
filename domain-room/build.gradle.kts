@@ -17,6 +17,7 @@ kotlin {
 
 dependencies {
     implementation(project(":domain-core"))
+    implementation(project(":essentials-core"))
     api(project(":domain-common-speedcubing"))
 
     implementation(libs.kotlinx.coroutines.core)
