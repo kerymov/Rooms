@@ -1,4 +1,4 @@
-package com.kerymov.rooms.data.model.account.results
+package com.kerymov.data_profile.models
 
 data class UserResults(
     val bestResultsByPuzzle: List<BestResult>,

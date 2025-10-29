@@ -1,6 +1,6 @@
 package com.kerymov.data_profile.service
 
-import com.kerymov.rooms.data.model.account.results.UserResults
+import com.kerymov.data_profile.models.UserResults
 import retrofit2.Response
 import retrofit2.http.GET
 
