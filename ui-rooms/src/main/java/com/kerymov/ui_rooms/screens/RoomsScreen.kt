@@ -24,7 +24,6 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material.icons.rounded.LockOpen
 import androidx.compose.material3.BottomSheetDefaults
@@ -57,14 +56,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.kerymov.ui_common_speedcubing.models.EventUi
+import com.kerymov.ui_core.R
 import com.kerymov.ui_core.components.CircularLoadingIndicator
 import com.kerymov.ui_core.components.ErrorCard
 import com.kerymov.ui_core.components.TopAppBarInteractionItem
@@ -72,7 +70,6 @@ import com.kerymov.ui_core.components.TopAppBarItem
 import com.kerymov.ui_core.components.TopBar
 import com.kerymov.ui_core.theme.RoomsTheme
 import com.kerymov.ui_core.utils.LocalUser
-import com.kerymov.ui_core.R
 import com.kerymov.ui_rooms.components.RoomLoginDialog
 import com.kerymov.ui_rooms.components.RoomsCreatingBottomSheet
 import com.kerymov.ui_rooms.models.RoomUi
@@ -173,7 +170,7 @@ fun RoomsScreen(
                 }
                 is RoomsStatus.Failure -> {
                     ErrorView(
-                        errorMessage = "${roomsUiState.error?.code}: " + roomsUiState.error?.message,
+                        errorMessage = "${roomsStatus.error.code}: " + roomsStatus.error.message,
                         onTryAgainClick = { roomsViewModel.getRooms() }
                     )
                 }

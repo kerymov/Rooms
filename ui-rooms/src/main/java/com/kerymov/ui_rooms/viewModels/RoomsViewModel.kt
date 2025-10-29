@@ -2,7 +2,9 @@ package com.kerymov.ui_rooms.viewModels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.kerymov.domain_core.exceptions.CommonException
 import com.kerymov.domain_core.utils.BaseResult
+import com.kerymov.domain_rooms.exceptions.RoomsException
 import com.kerymov.domain_rooms.useCases.CreateRoomUseCase
 import com.kerymov.domain_rooms.useCases.DeleteRoomUseCase
 import com.kerymov.domain_rooms.useCases.GetRoomsUseCase
@@ -30,7 +32,7 @@ sealed class RoomsStatus {
     data object None : RoomsStatus()
 }
 
-data class Error(val code: Int?, val message: String?)
+data class Error(val code: Int?, val message: String)
 
 enum class LoadingState {
     NONE,
@@ -76,7 +78,7 @@ class RoomsViewModel @Inject constructor(
                             roomsStatus = RoomsStatus.Failure(
                                 error = Error(
                                     code = null,
-                                    message = e.message
+                                    message = e.message ?: "Unknown error has occurred"
                                 )
                             ),
                             loadingState = LoadingState.NONE
@@ -93,17 +95,25 @@ class RoomsViewModel @Inject constructor(
                                 error = null
                             )
 
-                            is BaseResult.Error -> state.copy(
-                                roomsStatus = RoomsStatus.Failure(
-                                    error = Error(code = result.code, message = result.message)
-                                )
-                            )
+                            is BaseResult.Error -> {
+                                val error = when (val exception = result.exception) {
+                                    is CommonException.ConnectionException -> {
+                                        Error(code = null, message = "No internet connection")
+                                    }
+                                    is CommonException.BackendException -> {
+                                        Error(code = null, message = exception.message ?: "Backend error")
+                                    }
+                                    else -> {
+                                        Error(code = null, message = "Unknown error has occurred")
+                                    }
+                                }
 
-                            is BaseResult.Exception -> state.copy(
-                                roomsStatus = RoomsStatus.Failure(
-                                    error = Error(code = null, message = result.message)
+                                state.copy(
+                                    roomsStatus = RoomsStatus.Failure(error = error)
                                 )
-                            )
+                            }
+
+                            else -> { state }
                         }
                     }
                 }
@@ -133,21 +143,35 @@ class RoomsViewModel @Inject constructor(
                         error = null
                     )
 
-                    is BaseResult.Error -> _uiState.value.copy(
-                        error = Error(
-                            code = result.code,
-                            message = result.message
-                        ),
-                        currentRoomDetails = null
-                    )
+                    is BaseResult.Error -> {
+                        val error = when (val exception = result.exception) {
+                            is CommonException.ConnectionException -> {
+                                Error(code = null, message = "No internet connection")
+                            }
+                            is CommonException.BackendException -> {
+                                Error(code = null, message = exception.message ?: "Backend error")
+                            }
+                            is RoomsException.RoomWithSameNameAlreadyExistsException -> {
+                                Error(code = null, message = "Room with the same name already exists")
+                            }
+                            is RoomsException.InvalidRoomNameException -> {
+                                Error(code = null, message = "Invalid room name")
+                            }
+                            is RoomsException.InvalidRoomPasswordException -> {
+                                Error(code = null, message = "Invalid room password")
+                            }
+                            else -> {
+                                Error(code = null, message = "Unknown error has occurred")
+                            }
+                        }
 
-                    is BaseResult.Exception -> _uiState.value.copy(
-                        error = Error(
-                            code = null,
-                            message = result.message
-                        ),
-                        currentRoomDetails = null
-                    )
+                        _uiState.value.copy(
+                            error = error,
+                            currentRoomDetails = null
+                        )
+                    }
+
+                    else -> _uiState.value
                 }
 
             _uiState.update { state ->
@@ -172,21 +196,29 @@ class RoomsViewModel @Inject constructor(
                     error = null
                 )
 
-                is BaseResult.Error -> _uiState.value.copy(
-                    error = Error(
-                        code = result.code,
-                        message = result.message
-                    ),
-                    currentRoomDetails = null
-                )
+                is BaseResult.Error -> {
+                    val error = when (val exception = result.exception) {
+                        is CommonException.ConnectionException -> {
+                            Error(code = null, message = "No internet connection")
+                        }
+                        is CommonException.BackendException -> {
+                            Error(code = null, message = exception.message ?: "Backend error")
+                        }
+                        RoomsException.RoomPasswordIsWrongException -> {
+                            Error(code = null, message = "Room password is wrong")
+                        }
+                        else -> {
+                            Error(code = null, message = "Unknown error has occurred")
+                        }
+                    }
 
-                is BaseResult.Exception -> _uiState.value.copy(
-                    error = Error(
-                        code = null,
-                        message = result.message
-                    ),
-                    currentRoomDetails = null
-                )
+                    _uiState.value.copy(
+                        error = error,
+                        currentRoomDetails = null
+                    )
+                }
+
+                else -> _uiState.value
             }
 
             _uiState.update { state ->
@@ -216,19 +248,26 @@ class RoomsViewModel @Inject constructor(
                     error = null
                 )
 
-                is BaseResult.Error -> _uiState.value.copy(
-                    error = Error(
-                        code = result.code,
-                        message = result.message
-                    )
-                )
+                is BaseResult.Error -> {
+                    val error = when (val exception = result.exception) {
+                        is CommonException.ConnectionException -> {
+                            Error(code = null, message = "No internet connection")
+                        }
+                        is CommonException.BackendException -> {
+                            Error(code = null, message = exception.message ?: "Backend error")
+                        }
+                        else -> {
+                            Error(code = null, message = "Unknown error has occurred")
+                        }
+                    }
 
-                is BaseResult.Exception -> _uiState.value.copy(
-                    error = Error(
-                        code = null,
-                        message = result.message
+                    _uiState.value.copy(
+                        error = error,
+                        currentRoomDetails = null
                     )
-                )
+                }
+
+                else -> _uiState.value
             }
 
             _uiState.update { state ->

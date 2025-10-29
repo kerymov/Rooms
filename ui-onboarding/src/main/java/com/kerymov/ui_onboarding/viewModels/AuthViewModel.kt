@@ -2,6 +2,7 @@ package com.kerymov.ui_onboarding.viewModels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.kerymov.domain_core.exceptions.CommonException
 import com.kerymov.domain_core.utils.BaseResult
 import com.kerymov.domain_core.utils.coroutines.MainImmediateDispatcher
 import com.kerymov.domain_onboarding.useCases.SignInUseCase
@@ -44,13 +45,26 @@ class AuthViewModel @Inject constructor(
 
             _uiState.value = when (result) {
                 is BaseResult.Success -> AuthUiState.Success
-                is BaseResult.Error -> AuthUiState.Error(
-                    code = result.code,
-                    message = result.message
-                )
-                is BaseResult.Exception -> AuthUiState.Error(
+                is BaseResult.Error -> {
+                    when (val exception = result.exception) {
+                        is CommonException.ConnectionException -> AuthUiState.Error(
+                            code = null,
+                            message = "Network connection error"
+                        )
+                        is CommonException.BackendException -> AuthUiState.Error(
+                            code = exception.statusCode,
+                            message = exception.message
+                        )
+                        else -> AuthUiState.Error(
+                            code = null,
+                            message = "Unknown error"
+                        )
+
+                    }
+                }
+                else -> AuthUiState.Error(
                     code = null,
-                    message = result.message
+                    message = "Unknown error"
                 )
             }
         }
@@ -67,13 +81,26 @@ class AuthViewModel @Inject constructor(
 
             _uiState.value = when (result) {
                 is BaseResult.Success -> AuthUiState.Success
-                is BaseResult.Error -> AuthUiState.Error(
-                    code = result.code,
-                    message = result.message
-                )
-                is BaseResult.Exception -> AuthUiState.Error(
+                is BaseResult.Error -> {
+                    when (val exception = result.exception) {
+                        is CommonException.ConnectionException -> AuthUiState.Error(
+                            code = null,
+                            message = "Network connection error"
+                        )
+                        is CommonException.BackendException -> AuthUiState.Error(
+                            code = exception.statusCode,
+                            message = exception.message
+                        )
+                        else -> AuthUiState.Error(
+                            code = null,
+                            message = "Unknown error"
+                        )
+
+                    }
+                }
+                else -> AuthUiState.Error(
                     code = null,
-                    message = result.message
+                    message = "Unknown error"
                 )
             }
         }
